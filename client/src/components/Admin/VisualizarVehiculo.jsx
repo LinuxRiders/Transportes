@@ -15,6 +15,9 @@ import {
   DirectionsCar,
   Edit,
   Delete,
+  LocalGasStation,
+  Settings,
+  Commute,
 } from "@mui/icons-material";
 import { keyframes } from "@mui/system";
 
@@ -38,7 +41,7 @@ const buttonHover = keyframes`
   }
 `;
 const VisualizarVehiculo = () => {
-  // Ejemplo de datos para la lista de contenedores
+  // Datos de los vehículos
   const vehiculos = [
     {
       id: 1,
@@ -53,6 +56,9 @@ const VisualizarVehiculo = () => {
       tipoAsiento: "Reclinable",
       maletas: 2,
       aireAcondicionado: true,
+      tipoVehiculo: "Van",
+      transmision: "Automática",
+      combustible: "Diesel",
       imagen:
         "https://www.dautos.pe/images/anuncios/fr/juan%20cesar106414-972024-115157-pbFoto1.jpg",
     },
@@ -69,6 +75,9 @@ const VisualizarVehiculo = () => {
       tipoAsiento: "Económico",
       maletas: 1,
       aireAcondicionado: false,
+      tipoVehiculo: "Minibús",
+      transmision: "Manual",
+      combustible: "Gasolina",
       imagen:
         "https://cuscotransfers.com/wp-content/uploads/2023/12/Modern-and-Equipped-vans_minibuses-VEHICLES.webp",
     },
@@ -84,7 +93,10 @@ const VisualizarVehiculo = () => {
       asientos: 4,
       tipoAsiento: "Económico",
       maletas: 2,
-      aireAcondicionado: true,
+      aireAcondicionado: false,
+      tipoVehiculo: "Sedán",
+      transmision: "Automática",
+      combustible: "Gasolina",
       imagen:
         "https://photos.encuentra24.com/t_or_fh_l/f_auto/v1/ni/29/25/82/27/29258227_79405c",
     },
@@ -101,6 +113,9 @@ const VisualizarVehiculo = () => {
       tipoAsiento: "Premium",
       maletas: 5,
       aireAcondicionado: true,
+      tipoVehiculo: "SUV",
+      transmision: "Automática",
+      combustible: "GLP",
       imagen: "https://www.lapulga.com.do/f/7172500-1.jpg",
     },
     {
@@ -116,40 +131,11 @@ const VisualizarVehiculo = () => {
       tipoAsiento: "Reclinable",
       maletas: 1,
       aireAcondicionado: true,
+      tipoVehiculo: "Sedán",
+      transmision: "Manual",
+      combustible: "Gasolina",
       imagen:
         "https://www.clasificar.com/pa/files/10-2024/ad4242/kia-soluto-611647530_large.webp",
-    },
-    {
-      id: 6,
-      modelo: "Volkswagen Crafter",
-      placa: "GHI789",
-      color: "Gris",
-      primeraSalida: "13:00 pm",
-      ultimaSalida: "20:00 pm",
-      duracion: "07h 00m",
-      precioDesde: "$27.300",
-      asientos: 50,
-      tipoAsiento: "Premium",
-      maletas: 3,
-      aireAcondicionado: true,
-      imagen:
-        "https://dautos.pe/images/anuncios/fr/juan%20cesar106200-2562024-91428-pbFoto3.jpg",
-    },
-    {
-      id: 7,
-      modelo: "Chevrolet Traverse",
-      placa: "VWX112",
-      color: "Azul Marino",
-      primeraSalida: "06:00 am",
-      ultimaSalida: "20:00 pm",
-      duracion: "14h 00m",
-      precioDesde: "$35.000",
-      asientos: 6,
-      tipoAsiento: "Reclinable",
-      maletas: 4,
-      aireAcondicionado: true,
-      imagen:
-        "https://www.dautos.pe/images/anuncios/fr/OFICINA%20CENTRAL108472-31102024-212340-pbFoto2.jpg",
     },
   ];
 
@@ -291,174 +277,282 @@ const VisualizarVehiculo = () => {
             <Box
               key={vehiculo.id}
               sx={{
-                width: "95%",
-                //maxWidth: "900px",
+                width: "100%",
                 padding: "20px",
                 backgroundColor: "#1E1E1E",
                 borderRadius: "12px",
                 boxShadow: "0 6px 15px rgba(0, 0, 0, 0.5)",
                 textAlign: "left",
                 display: "flex",
-                flexDirection: "",
-                alignItems: "center",
-                //border: "1px solid #FF6F00",
-                transition: "transform 0.3s, box-shadow 0.3s",
+                flexDirection: "column",
+                gap: "20px", // Espaciado entre los bbys
                 "&:hover": {
                   transform: "scale(1.03)",
                   boxShadow: "0 8px 20px rgba(0, 0, 0, 0.7)",
                 },
               }}
             >
-              <Box
-                component="img"
-                src={vehiculo.imagen}
-                alt={`Imagen de ${vehiculo.modelo}`}
-                sx={{
-                  width: "280px",
-                  height: "200px",
-                  marginRight: "20px",
-                  borderRadius: "8px",
-                  objectFit: "cover",
-                }}
-              />
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
-                  <Typography
-                    variant="h6"
-                    component="h2"
-                    sx={{
-                      marginBottom: "10px",
-                      color: "#FF6F00",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {vehiculo.modelo}
-                  </Typography>
-                  <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
-                    <strong>Placa:</strong> {vehiculo.placa}
-                  </Typography>
-                  <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
-                    <strong>Color:</strong> {vehiculo.color}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
-                    <strong>Primera salida:</strong> {vehiculo.primeraSalida}
-                  </Typography>
-                  <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
-                    <strong>Última salida:</strong> {vehiculo.ultimaSalida}
-                  </Typography>
-                  <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
-                    <strong>Duración:</strong> {vehiculo.duracion}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      color: "#FF6F00",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Desde: {vehiculo.precioDesde}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#f4f4f4",
-                    }}
-                  >
-                    <AirlineSeatReclineNormal
-                      sx={{ marginRight: "5px", color: "#FF6F00" }}
-                    />{" "}
-                    <strong>Asientos:</strong> {vehiculo.asientos}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#f4f4f4",
-                    }}
-                  >
-                    <DirectionsCar
-                      sx={{ marginRight: "5px", color: "#FF6F00" }}
-                    />{" "}
-                    <strong>Tipo:</strong> {vehiculo.tipoAsiento}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#f4f4f4",
-                    }}
-                  >
-                    <Luggage sx={{ marginRight: "5px", color: "#FF6F00" }} />{" "}
-                    <strong>Maletas:</strong> {vehiculo.maletas}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      color: vehiculo.aireAcondicionado ? "#4caf50" : "#f44336",
-                    }}
-                  >
-                    <AcUnit
-                      sx={{
-                        marginRight: "5px",
-                        color: vehiculo.aireAcondicionado
-                          ? "#4caf50"
-                          : "#f44336",
-                      }}
-                    />{" "}
-                    <strong>Aire:</strong>{" "}
-                    {vehiculo.aireAcondicionado ? "Sí" : "No"}
-                  </Typography>
-                </Grid>
-              </Grid>
+              {/* Contenedor horizontal principal */}
               <Box
                 sx={{
+                  display: "flex", // Mantiene horizontal
                   flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginTop: "15px",
-                  paddingTop: "10px",
-                  //borderLeft: "1px solid #FF6F00",
+                  gap: "20px",
+                  width: "100%",
                 }}
               >
-                <Button
-                  variant="outlined"
-                  startIcon={<Edit sx={{ color: "#FF6F00" }} />}
+                {/* Imagen del Vehículo */}
+                <Box
+                  component="img"
+                  src={vehiculo.imagen}
+                  alt={`Imagen de ${vehiculo.modelo}`}
                   sx={{
-                    color: "#f4f4f4",
-                    marginBottom: "10px",
-                    borderColor: "#FF6F00",
-                    "&:hover": {
-                      animation: `${buttonHover} 0.2s forwards`,
-                      backgroundColor: "rgba(255, 111, 0, 0.1)",
-                    },
+                    width: "280px",
+                    height: "200px",
+                    borderRadius: "8px",
+                    objectFit: "cover",
+                  }}
+                />
+                <Box
+                  sx={{
+                    display: "flex", // Mantiene vertical
+                    flexDirection: "column",
+                    width: "100%",
+                    gap: "10px",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  Editar
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<Delete sx={{ color: "#f44336" }} />}
-                  sx={{
-                    color: "#f4f4f4",
-                    borderColor: "#f44336",
-                    "&:hover": {
-                      animation: `${buttonHover} 0.2s forwards`,
-                      backgroundColor: "rgba(244, 67, 54, 0.1)",
-                    },
-                  }}
-                >
-                  Borrar
-                </Button>
+                  <Box
+                    sx={{
+                      display: "flex", // Mantiene horizontal
+                      flexDirection: "row",
+                      gap: "20px",
+                      width: "100%",
+                    }}
+                  >
+                    {/* Primera sección */}
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ flex: 1, paddingTop: "3%" }}
+                    >
+                      <Grid item xs={12}>
+                        <Typography
+                          variant="h6"
+                          component="h2"
+                          sx={{
+                            marginBottom: "10px",
+                            color: "#FF6F00",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {vehiculo.modelo}
+                        </Typography>
+                        <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
+                          <strong>Placa:</strong> {vehiculo.placa}
+                        </Typography>
+                        <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
+                          <strong>Color:</strong> {vehiculo.color}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+
+                    {/* Segunda sección */}
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ flex: 1, paddingTop: "3%" }}
+                    >
+                      <Grid item xs={12}>
+                        <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
+                          <strong>Primera salida:</strong>{" "}
+                          {vehiculo.primeraSalida}
+                        </Typography>
+                        <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
+                          <strong>Última salida:</strong>{" "}
+                          {vehiculo.ultimaSalida}
+                        </Typography>
+                        <Typography sx={{ fontSize: "14px", color: "#f4f4f4" }}>
+                          <strong>Duración:</strong> {vehiculo.duracion}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            color: "#FF6F00",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Desde: {vehiculo.precioDesde}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+
+                    {/* Tercera sección */}
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ flex: 1, paddingTop: "3%" }}
+                    >
+                      <Grid item xs={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "#f4f4f4",
+                          }}
+                        >
+                          <AirlineSeatReclineNormal
+                            sx={{ marginRight: "5px", color: "#FF6F00" }}
+                          />
+                          <strong>Asientos:</strong> {vehiculo.asientos}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "#f4f4f4",
+                          }}
+                        >
+                          <DirectionsCar
+                            sx={{ marginRight: "5px", color: "#FF6F00" }}
+                          />
+                          <strong>Tipo:</strong> {vehiculo.tipoAsiento}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "#f4f4f4",
+                          }}
+                        >
+                          <Luggage
+                            sx={{ marginRight: "5px", color: "#FF6F00" }}
+                          />
+                          <strong>Maletas:</strong> {vehiculo.maletas}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: vehiculo.aireAcondicionado
+                              ? "#4caf50"
+                              : "#f44336",
+                          }}
+                        >
+                          <AcUnit
+                            sx={{
+                              marginRight: "5px",
+                              color: vehiculo.aireAcondicionado
+                                ? "#4caf50"
+                                : "#f44336",
+                            }}
+                          />
+                          <strong>Aire:</strong>{" "}
+                          {vehiculo.aireAcondicionado ? "Sí" : "No"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+
+                    {/* Cuarta sección */}
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ flex: 1, paddingTop: "3%" }}
+                    >
+                      <Grid item xs={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "#f4f4f4",
+                          }}
+                        >
+                          <Commute
+                            sx={{ marginRight: "5px", color: "#FF6F00" }}
+                          />
+                          <strong>Tipo:</strong> {vehiculo.tipoVehiculo}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "#f4f4f4",
+                          }}
+                        >
+                          <Settings
+                            sx={{ marginRight: "5px", color: "#FF6F00" }}
+                          />
+                          <strong>Transmisión:</strong> {vehiculo.transmision}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "#f4f4f4",
+                          }}
+                        >
+                          <LocalGasStation
+                            sx={{ marginRight: "5px", color: "#FF6F00" }}
+                          />
+                          <strong>Combustible:</strong> {vehiculo.combustible}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                  {/* Contenedor auxiliar debajo */}
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      gap: "20px",
+                      padding: "5px",
+                      backgroundColor: "#292929",
+                      borderRadius: "8px",
+                      boxShadow: "inset 0 0 10px rgba(62, 62, 62, 0.5)",
+                      textAlign: "center",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {" "}
+                    <Button
+                      variant="outlined"
+                      startIcon={<Edit sx={{ color: "#FF6F00" }} />}
+                      sx={{
+                        color: "#f4f4f4",
+                        borderColor: "#FF6F00",
+                        "&:hover": {
+                          animation: `${buttonHover} 0.2s forwards`,
+                          backgroundColor: "rgba(255, 111, 0, 0.1)",
+                        },
+                      }}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Delete sx={{ color: "#f44336" }} />}
+                      sx={{
+                        color: "#f4f4f4",
+                        borderColor: "#f44336",
+                        "&:hover": {
+                          animation: `${buttonHover} 0.2s forwards`,
+                          backgroundColor: "rgba(244, 67, 54, 0.1)",
+                        },
+                      }}
+                    >
+                      Borrar
+                    </Button>
+                  </Box>
+                </Box>
               </Box>
             </Box>
           ))}
