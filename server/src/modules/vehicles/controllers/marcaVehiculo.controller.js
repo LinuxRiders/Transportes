@@ -1,6 +1,6 @@
 
 import { MarcaVehiculo } from '../models/vehicle.model.js';
-import logger from '../utils/logger.js';
+import logger from '../../../utils/logger.js';
 
 export const createMarca = async (req, res, next) => {
     try {

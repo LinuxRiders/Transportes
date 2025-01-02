@@ -1,6 +1,6 @@
 // controllers/transmision.controller.js
 import { Transmision } from '../models/vehicle.model.js';
-import logger from '../utils/logger.js';
+import logger from '../../../utils/logger.js';
 
 export const createTransmision = async (req, res, next) => {
     try {

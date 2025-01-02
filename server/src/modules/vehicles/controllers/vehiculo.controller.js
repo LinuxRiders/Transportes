@@ -1,5 +1,5 @@
 import { Vehiculo } from '../models/vehicle.model.js';
-import logger from '../utils/logger.js';
+import logger from '../../../utils/logger.js';
 
 export const createVehiculo = async (req, res, next) => {
     try {

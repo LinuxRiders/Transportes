@@ -1,5 +1,5 @@
 import { Asientos } from '../models/vehicle.model.js';
-import logger from '../utils/logger.js';
+import logger from '../../../utils/logger.js';
 
 /**
  * Crea un asiento individual.

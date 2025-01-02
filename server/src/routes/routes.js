@@ -1,13 +1,13 @@
 import { Router } from 'express';
 
 
-import marcaVehiculoRoutes from './marcaVehiculo.routes.js';
-import transmisionRoutes from './transmision.routes.js';
-import carroceriaRoutes from './carroceria.routes.js';
-import tipoVehiculoRoutes from './tipoVehiculo.routes.js';
-import combustibleRoutes from './combustible.routes.js';
-import vehiculoRoutes from './vehiculo.routes.js';
-import asientosRoutes from './asientos.routes.js';
+import marcaVehiculoRoutes from '../modules/vehicles/routes/marcaVehiculo.routes.js';
+import transmisionRoutes from '../modules/vehicles/routes/transmision.routes.js';
+import carroceriaRoutes from '../modules/vehicles/routes/carroceria.routes.js';
+import tipoVehiculoRoutes from '../modules/vehicles/routes/tipoVehiculo.routes.js';
+import combustibleRoutes from '../modules/vehicles/routes/combustible.routes.js';
+import vehiculoRoutes from '../modules/vehicles/routes/vehiculo.routes.js';
+import asientosRoutes from '../modules/vehicles/routes/asientos.routes.js';
 
 const router = Router();
 
