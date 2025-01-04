@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.post('/', createCombustible);
-router.get('/', getAllCombustibles);
+router.get('/con', getAllCombustibles);
 router.get('/:id', showCombustible);
 router.put('/:id', updateCombustible);
 router.delete('/:id', softDeleteCombustible);

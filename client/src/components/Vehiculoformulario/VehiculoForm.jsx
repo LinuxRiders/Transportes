@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   TextField,
@@ -34,6 +34,7 @@ import AutoAwesomeMotionIcon from "@mui/icons-material/AutoAwesomeMotion"; // Va
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { DataGrid } from "@mui/x-data-grid";
+import api from "../../api/api";
 
 const iconOptionsVehiculos = [
   { label: "Carro", icon: <DirectionsCarIcon /> },
@@ -44,17 +45,26 @@ const iconOptionsVehiculos = [
 ];
 
 const iconOptionsTransmisiones = [
-  { label: "MEC", icon: <BuildIcon />, description: "Mecánica" },
-  { label: "AUT", icon: <DirectionsCarIcon />, description: "Automática" },
-  { label: "SAT", icon: <SyncIcon />, description: "Semi Automática" },
+  { label: "MEC", icon: <BuildIcon />, descripcion: "Mecánica" },
+  { label: "AUT", icon: <DirectionsCarIcon />, descripcion: "Automática" },
+  { label: "SAT", icon: <SyncIcon />, descripcion: "Semi Automática" },
   {
     label: "CVT",
     icon: <AutoAwesomeMotionIcon />,
-    description: "Variable Continua",
+    descripcion: "Variable Continua",
   },
 ];
 
-const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
+const EditableList = ({
+  title,
+  items,
+  setItems,
+  fields,
+  iconOptions,
+  onSubmit,
+  onDelete,
+  onEdit,
+}) => {
   const [newItem, setNewItem] = useState({});
   const [editIndex, setEditIndex] = useState(null);
   const [isAccordionOpen, setIsAccordionOpen] = useState(true);
@@ -71,9 +81,11 @@ const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
           index === editIndex ? { ...item, ...newItem } : item
         )
       );
+      onEdit(editIndex, newItem);
       setEditIndex(null);
     } else {
       setItems((prev) => [...prev, { ...newItem }]);
+      onSubmit(newItem);
     }
     setNewItem({});
   };
@@ -85,6 +97,7 @@ const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
 
   const handleDelete = (index) => {
     setItems((prev) => prev.filter((_, i) => i !== index));
+    onDelete(index);
   };
 
   const handleDialogOpen = () => {
@@ -133,7 +146,7 @@ const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
         <AccordionDetails>
           <Box>
             <List>
-              {items.slice(0, 2).map((item, index) => (
+              {items?.slice(0, 2)?.map((item, index) => (
                 <ListItem
                   key={index}
                   secondaryAction={
@@ -166,15 +179,18 @@ const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
                           </Box>
                         )}
                         <Typography sx={{ color: "black", fontWeight: "bold" }}>
-                          {item.label || item.name}
+                          {item.label || item.marca}
                         </Typography>
                       </Box>
                     }
                     secondary={
-                      item.description && (
-                        <Typography sx={{ color: "#757575" }}>
-                          {item.description}
-                        </Typography>
+                      item.descripcion && (
+                        <Typography
+                          sx={{ color: "#757575" }}
+                          dangerouslySetInnerHTML={{
+                            __html: item?.descripcion,
+                          }}
+                        ></Typography>
                       )
                     }
                   />
@@ -183,7 +199,7 @@ const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
             </List>
             <Box display="flex" flexDirection="column" gap={1} mt={2}>
               {fields.map((field) =>
-                field === "description" ? (
+                field === "descripcion" ? (
                   <ReactQuill
                     key={field}
                     value={newItem[field] || ""}
@@ -295,8 +311,8 @@ const EditableList = ({ title, items, setItems, fields, iconOptions }) => {
 
 const VehiculoForm = () => {
   const [marcas, setMarcas] = useState([
-    { name: "Toyota", description: "Vehículo confiable y eficiente." },
-    { name: "Ford", description: "Conocido por su potencia." },
+    { marca: "Toyota", descripcion: "Vehículo confiable y eficiente." },
+    { marca: "Ford", descripcion: "Conocido por su potencia." },
   ]);
   const [tiposCombustible, setTiposCombustible] = useState([
     { label: "Gasolina" },
@@ -315,6 +331,62 @@ const VehiculoForm = () => {
     { label: "AUT", icon: <DirectionsCarIcon /> },
   ]);
 
+  useEffect(() => {
+    async function getMarcas() {
+      try {
+        const response = await api.get("/marcas");
+
+        const { data } = response.data;
+
+        setMarcas(data);
+      } catch (error) {}
+    }
+
+    getMarcas();
+  }, []);
+
+  async function handleAddMarca(fields) {
+    // if (!Object.keys(fields).length <= 0) return;
+
+    try {
+      const response = await api.post("/marcas", fields);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
+  }
+
+  async function handleDeleteMarca(index) {
+    try {
+      const marca_id = marcas[index]?.id_marca;
+
+      const response = await api.delete(`/marcas/${marca_id}`);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
+  }
+
+  async function handleEditMarca(index, fields) {
+    try {
+      const marca_id = marcas[index]?.id_marca;
+
+      const response = await api.put(`/marcas/${marca_id}`, fields);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
+  }
+
   return (
     <Box
       sx={{
@@ -332,8 +404,11 @@ const VehiculoForm = () => {
             title="Marcas"
             items={marcas}
             setItems={setMarcas}
-            fields={["name", "description"]}
+            fields={["marca", "descripcion"]}
             useRichText={true}
+            onSubmit={handleAddMarca}
+            onDelete={handleDeleteMarca}
+            onEdit={handleEditMarca}
           />
         </Grid>
         <Grid item xs={12} md={5}>
