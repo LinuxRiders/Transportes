@@ -1,18 +1,21 @@
 import { Router } from 'express';
 import {
-    createMarca,
-    showMarca,
-    updateMarca,
-    softDeleteMarca,
-    getAllMarcas
+    createMarcaVehiculo,
+    getAllMarcaVehiculo,
+    getMarcaVehiculo,
+    updateMarcaVehiculo,
+    deleteMarcaVehiculo
 } from '../controllers/marcaVehiculo.controller.js';
+import { validateResults } from '../../../middlewares/validationResult.js';
+import { createMarcaVehiculoValidation, updateMarcaVehiculoValidation } from '../validations/marcaVehiculo.validation.js';
+import { idParamValidation } from '../../../validations/validations.js';
 
 const router = Router();
 
-router.post('/', createMarca);
-router.get('/', getAllMarcas);
-router.get('/:id', showMarca);
-router.put('/:id', updateMarca);
-router.delete('/:id', softDeleteMarca);
+router.post('/', createMarcaVehiculoValidation, validateResults, createMarcaVehiculo);
+router.get('/', getAllMarcaVehiculo);
+router.get('/:id', idParamValidation, validateResults, getMarcaVehiculo);
+router.put('/:id', ...idParamValidation, ...updateMarcaVehiculoValidation, validateResults, updateMarcaVehiculo);
+router.delete('/:id', idParamValidation, validateResults, deleteMarcaVehiculo);
 
 export default router;

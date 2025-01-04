@@ -3,77 +3,84 @@ import logger from '../../../utils/logger.js';
 
 export const createCarroceria = async (req, res, next) => {
     try {
-        const { tipo_carroceria } = req.body;
+        const { tipo_carroceria, created_by } = req.body;
+        const idCarroceria = await Carroceria.create({ tipo_carroceria, created_by });
+        const carroceria = await Carroceria.findById(idCarroceria);
 
-        const insertedId = await Carroceria.create({ tipo_carroceria });
-        const newCarroceria = await Carroceria.findById(insertedId);
-
-        logger.info(`CarroceriaController:createCarroceria -> id=${insertedId}`);
-        return res.status(201).json({ data: newCarroceria });
+        logger.info(`CarroceriaController:createCarroceria Created id=${idCarroceria}`);
+        res.status(201).json({ data: carroceria });
     } catch (error) {
         logger.error(`CarroceriaController:createCarroceria Error: ${error.message}`, { stack: error.stack });
-        return next(error);
-    }
-};
-
-export const showCarroceria = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const carroceria = await Carroceria.findById(id);
-
-        if (!carroceria) {
-            return res.status(404).json({ error: 'Carrocería no encontrada' });
-        }
-
-        return res.json({ data: carroceria });
-    } catch (error) {
-        logger.error(`CarroceriaController:showCarroceria Error: ${error.message}`, { stack: error.stack });
-        return next(error);
-    }
-};
-
-export const updateCarroceria = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const existe = await Carroceria.findById(id);
-
-        if (!existe) {
-            return res.status(404).json({ error: 'Carrocería no encontrada' });
-        }
-
-        await Carroceria.update(id, req.body);
-        const updated = await Carroceria.findById(id);
-
-        return res.json({ data: updated });
-    } catch (error) {
-        logger.error(`CarroceriaController:updateCarroceria Error: ${error.message}`, { stack: error.stack });
-        return next(error);
-    }
-};
-
-export const softDeleteCarroceria = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const existe = await Carroceria.findById(id);
-
-        if (!existe) {
-            return res.status(404).json({ error: 'Carrocería no encontrada' });
-        }
-
-        await Carroceria.softDelete(id);
-        return res.json({ message: 'Carrocería eliminada' });
-    } catch (error) {
-        logger.error(`CarroceriaController:softDeleteCarroceria Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        next(error);
     }
 };
 
 export const getAllCarrocerias = async (req, res, next) => {
     try {
         const carrocerias = await Carroceria.getAll();
-        return res.json({ data: carrocerias });
+        logger.info(`CarroceriaController:getAllCarrocerias Retrieved ${carrocerias.length} carrocerias`);
+        res.json({ data: carrocerias });
     } catch (error) {
         logger.error(`CarroceriaController:getAllCarrocerias Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        next(error);
+    }
+};
+
+export const getCarroceria = async (req, res, next) => {
+    try {
+        const carroceria = await Carroceria.findById(req.params.id);
+        if (!carroceria) {
+            logger.warn(`CarroceriaController:getCarroceria Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'Carroceria not found' });
+        }
+
+        res.json({ data: carroceria });
+    } catch (error) {
+        logger.error(`CarroceriaController:getCarroceria Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    }
+};
+
+export const updateCarroceria = async (req, res, next) => {
+    try {
+        const carroceria = await Carroceria.findById(req.params.id);
+        if (!carroceria) {
+            logger.warn(`CarroceriaController:updateCarroceria Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'Carroceria not found' });
+        }
+
+        const fields = {};
+        if (req.body.tipo_carroceria) fields.tipo_carroceria = req.body.tipo_carroceria;
+        const updated_by = req.body.updated_by || null;
+
+        if (Object.keys(fields).length > 0) {
+            await Carroceria.update(req.params.id, fields, updated_by);
+        }
+
+        const updatedCarroceria = await Carroceria.findById(req.params.id);
+        logger.info(`CarroceriaController:updateCarroceria Updated id=${req.params.id}`);
+        res.json({ data: updatedCarroceria });
+    } catch (error) {
+        logger.error(`CarroceriaController:updateCarroceria Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    }
+};
+
+export const deleteCarroceria = async (req, res, next) => {
+    try {
+        const carroceria = await Carroceria.findById(req.params.id);
+        if (!carroceria) {
+            logger.warn(`CarroceriaController:deleteCarroceria Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'Carroceria not found' });
+        }
+
+        const userId = req.body.updated_by || null;
+        await Carroceria.softDelete(req.params.id, userId);
+
+        logger.info(`CarroceriaController:deleteCarroceria Soft deleted id=${req.params.id}`);
+        res.status(204).send();
+    } catch (error) {
+        logger.error(`CarroceriaController:deleteCarroceria Error: ${error.message}`, { stack: error.stack });
+        next(error);
     }
 };

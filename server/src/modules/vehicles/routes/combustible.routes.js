@@ -1,18 +1,21 @@
 import { Router } from 'express';
 import {
     createCombustible,
-    showCombustible,
     updateCombustible,
-    softDeleteCombustible,
-    getAllCombustibles
+    getAllCombustibles,
+    getCombustible,
+    deleteCombustible
 } from '../controllers/combustible.controller.js';
+import { createCombustibleValidation, updateCombustibleValidation } from '../validations/combustible.validation.js';
+import { validateResults } from '../../../middlewares/validationResult.js';
+import { idParamValidation } from '../../../validations/validations.js';
 
 const router = Router();
 
-router.post('/', createCombustible);
+router.post('/', createCombustibleValidation, validateResults, createCombustible);
 router.get('/con', getAllCombustibles);
-router.get('/:id', showCombustible);
-router.put('/:id', updateCombustible);
-router.delete('/:id', softDeleteCombustible);
+router.get('/:id', idParamValidation, validateResults, getCombustible);
+router.put('/:id', ...idParamValidation, ...updateCombustibleValidation, validateResults, updateCombustible);
+router.delete('/:id', idParamValidation, validateResults, deleteCombustible);
 
 export default router;
