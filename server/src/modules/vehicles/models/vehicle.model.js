@@ -19,7 +19,7 @@ export const Vehiculo = {
             idtransmision,
             idtipo_vehiculo,
             idcombustible,
-            created_by // Auditoría
+            created_by = null// Auditoría
         },
         connection = pool
     ) => {
@@ -174,7 +174,7 @@ export const Vehiculo = {
 
 export const MarcaVehiculo = {
     // CREATE
-    create: async ({ marca, descripcion, created_by }, connection = pool) => {
+    create: async ({ marca, descripcion, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
                 `INSERT INTO marca_vehiculo (
@@ -277,7 +277,7 @@ export const MarcaVehiculo = {
 
 export const Transmision = {
     // CREATE
-    create: async ({ tipo_transmision, created_by }, connection = pool) => {
+    create: async ({ tipo_transmision, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
                 `INSERT INTO transmision (
@@ -484,7 +484,7 @@ export const TipoVehiculo = {
             tipo_vehiculo,
             icono_vehiculo,
             idcarroceria,
-            created_by
+            created_by = null
         },
         connection = pool
     ) => {
@@ -592,7 +592,7 @@ export const TipoVehiculo = {
 
 export const Combustible = {
     // CREATE
-    create: async ({ tipo_combustible, created_by }, connection = pool) => {
+    create: async ({ tipo_combustible, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
                 `INSERT INTO combustible (
@@ -701,7 +701,7 @@ export const Asientos = {
             estado_asiento,
             caracteristica,
             idvehiculo,
-            created_by
+            created_by = null
         },
         connection = pool
     ) => {

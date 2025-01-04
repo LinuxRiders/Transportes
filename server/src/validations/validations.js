@@ -10,6 +10,7 @@ export const idParamValidation = [
 // 2) Validar "created_by" como entero positivo (obligatorio)
 export const createdByValidation = [
     body('created_by')
+        .optional()
         .isInt({ min: 1 })
         .withMessage('created_by debe ser un entero positivo')
 ];
