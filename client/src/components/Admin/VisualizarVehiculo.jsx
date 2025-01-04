@@ -177,6 +177,11 @@ const VisualizarVehiculo = () => {
               color: "#cc5800",
               textAlign: "center",
               fontWeight: "bold",
+              fontSize: {
+                xs: "1.6rem",
+                sm: "2rem",
+                md: "2.5rem",
+              },
             }}
           >
             TRANSPORTE TURÍSTICO - VEHÍCULOS DISPONIBLES
@@ -200,7 +205,11 @@ const VisualizarVehiculo = () => {
           sx={{
             color: "white",
             fontWeight: "bold",
-            fontSize: "16px",
+            fontSize: {
+              xs: "0.8rem",
+              sm: "1rem",
+              md: "1.1rem",
+            },
           }}
         >
           Total: {vehiculos.length} vehículos
@@ -208,7 +217,11 @@ const VisualizarVehiculo = () => {
         <Box
           sx={{
             display: "flex",
-            gap: "12px",
+            gap: {
+              xs: "5px",
+              sm: "8px",
+              md: "12px",
+            },
           }}
         >
           {["Relevancia", "Precio", "Duración"].map((label) => (
@@ -286,6 +299,7 @@ const VisualizarVehiculo = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: "20px", // Espaciado entre los bbys
+                transition: "transform 0.4s ease, box-shadow 0.4s ease",
                 "&:hover": {
                   transform: "scale(1.03)",
                   boxShadow: "0 8px 20px rgba(0, 0, 0, 0.7)",
@@ -296,7 +310,7 @@ const VisualizarVehiculo = () => {
               <Box
                 sx={{
                   display: "flex", // Mantiene horizontal
-                  flexDirection: "row",
+                  flexDirection: { xs: "column", sm: "row" },
                   gap: "20px",
                   width: "100%",
                 }}
@@ -307,12 +321,13 @@ const VisualizarVehiculo = () => {
                   src={vehiculo.imagen}
                   alt={`Imagen de ${vehiculo.modelo}`}
                   sx={{
-                    width: "280px",
+                    width: { xs: "100%", sm: "280px" },
                     height: "200px",
                     borderRadius: "8px",
                     objectFit: "cover",
                   }}
                 />
+                {/*INICIO de contenedor Estructural*/}
                 <Box
                   sx={{
                     display: "flex", // Mantiene vertical
@@ -326,7 +341,7 @@ const VisualizarVehiculo = () => {
                   <Box
                     sx={{
                       display: "flex", // Mantiene horizontal
-                      flexDirection: "row",
+                      flexDirection: { xs: "column", sm: "row" },
                       gap: "20px",
                       width: "100%",
                     }}
@@ -553,6 +568,7 @@ const VisualizarVehiculo = () => {
                     </Button>
                   </Box>
                 </Box>
+                {/*FIN de contenedor Estructural*/}
               </Box>
             </Box>
           ))}
