@@ -1,5 +1,9 @@
 import { Router } from 'express';
 
+import authRoutes from '../modules/Users-Auth/routes/auth.routes.js';
+import userRoutes from '../modules/Users-Auth/routes/user.routes.js';
+import roleRoutes from '../modules/Users-Auth/routes/role.routes.js';
+import userRoleRoutes from '../modules/Users-Auth/routes/userRole.routes.js';
 
 import marcaVehiculoRoutes from '../modules/vehicles/routes/marcaVehiculo.routes.js';
 import transmisionRoutes from '../modules/vehicles/routes/transmision.routes.js';
@@ -10,6 +14,13 @@ import vehiculoRoutes from '../modules/vehicles/routes/vehiculo.routes.js';
 import asientosRoutes from '../modules/vehicles/routes/asientos.routes.js';
 
 const router = Router();
+
+// ============== Montar rutas de Users & Auth ==============
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/roles', roleRoutes);
+router.use('/user-roles', userRoleRoutes);
+
 
 // Montar cada grupo de rutas en su endpoint base
 router.use('/marcas', marcaVehiculoRoutes);          // /api/marcas
