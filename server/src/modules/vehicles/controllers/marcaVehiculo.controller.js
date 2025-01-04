@@ -2,80 +2,92 @@
 import { MarcaVehiculo } from '../models/vehicle.model.js';
 import logger from '../../../utils/logger.js';
 
-export const createMarca = async (req, res, next) => {
+export const createMarcaVehiculo = async (req, res, next) => {
     try {
-        const { marca, descripcion } = req.body;
+        const { marca, descripcion, created_by } = req.body;
+        const idMarca = await MarcaVehiculo.create({ marca, descripcion, created_by });
+        const marcaVehiculo = await MarcaVehiculo.findById(idMarca);
 
-        const insertedId = await MarcaVehiculo.create({ marca, descripcion });
-        const newMarca = await MarcaVehiculo.findById(insertedId);
-
-        logger.info(`MarcaVehiculoController:createMarca -> id=${insertedId}`);
-        return res.status(201).json({ data: newMarca });
+        logger.info(`MarcaVehiculoController:createMarcaVehiculo Created id=${idMarca}`);
+        res.status(201).json({ data: marcaVehiculo });
     } catch (error) {
-        logger.error(`MarcaVehiculoController:createMarca Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        logger.error(`MarcaVehiculoController:createMarcaVehiculo Error: ${error.message}`, { stack: error.stack });
+        next(error);
     }
 };
 
-export const showMarca = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const marca = await MarcaVehiculo.findById(id);
-
-        if (!marca) {
-            return res.status(404).json({ error: 'Marca no encontrada' });
-        }
-
-        return res.json({ data: marca });
-    } catch (error) {
-        logger.error(`MarcaVehiculoController:showMarca Error: ${error.message}`, { stack: error.stack });
-        return next(error);
-    }
-};
-
-export const updateMarca = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const existe = await MarcaVehiculo.findById(id);
-
-        if (!existe) {
-            return res.status(404).json({ error: 'Marca no encontrada' });
-        }
-
-        // fields a actualizar vienen en req.body
-        await MarcaVehiculo.update(id, req.body);
-        const updated = await MarcaVehiculo.findById(id);
-
-        return res.json({ data: updated });
-    } catch (error) {
-        logger.error(`MarcaVehiculoController:updateMarca Error: ${error.message}`, { stack: error.stack });
-        return next(error);
-    }
-};
-
-export const softDeleteMarca = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const existe = await MarcaVehiculo.findById(id);
-
-        if (!existe) {
-            return res.status(404).json({ error: 'Marca no encontrada' });
-        }
-
-        await MarcaVehiculo.softDelete(id);
-        return res.json({ message: 'Marca eliminada correctamente' });
-    } catch (error) {
-        logger.error(`MarcaVehiculoController:softDeleteMarca Error: ${error.message}`, { stack: error.stack });
-        return next(error);
-    }
-};
-
-export const getAllMarcas = async (req, res, next) => {
+export const getAllMarcaVehiculo = async (req, res, next) => {
     try {
         const marcas = await MarcaVehiculo.getAll();
-        return res.json({ data: marcas });
+
+        logger.info(`MarcaVehiculoController:getAllMarcaVehiculo Retrieved ${marcas.length} marcaVehiculo`);
+        res.json({ data: marcas });
     } catch (error) {
-        logger.error(`MarcaVehiculoController:getAllMarcas Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        logger.error(`MarcaVehiculoController:getAllMarcaVehiculo Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    }
+};
+
+export const getMarcaVehiculo = async (req, res, next) => {
+    try {
+        const marca = await MarcaVehiculo.findById(req.params.id);
+
+        if (!marca) {
+            logger.warn(`MarcaVehiculoController:getMarcaVehiculo Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'MarcaVehiculo not found' });
+        }
+
+        res.json({ data: marca });
+    } catch (error) {
+        logger.error(`MarcaVehiculoController:getMarcaVehiculo Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    }
+};
+
+export const updateMarcaVehiculo = async (req, res, next) => {
+    try {
+        const marca = await MarcaVehiculo.findById(req.params.id);
+        if (!marca) {
+            logger.warn(`MarcaVehiculoController:updateMarcaVehiculo Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'MarcaVehiculo not found' });
+        }
+
+        const fields = {};
+        if (req.body.marca) fields.marca = req.body.marca;
+        if (req.body.descripcion) fields.descripcion = req.body.descripcion;
+
+        const updated_by = req.body.updated_by || null;
+
+        if (Object.keys(fields).length > 0) {
+            await MarcaVehiculo.update(req.params.id, fields, updated_by);
+        }
+
+        const updatedMarca = await MarcaVehiculo.findById(req.params.id);
+
+        logger.info(`MarcaVehiculoController:updateMarcaVehiculo Updated id=${req.params.id}`);
+        res.json({ data: updatedMarca });
+    } catch (error) {
+        logger.error(`MarcaVehiculoController:updateMarcaVehiculo Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    }
+};
+
+export const deleteMarcaVehiculo = async (req, res, next) => {
+    try {
+        const marca = await MarcaVehiculo.findById(req.params.id);
+
+        if (!marca) {
+            logger.warn(`MarcaVehiculoController:deleteMarcaVehiculo Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'MarcaVehiculo not found' });
+        }
+
+        const userId = req.body.updated_by || null;
+        await MarcaVehiculo.softDelete(req.params.id, userId);
+
+        logger.info(`MarcaVehiculoController:deleteMarcaVehiculo Soft deleted id=${req.params.id}`);
+        res.status(204).send();
+    } catch (error) {
+        logger.error(`MarcaVehiculoController:deleteMarcaVehiculo Error: ${error.message}`, { stack: error.stack });
+        next(error);
     }
 };

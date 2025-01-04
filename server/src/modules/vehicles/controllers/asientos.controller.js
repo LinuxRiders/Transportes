@@ -6,32 +6,50 @@ import logger from '../../../utils/logger.js';
  */
 export const createAsiento = async (req, res, next) => {
     try {
-        const insertedId = await Asientos.create(req.body);
-        const newAsiento = await Asientos.findById(insertedId);
+        const {
+            fila,
+            columna,
+            tipo_asiento,
+            estado_asiento,
+            caracteristica,
+            idvehiculo,
+            created_by
+        } = req.body;
 
-        logger.info(`AsientosController:createAsiento -> id=${insertedId}`);
-        return res.status(201).json({ data: newAsiento });
+        const idAsiento = await Asientos.create({
+            fila,
+            columna,
+            tipo_asiento,
+            estado_asiento,
+            caracteristica,
+            idvehiculo,
+            created_by
+        });
+
+        const asiento = await Asientos.findById(idAsiento);
+        logger.info(`AsientosController:createAsiento Created id=${idAsiento}`);
+        res.status(201).json({ data: asiento });
     } catch (error) {
         logger.error(`AsientosController:createAsiento Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        next(error);
     }
 };
 
 /**
  * Muestra la info de un asiento por ID.
  */
-export const showAsiento = async (req, res, next) => {
+export const getAsiento = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const asiento = await Asientos.findById(id);
-
+        const asiento = await Asientos.findById(req.params.id);
         if (!asiento) {
-            return res.status(404).json({ error: 'Asiento no encontrado' });
+            logger.warn(`AsientosController:getAsiento Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'Asiento not found' });
         }
-        return res.json({ data: asiento });
+
+        res.json({ data: asiento });
     } catch (error) {
-        logger.error(`AsientosController:showAsiento Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        logger.error(`AsientosController:getAsiento Error: ${error.message}`, { stack: error.stack });
+        next(error);
     }
 };
 
@@ -40,40 +58,53 @@ export const showAsiento = async (req, res, next) => {
  */
 export const updateAsiento = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const existe = await Asientos.findById(id);
-
-        if (!existe) {
-            return res.status(404).json({ error: 'Asiento no encontrado' });
+        const asiento = await Asientos.findById(req.params.id);
+        if (!asiento) {
+            logger.warn(`AsientosController:updateAsiento Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'Asiento not found' });
         }
 
-        await Asientos.update(id, req.body);
-        const updated = await Asientos.findById(id);
+        const fields = {};
+        if (req.body.fila) fields.fila = req.body.fila;
+        if (req.body.columna) fields.columna = req.body.columna;
+        if (req.body.tipo_asiento) fields.tipo_asiento = req.body.tipo_asiento;
+        if (req.body.estado_asiento) fields.estado_asiento = req.body.estado_asiento;
+        if (req.body.caracteristica) fields.caracteristica = req.body.caracteristica;
+        if (req.body.idvehiculo) fields.idvehiculo = req.body.idvehiculo;
 
-        return res.json({ data: updated });
+        const updated_by = req.body.updated_by || null;
+        if (Object.keys(fields).length > 0) {
+            await Asientos.update(req.params.id, fields, updated_by);
+        }
+
+        const updatedAsiento = await Asientos.findById(req.params.id);
+        logger.info(`AsientosController:updateAsiento Updated id=${req.params.id}`);
+        res.json({ data: updatedAsiento });
     } catch (error) {
         logger.error(`AsientosController:updateAsiento Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        next(error);
     }
 };
 
 /**
  * Elimina un asiento (físico o lógico).
  */
-export const softDeleteAsiento = async (req, res, next) => {
+export const deleteAsiento = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const existe = await Asientos.findById(id);
-
-        if (!existe) {
-            return res.status(404).json({ error: 'Asiento no encontrado' });
+        const asiento = await Asientos.findById(req.params.id);
+        if (!asiento) {
+            logger.warn(`AsientosController:deleteAsiento Not found id=${req.params.id}`);
+            return res.status(404).json({ error: 'Asiento not found' });
         }
 
-        await Asientos.softDelete(id);
-        return res.json({ message: 'Asiento eliminado correctamente' });
+        const userId = req.body.updated_by || null;
+        await Asientos.softDelete(req.params.id, userId);
+
+        logger.info(`AsientosController:deleteAsiento Soft deleted id=${req.params.id}`);
+        res.status(204).json({ message: 'Asiento eliminado correctamente' });
     } catch (error) {
-        logger.error(`AsientosController:softDeleteAsiento Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        logger.error(`AsientosController:deleteAsiento Error: ${error.message}`, { stack: error.stack });
+        next(error);
     }
 };
 
@@ -82,11 +113,12 @@ export const softDeleteAsiento = async (req, res, next) => {
  */
 export const getAllAsientos = async (req, res, next) => {
     try {
-        const lista = await Asientos.getAll();
-        return res.json({ data: lista });
+        const asientos = await Asientos.getAll();
+        logger.info(`AsientosController:getAllAsientos Retrieved ${asientos.length} asientos`);
+        res.json({ data: asientos });
     } catch (error) {
         logger.error(`AsientosController:getAllAsientos Error: ${error.message}`, { stack: error.stack });
-        return next(error);
+        next(error);
     }
 };
 
@@ -107,9 +139,13 @@ export const assignAsientosToVehicle = async (req, res, next) => {
     try {
         const { idvehiculo, asientos } = req.body;
 
+        const connection = await pool.getConnection(); // Obtener una conexión de la pool
+
         if (!idvehiculo || !Array.isArray(asientos)) {
             return res.status(400).json({ error: 'Datos incompletos o inválidos' });
         }
+
+        await connection.beginTransaction(); // Iniciar la transacción
 
         // Array para recopilar los IDs creados
         const createdIds = [];
@@ -117,9 +153,12 @@ export const assignAsientosToVehicle = async (req, res, next) => {
         for (const seatData of asientos) {
             // Agrega la FK del vehículo
             const data = { ...seatData, idvehiculo };
-            const seatId = await Asientos.create(data);
+            const seatId = await Asientos.create(data, connection);
             createdIds.push(seatId);
         }
+
+        // Confirmar la transacción si todo es exitoso
+        await connection.commit();
 
         // Podrías retornar directamente el listado de asientos creados
         // o hacer un findById para cada ID si quieres más información.
@@ -129,7 +168,12 @@ export const assignAsientosToVehicle = async (req, res, next) => {
             asientosCreados: createdIds
         });
     } catch (error) {
+        // Si ocurre un error, revertimos la transacción
+        await connection.rollback();
+
         logger.error(`AsientosController:assignAsientosToVehicle Error: ${error.message}`, { stack: error.stack });
         return next(error);
+    } finally {
+        connection.release(); // Liberar la conexión
     }
 };

@@ -3,6 +3,7 @@ import express from "express";
 import cors from 'cors';
 import 'dotenv/config';
 import routes from './src/routes/routes.js';
+import { errorHandler } from "./src/middlewares/errorHandler.js";
 
 const PORT = process.env.PORT || 4000;
 
@@ -28,6 +29,9 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Usa el router en el prefijo /api
 app.use('/api/', routes); // Rutas generales
+
+// Middleware de manejo de errores
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log("Server is running on port", PORT);

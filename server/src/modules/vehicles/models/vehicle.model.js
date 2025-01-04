@@ -2,35 +2,81 @@ import pool from '../../../config/db.js';
 import logger from '../../../utils/logger.js';
 
 export const Vehiculo = {
-    create: async ({
-        capacidad_asientos,
-        capacidad_maletas,
-        anio_fabricacion,
-        num_chasis,
-        placa,
-        modelo,
-        kilometraje_actual,
-        fecha_compra,
-        estado,
-        fotos_vehiculo,
-        id_marca,
-        idtransmision,
-        idtipo_vehiculo,
-        idcombustible
-    }, connection = pool) => {
+    // CREATE
+    create: async (
+        {
+            capacidad_asientos,
+            capacidad_maletas,
+            anio_fabricacion,
+            num_chasis,
+            placa,
+            modelo,
+            kilometraje_actual,
+            fecha_compra,
+            estado,
+            fotos_vehiculo,
+            id_marca,
+            idtransmision,
+            idtipo_vehiculo,
+            idcombustible,
+            created_by = null// Auditoría
+        },
+        connection = pool
+    ) => {
         try {
             const [result] = await connection.execute(
-                `INSERT INTO vehiculo
-           (capacidad_asientos, capacidad_maletas, anio_fabricacion,
-            num_chasis, placa, modelo, kilometraje_actual, fecha_compra,
-            estado, fotos_vehiculo,
-            id_marca, idtransmision, idtipo_vehiculo, idcombustible)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO vehiculo (
+            capacidad_asientos,
+            capacidad_maletas,
+            anio_fabricacion,
+            num_chasis,
+            placa,
+            modelo,
+            kilometraje_actual,
+            fecha_compra,
+            estado,
+            fotos_vehiculo,
+            id_marca,
+            idtransmision,
+            idtipo_vehiculo,
+            idcombustible,
+            created_at,
+            created_by
+          )
+          VALUES (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            NOW(),         -- created_at
+            ?
+          )`,
                 [
-                    capacidad_asientos, capacidad_maletas, anio_fabricacion,
-                    num_chasis, placa, modelo, kilometraje_actual, fecha_compra,
-                    estado, fotos_vehiculo,
-                    id_marca, idtransmision, idtipo_vehiculo, idcombustible
+                    capacidad_asientos,
+                    capacidad_maletas,
+                    anio_fabricacion,
+                    num_chasis,
+                    placa,
+                    modelo,
+                    kilometraje_actual,
+                    fecha_compra,
+                    estado,
+                    fotos_vehiculo,
+                    id_marca,
+                    idtransmision,
+                    idtipo_vehiculo,
+                    idcombustible,
+                    created_by
                 ]
             );
             return result.insertId;
@@ -40,12 +86,14 @@ export const Vehiculo = {
         }
     },
 
+    // FIND BY ID (excluye borrados lógicamente)
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
                 `SELECT *
            FROM vehiculo
-           WHERE idvehiculo = ?`,
+           WHERE idvehiculo = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -55,17 +103,34 @@ export const Vehiculo = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE (usa updated_at = NOW() y recibe updated_by como param separado)
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
-            const keys = Object.keys(fields);
-            const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
+            // 1. Extraemos campos a actualizar
+            const keys = Object.keys(fields);      // ej: ["placa", "modelo"]
+            const values = Object.values(fields);  // ej: ["ABC-123", "Sedán"]
+
+            // 2. Construimos el setClause dinámicamente
+            let setClause = "";
+            if (keys.length > 0) {
+                // Ej: "placa = ?, modelo = ?"
+                setClause = keys.map((k) => `${k} = ?`).join(", ") + ", ";
+            }
+
+            // Agregamos updated_at y updated_by
+            setClause += "updated_at = NOW(), updated_by = ?";
+
+            // Agregamos updated_by a values
+            values.push(updated_by);
+
+            // Agregamos el ID
             values.push(id);
 
             await connection.execute(
                 `UPDATE vehiculo
            SET ${setClause}
-           WHERE idvehiculo = ?`,
+           WHERE idvehiculo = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -74,33 +139,57 @@ export const Vehiculo = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // BORRADO LÓGICO
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            // Borrado físico
-            await connection.execute('DELETE FROM vehiculo WHERE idvehiculo = ?', [id]);
+            await connection.execute(
+                `UPDATE vehiculo
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE idvehiculo = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
+            );
         } catch (error) {
             logger.error(`[Model]:Vehiculo:softDelete Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
     },
 
+    // GET ALL (excluye borrados lógicamente)
     getAll: async (connection = pool) => {
         try {
-            const [rows] = await connection.execute('SELECT * FROM vehiculo');
+            const [rows] = await connection.execute(
+                `SELECT *
+           FROM vehiculo
+           WHERE deleted_at IS NULL`
+            );
             return rows;
         } catch (error) {
             logger.error(`[Model]:Vehiculo:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
 
 export const MarcaVehiculo = {
-    create: async ({ marca, descripcion }, connection = pool) => {
+    // CREATE
+    create: async ({ marca, descripcion, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
-                'INSERT INTO marca_vehiculo (marca, descripcion) VALUES (?, ?)',
-                [marca, descripcion]
+                `INSERT INTO marca_vehiculo (
+            marca,
+            descripcion,
+            created_at,
+            created_by
+          )
+          VALUES (
+            ?,
+            ?,
+            NOW(),
+            ?
+          )`,
+                [marca, descripcion, created_by]
             );
             return result.insertId;
         } catch (error) {
@@ -109,12 +198,14 @@ export const MarcaVehiculo = {
         }
     },
 
+    // FIND BY ID
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
                 `SELECT id_marca, marca, descripcion
            FROM marca_vehiculo
-           WHERE id_marca = ?`,
+           WHERE id_marca = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -124,15 +215,25 @@ export const MarcaVehiculo = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE (updated_at = NOW(), updated_by como param)
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
             const keys = Object.keys(fields);
             const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            values.push(id);
+
+            let setClause = "";
+            if (keys.length > 0) {
+                setClause = keys.map((k) => `${k} = ?`).join(", ") + ", ";
+            }
+
+            setClause += "updated_at = NOW(), updated_by = ?";
+            values.push(updated_by, id);
 
             await connection.execute(
-                `UPDATE marca_vehiculo SET ${setClause} WHERE id_marca = ?`,
+                `UPDATE marca_vehiculo
+           SET ${setClause}
+           WHERE id_marca = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -141,12 +242,16 @@ export const MarcaVehiculo = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // BORRADO LÓGICO
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            // Si deseas borrado físico, usa DELETE:
             await connection.execute(
-                'DELETE FROM marca_vehiculo WHERE id_marca = ?',
-                [id]
+                `UPDATE marca_vehiculo
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE id_marca = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
             );
         } catch (error) {
             logger.error(`[Model]:MarcaVehiculo:softDelete Error: ${error.message}`, { stack: error.stack });
@@ -154,25 +259,38 @@ export const MarcaVehiculo = {
         }
     },
 
+    // GET ALL
     getAll: async (connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT id_marca, marca, descripcion FROM marca_vehiculo'
+                `SELECT id_marca, marca, descripcion
+           FROM marca_vehiculo
+           WHERE deleted_at IS NULL`
             );
             return rows;
         } catch (error) {
             logger.error(`[Model]:MarcaVehiculo:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
 
 export const Transmision = {
-    create: async ({ tipo_transmision }, connection = pool) => {
+    // CREATE
+    create: async ({ tipo_transmision, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
-                'INSERT INTO transmision (tipo_transmision) VALUES (?)',
-                [tipo_transmision]
+                `INSERT INTO transmision (
+            tipo_transmision,
+            created_at,
+            created_by
+          )
+          VALUES (
+            ?,
+            NOW(),
+            ?
+          )`,
+                [tipo_transmision, created_by]
             );
             return result.insertId;
         } catch (error) {
@@ -181,10 +299,14 @@ export const Transmision = {
         }
     },
 
+    // FIND BY ID
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT idtransmision, tipo_transmision FROM transmision WHERE idtransmision = ?',
+                `SELECT idtransmision, tipo_transmision
+           FROM transmision
+           WHERE idtransmision = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -194,15 +316,25 @@ export const Transmision = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
             const keys = Object.keys(fields);
             const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            values.push(id);
+
+            let setClause = "";
+            if (keys.length > 0) {
+                setClause = keys.map((k) => `${k} = ?`).join(", ") + ", ";
+            }
+
+            setClause += "updated_at = NOW(), updated_by = ?";
+            values.push(updated_by, id);
 
             await connection.execute(
-                `UPDATE transmision SET ${setClause} WHERE idtransmision = ?`,
+                `UPDATE transmision
+           SET ${setClause}
+           WHERE idtransmision = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -211,34 +343,55 @@ export const Transmision = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // SOFT DELETE
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            await connection.execute('DELETE FROM transmision WHERE idtransmision = ?', [id]);
+            await connection.execute(
+                `UPDATE transmision
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE idtransmision = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
+            );
         } catch (error) {
             logger.error(`[Model]:Transmision:softDelete Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
     },
 
+    // GET ALL
     getAll: async (connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT idtransmision, tipo_transmision FROM transmision'
+                `SELECT idtransmision, tipo_transmision
+           FROM transmision
+           WHERE deleted_at IS NULL`
             );
             return rows;
         } catch (error) {
             logger.error(`[Model]:Transmision:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
 
 export const Carroceria = {
-    create: async ({ tipo_carroceria }, connection = pool) => {
+    // CREATE
+    create: async ({ tipo_carroceria, created_by }, connection = pool) => {
         try {
             const [result] = await connection.execute(
-                'INSERT INTO carroceria (tipo_carroceria) VALUES (?)',
-                [tipo_carroceria]
+                `INSERT INTO carroceria (
+            tipo_carroceria,
+            created_at,
+            created_by
+          )
+          VALUES (
+            ?,
+            NOW(),
+            ?
+          )`,
+                [tipo_carroceria, created_by]
             );
             return result.insertId;
         } catch (error) {
@@ -247,10 +400,14 @@ export const Carroceria = {
         }
     },
 
+    // FIND BY ID
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT idcarroceria, tipo_carroceria FROM carroceria WHERE idcarroceria = ?',
+                `SELECT idcarroceria, tipo_carroceria
+           FROM carroceria
+           WHERE idcarroceria = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -260,15 +417,25 @@ export const Carroceria = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
             const keys = Object.keys(fields);
             const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            values.push(id);
+
+            let setClause = "";
+            if (keys.length > 0) {
+                setClause = keys.map((k) => `${k} = ?`).join(", ") + ", ";
+            }
+
+            setClause += "updated_at = NOW(), updated_by = ?";
+            values.push(updated_by, id);
 
             await connection.execute(
-                `UPDATE carroceria SET ${setClause} WHERE idcarroceria = ?`,
+                `UPDATE carroceria
+           SET ${setClause}
+           WHERE idcarroceria = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -277,35 +444,67 @@ export const Carroceria = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // SOFT DELETE
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            await connection.execute('DELETE FROM carroceria WHERE idcarroceria = ?', [id]);
+            await connection.execute(
+                `UPDATE carroceria
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE idcarroceria = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
+            );
         } catch (error) {
             logger.error(`[Model]:Carroceria:softDelete Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
     },
 
+    // GET ALL
     getAll: async (connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT idcarroceria, tipo_carroceria FROM carroceria'
+                `SELECT idcarroceria, tipo_carroceria
+           FROM carroceria
+           WHERE deleted_at IS NULL`
             );
             return rows;
         } catch (error) {
             logger.error(`[Model]:Carroceria:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
 
 export const TipoVehiculo = {
-    create: async ({ tipo_vehiculo, icono_vehiculo, idcarroceria }, connection = pool) => {
+    // CREATE
+    create: async (
+        {
+            tipo_vehiculo,
+            icono_vehiculo,
+            idcarroceria,
+            created_by = null
+        },
+        connection = pool
+    ) => {
         try {
             const [result] = await connection.execute(
-                `INSERT INTO tipo_vehiculo (tipo_vehiculo, icono_vehiculo, idcarroceria)
-           VALUES (?, ?, ?)`,
-                [tipo_vehiculo, icono_vehiculo, idcarroceria]
+                `INSERT INTO tipo_vehiculo (
+            tipo_vehiculo,
+            icono_vehiculo,
+            idcarroceria,
+            created_at,
+            created_by
+          )
+          VALUES (
+            ?,
+            ?,
+            ?,
+            NOW(),
+            ?
+          )`,
+                [tipo_vehiculo, icono_vehiculo, idcarroceria, created_by]
             );
             return result.insertId;
         } catch (error) {
@@ -314,12 +513,14 @@ export const TipoVehiculo = {
         }
     },
 
+    // FIND BY ID
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
                 `SELECT idtipo_vehiculo, tipo_vehiculo, icono_vehiculo, idcarroceria
            FROM tipo_vehiculo
-           WHERE idtipo_vehiculo = ?`,
+           WHERE idtipo_vehiculo = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -329,17 +530,25 @@ export const TipoVehiculo = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
             const keys = Object.keys(fields);
             const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            values.push(id);
+
+            let setClause = "";
+            if (keys.length > 0) {
+                setClause = keys.map((k) => `${k} = ?`).join(", ") + ", ";
+            }
+
+            setClause += "updated_at = NOW(), updated_by = ?";
+            values.push(updated_by, id);
 
             await connection.execute(
                 `UPDATE tipo_vehiculo
            SET ${setClause}
-           WHERE idtipo_vehiculo = ?`,
+           WHERE idtipo_vehiculo = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -348,35 +557,55 @@ export const TipoVehiculo = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // SOFT DELETE
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            await connection.execute('DELETE FROM tipo_vehiculo WHERE idtipo_vehiculo = ?', [id]);
+            await connection.execute(
+                `UPDATE tipo_vehiculo
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE idtipo_vehiculo = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
+            );
         } catch (error) {
             logger.error(`[Model]:TipoVehiculo:softDelete Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
     },
 
+    // GET ALL
     getAll: async (connection = pool) => {
         try {
             const [rows] = await connection.execute(
                 `SELECT idtipo_vehiculo, tipo_vehiculo, icono_vehiculo, idcarroceria
-           FROM tipo_vehiculo`
+           FROM tipo_vehiculo
+           WHERE deleted_at IS NULL`
             );
             return rows;
         } catch (error) {
             logger.error(`[Model]:TipoVehiculo:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
 
 export const Combustible = {
-    create: async ({ tipo_combustible }, connection = pool) => {
+    // CREATE
+    create: async ({ tipo_combustible, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
-                'INSERT INTO combustible (tipo_combustible) VALUES (?)',
-                [tipo_combustible]
+                `INSERT INTO combustible (
+            tipo_combustible,
+            created_at,
+            created_by
+          )
+          VALUES (
+            ?,
+            NOW(),
+            ?
+          )`,
+                [tipo_combustible, created_by]
             );
             return result.insertId;
         } catch (error) {
@@ -385,12 +614,14 @@ export const Combustible = {
         }
     },
 
+    // FIND BY ID
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
                 `SELECT idcombustible, tipo_combustible
            FROM combustible
-           WHERE idcombustible = ?`,
+           WHERE idcombustible = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -400,15 +631,25 @@ export const Combustible = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
             const keys = Object.keys(fields);
             const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            values.push(id);
+
+            let setClause = "";
+            if (keys.length > 0) {
+                setClause = keys.map(k => `${k} = ?`).join(", ") + ", ";
+            }
+
+            setClause += "updated_at = NOW(), updated_by = ?";
+            values.push(updated_by, id);
 
             await connection.execute(
-                `UPDATE combustible SET ${setClause} WHERE idcombustible = ?`,
+                `UPDATE combustible
+           SET ${setClause}
+           WHERE idcombustible = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -417,43 +658,67 @@ export const Combustible = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // SOFT DELETE
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            await connection.execute('DELETE FROM combustible WHERE idcombustible = ?', [id]);
+            await connection.execute(
+                `UPDATE combustible
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE idcombustible = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
+            );
         } catch (error) {
             logger.error(`[Model]:Combustible:softDelete Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
     },
 
+    // GET ALL
     getAll: async (connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT idcombustible, tipo_combustible FROM combustible'
+                `SELECT idcombustible, tipo_combustible
+           FROM combustible
+           WHERE deleted_at IS NULL`
             );
             return rows;
         } catch (error) {
             logger.error(`[Model]:Combustible:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
 
 export const Asientos = {
-    create: async ({
-        fila,
-        columna,
-        tipo_asiento,
-        estado_asiento,
-        caracteristica,
-        idvehiculo
-    }, connection = pool) => {
+    // CREATE
+    create: async (
+        {
+            fila,
+            columna,
+            tipo_asiento,
+            estado_asiento,
+            caracteristica,
+            idvehiculo,
+            created_by = null
+        },
+        connection = pool
+    ) => {
         try {
             const [result] = await connection.execute(
-                `INSERT INTO asientos
-           (fila, columna, tipo_asiento, estado_asiento, caracteristica, idvehiculo)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-                [fila, columna, tipo_asiento, estado_asiento, caracteristica, idvehiculo]
+                `INSERT INTO asientos (
+            fila,
+            columna,
+            tipo_asiento,
+            estado_asiento,
+            caracteristica,
+            idvehiculo,
+            created_at,
+            created_by
+          )
+          VALUES (?,?,?, ?,?,?,NOW(),?)`,
+                [fila, columna, tipo_asiento, estado_asiento, caracteristica, idvehiculo, created_by]
             );
             return result.insertId;
         } catch (error) {
@@ -462,12 +727,14 @@ export const Asientos = {
         }
     },
 
+    // FIND BY ID
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
                 `SELECT *
            FROM asientos
-           WHERE idAsiento = ?`,
+           WHERE idAsiento = ?
+             AND deleted_at IS NULL`,
                 [id]
             );
             return rows[0] || null;
@@ -477,17 +744,26 @@ export const Asientos = {
         }
     },
 
-    update: async (id, fields, connection = pool) => {
+    // UPDATE
+    update: async (id, fields, updated_by, connection = pool) => {
         try {
             const keys = Object.keys(fields);
             const values = Object.values(fields);
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            values.push(id);
+
+            let setClause = "";
+            if (keys.length > 0) {
+                setClause = keys.map((k) => `${k} = ?`).join(", ") + ", ";
+            }
+
+            // Agregamos updated_at y updated_by
+            setClause += "updated_at = NOW(), updated_by = ?";
+            values.push(updated_by, id);
 
             await connection.execute(
                 `UPDATE asientos
            SET ${setClause}
-           WHERE idAsiento = ?`,
+           WHERE idAsiento = ?
+             AND deleted_at IS NULL`,
                 values
             );
         } catch (error) {
@@ -496,23 +772,35 @@ export const Asientos = {
         }
     },
 
-    softDelete: async (id, connection = pool) => {
+    // SOFT DELETE
+    softDelete: async (id, userId, connection = pool) => {
         try {
-            // Borrado físico:
-            await connection.execute('DELETE FROM asientos WHERE idAsiento = ?', [id]);
+            await connection.execute(
+                `UPDATE asientos
+           SET deleted_at = NOW(),
+               updated_by = ?
+           WHERE idAsiento = ?
+             AND deleted_at IS NULL`,
+                [userId, id]
+            );
         } catch (error) {
             logger.error(`[Model]:Asientos:softDelete Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
     },
 
+    // GET ALL
     getAll: async (connection = pool) => {
         try {
-            const [rows] = await connection.execute('SELECT * FROM asientos');
+            const [rows] = await connection.execute(
+                `SELECT *
+           FROM asientos
+           WHERE deleted_at IS NULL`
+            );
             return rows;
         } catch (error) {
             logger.error(`[Model]:Asientos:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
-    },
+    }
 };
