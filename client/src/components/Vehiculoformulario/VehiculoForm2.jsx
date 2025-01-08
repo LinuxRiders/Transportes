@@ -34,9 +34,9 @@ const categories = [
   },
   {
     key: "anio_fabricacion",
-    label: "Año",
+    label: "Año de Fabricacion",
     icon: <DirectionsCarIcon />,
-    type: "date",
+    type: "number",
   },
   {
     key: "num_chasis",
@@ -57,6 +57,7 @@ const categories = [
     key: "kilometraje_actual",
     label: "Kilometraje Actual",
     icon: <DirectionsCarIcon />,
+    type: "number",
   },
   {
     key: "fecha_compra",
@@ -108,7 +109,7 @@ const CategoryInput = ({ category, formData, handleChange }) => {
           type="file"
           multiple
           accept="image/*"
-          onChange={(e) => handleChange(e, category.key)}
+          onChange={(e) => handleChange(e, category.key)} // Pasar el key del campo
           style={{ marginTop: "16px", width: "200px" }}
         />
       ) : (
@@ -198,7 +199,7 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
     kilometraje_actual: "",
     fecha_compra: "",
     estado: "",
-    fotos_vehiculo: {},
+    fotos_vehiculo: [],
     id_marca: "",
     idtransmision: "",
     idtipo_vehiculo: "",
@@ -207,7 +208,7 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
 
   //--------------------------------coneccion base de datos vehiculo--------------------------------
   async function handleAddVehiculo(fields) {
-    // Validar que todos los campos están llenos
+    // Validar que todos los campos estén llenos
     if (
       Object.values(fields).some((value) => value === "" || value === undefined)
     ) {
@@ -216,21 +217,25 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
     }
 
     try {
-      // Enviar los datos a la API
-      const response = await api.post("/vehiculos", fields);
+      // Prepara las imágenes en el formato necesario
+      const processedFields = {
+        ...fields,
+        fotos_vehiculo: JSON.stringify(fields.fotos_vehiculo), // Convertir a JSON si es necesario
+      };
 
-      // Extraer los datos de la respuesta
+      // Enviar los datos a la API
+      const response = await api.post("/vehiculos", processedFields);
+
+      // Manejo de la respuesta
       const { data } = response.data;
 
       if (data) {
-        console.log("Vehículo agregado exitosamente:", data);
         alert("Vehículo guardado exitosamente.");
+        console.log("Datos guardados:", data);
       }
     } catch (error) {
       console.error("Error al guardar el vehículo:", error);
-      alert(
-        "Ocurrió un error al guardar el vehículo. Por favor, inténtalo nuevamente."
-      );
+      alert("Ocurrió un error al guardar el vehículo. Intenta nuevamente.");
     }
   }
 
@@ -302,22 +307,23 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
 
   //-----------------------------------------------------------------------------------
 
-  const handleChange = (e) => {
-    const { name, value, type } = e.target;
+  const handleChange = (e, key) => {
+    const { name, value, type, files } = e.target;
     if (type === "number" && value < 0) {
       return; // Evita números negativos
     }
 
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
     if (key === "fotos_vehiculo") {
-      const files = Array.from(event.target.files); // Obtén todos los archivos seleccionados
-      const fileUrls = files.map((file) => URL.createObjectURL(file)); // Convierte los archivos a URLs temporales
+      // Si es el campo de imágenes
+      const fileArray = Array.from(files); // Convertir archivos a un arreglo
+      const fileUrls = fileArray.map((file) => URL.createObjectURL(file)); // URLs temporales
       setFormData((prevData) => ({
         ...prevData,
-        [key]: [...(prevData[key] || []), ...fileUrls], // Añade nuevas imágenes a las existentes
+        [key]: [...(prevData[key] || []), ...fileUrls], // Agregar nuevas imágenes
       }));
     } else {
       const { name, value } = event.target;
