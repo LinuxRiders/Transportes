@@ -59,7 +59,6 @@ const AsientoVehiculoform = ({ totalAsientos }) => {
   }, [rows, columns]);
 
   useEffect(() => {
-    // Formatear datos cada vez que se actualiza la matriz o los asientos seleccionados
     const formatData = () => {
       const columnLabels = generateColumnLabels(columns);
       const formatted = [];

@@ -1,286 +1,98 @@
-// import React, { useState } from "react";
-// import { Box, TextField, Button, Grid, Typography, Paper } from "@mui/material";
-// import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-// import ColorLensIcon from "@mui/icons-material/ColorLens";
-
-// const FormVehiculo2 = ({ onSendAsientos }) => {
-//   const [formData, setFormData] = useState({
-//     capacidadAsientos: "",
-//     tipoTransmision: "",
-//     capacidadMaletas: "",
-//     anioFabricacion: "",
-//     numeroChasis: "",
-//     placa: "",
-//     color: "",
-//     tipoVehiculo: "",
-//     combustible: "",
-//     motor: "",
-//     modelo: "",
-//     kilometrajeActual: "",
-//     fechaCompra: "",
-//     estado: "",
-//     marcaVehiculo: "",
-//     numeroPasajeros: "",
-//     propietario: "",
-//     fotos: [],
-//   });
-
-//   const handleChange = (e) => {
-//     const { name, value, type } = e.target;
-
-//     if (type === "number" && value < 0) {
-//       return; // Evita números negativos
-//     }
-
-//     setFormData((prev) => ({
-//       ...prev,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSendAsientos = () => {
-//     if (formData.capacidadAsientos > 0) {
-//       onSendAsientos(formData.capacidadAsientos); // Envía el total de asientos al otro componente
-//     } else {
-//       alert("Por favor, ingresa un número válido de asientos.");
-//     }
-//   };
-
-//   const fields = [
-//     {
-//       label: "Capacidad de Asientos",
-//       name: "capacidadAsientos",
-//       type: "number",
-//     },
-//     { label: "Tipo de Transmisión", name: "tipoTransmision", type: "text" },
-//     { label: "Capacidad de Maletas", name: "capacidadMaletas", type: "number" },
-//     { label: "Año de Fabricación", name: "anioFabricacion", type: "number" },
-//     { label: "Número de Chasis", name: "numeroChasis", type: "text" },
-//     { label: "Placa", name: "placa", type: "text" },
-//     {
-//       label: "Color",
-//       name: "color",
-//       type: "text",
-//       adornment: <ColorLensIcon sx={{ color: "#FF6F00" }} />,
-//     },
-//     { label: "Modelo", name: "modelo", type: "text" },
-//     { label: "Kilometraje Actual", name: "kilometrajeActual", type: "text" },
-//     { label: "Fecha de Compra", name: "fechaCompra", type: "date" },
-//   ];
-
-//   return (
-//     <Box
-//       sx={{
-//         display: "flex",
-//         justifyContent: "center",
-//         alignItems: "center",
-//         minHeight: "100vh",
-//       }}
-//     >
-//       <Paper
-//         elevation={6}
-//         sx={{
-//           padding: 4,
-//           maxWidth: 800,
-//           width: "100%",
-//           borderRadius: 3,
-
-//           boxShadow: "0px 4px 10px rgba(0,0,0,0.3)",
-//         }}
-//       >
-//         <Typography
-//           variant="h5"
-//           component="h2"
-//           sx={{
-//             mb: 3,
-//             fontWeight: "bold",
-//             textAlign: "center",
-//             borderBottom: "2px solid #FF6F00",
-//             color: "#FF6F00",
-//             //Naranja,
-//           }}
-//         >
-//           <DirectionsCarIcon
-//             sx={{
-//               fontSize: 40,
-//               color: "#FF6F00",
-//             }}
-//           />{" "}
-//           Registro de Vehículo
-//         </Typography>
-
-//         <Grid container spacing={3}>
-//           {/* Generar dinámicamente los campos del formulario */}
-//           {fields.map((field, index) => (
-//             <Grid item xs={12} md={6} key={index}>
-//               <TextField
-//                 fullWidth
-//                 label={field.label}
-//                 name={field.name}
-//                 value={formData[field.name]}
-//                 onChange={handleChange}
-//                 type={field.type}
-//                 InputProps={
-//                   field.adornment
-//                     ? { endAdornment: field.adornment }
-//                     : undefined
-//                 }
-//                 sx={{
-//                   "& .MuiOutlinedInput-root": {
-//                     backgroundColor: "#FFFFFF", //Fondo de entrada
-//                     borderRadius: 2,
-//                   },
-//                   "& .MuiInputLabel-root": {
-//                     color: "#757575",
-//                   },
-//                   "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
-//                     {
-//                       borderColor: "#FF6F00",
-//                     },
-//                   "& .MuiOutlinedInput-notchedOutline": {
-//                     borderColor: "#E0E0E0",
-//                   },
-//                 }}
-//               />
-//             </Grid>
-//           ))}
-
-//           {/* Botón para agregar asientos */}
-//           <Box sx={{ mt: 3, textAlign: "center", width: "100%" }}>
-//             <Button
-//               variant="contained"
-//               sx={{
-//                 backgroundColor: "#FF6F00", //Naranja
-//                 color: "#FFFFFF",
-//                 "&:hover": { backgroundColor: "#E65100" }, //  Hover más oscuro
-//                 fontWeight: "bold",
-//                 borderRadius: 2,
-//                 padding: "10px 20px",
-//               }}
-//               onClick={handleSendAsientos}
-//             >
-//               Agregar Asientos
-//             </Button>
-//           </Box>
-//         </Grid>
-//       </Paper>
-//     </Box>
-//   );
-// };
-
-// export default FormVehiculo2;
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
   Typography,
   TextField,
   Button,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Select,
   MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
-import ColorLensIcon from "@mui/icons-material/ColorLens";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import OilBarrelIcon from "@mui/icons-material/OilBarrel";
+import AlignVerticalCenterIcon from "@mui/icons-material/AlignVerticalCenter";
+
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import api from "../../api/api";
 
 const categories = [
   {
-    key: "capacidadAsientos",
+    key: "capacidad_asientos",
     label: "Asientos",
     icon: <EventSeatIcon />,
     type: "number",
   },
-  { key: "tipoTransmision", label: "Transmisión", icon: <DirectionsCarIcon /> },
-  { key: "capacidadMaletas", label: "Maletas", icon: <DirectionsCarIcon /> },
-  { key: "anioFabricacion", label: "Año", icon: <DirectionsCarIcon /> },
-  { key: "numeroChasis", label: "Carrocería", icon: <DirectionsCarIcon /> },
-  { key: "placa", label: "Placa", icon: <DirectionsCarIcon /> },
-  { key: "color", label: "Color", icon: <ColorLensIcon />, type: "color" },
-  { key: "motor", label: "Motor", icon: <DirectionsCarIcon /> },
-  { key: "modelo", label: "Modelo", icon: <DirectionsCarIcon /> },
   {
-    key: "kilometrajeInicial",
-    label: "Kilometraje Inicial",
+    key: "capacidad_maletas",
+    label: "Maletas",
     icon: <DirectionsCarIcon />,
     type: "number",
   },
   {
-    key: "kilometrajeFinal",
-    label: "Kilometraje Final",
+    key: "anio_fabricacion",
+    label: "Año",
     icon: <DirectionsCarIcon />,
-    type: "number",
+    type: "date",
+  },
+  {
+    key: "num_chasis",
+    label: "Chasis",
+    icon: <DirectionsCarIcon />,
+  },
+  {
+    key: "placa",
+    label: "Placa",
+    icon: <DirectionsCarIcon />,
+  },
+  {
+    key: "modelo",
+    label: "Modelo",
+    icon: <DirectionsCarIcon />,
+  },
+  {
+    key: "kilometraje_actual",
+    label: "Kilometraje Actual",
+    icon: <DirectionsCarIcon />,
+  },
+  {
+    key: "fecha_compra",
+    label: "Fecha de Compra",
+    type: "date",
+  },
+  {
+    key: "estado",
+    label: "Estado",
+    icon: <DirectionsCarIcon />,
+  },
+  {
+    key: "fotos_vehiculo",
+    label: "Fotos del Vehículo",
+    icon: <CameraAltIcon />,
+    type: "file",
   },
 ];
 
-const colorOptions = [
-  { label: "Rojo", value: "#FF0000" },
-  { label: "Amarillo", value: "#FFFF00" },
-  { label: "Azul", value: "#0000FF" },
-  { label: "Verde", value: "#008000" },
-];
+const CategoryInput = ({ category, formData, handleChange }) => {
+  // Obtener los datos relacionados según el tipo de categoría
 
-const ModularDialog = ({ open, title, content, onClose }) => (
-  <Dialog open={open} onClose={onClose}>
-    <DialogTitle
-      sx={{
-        backgroundColor: "#FF6F00",
-        color: "#FFFFFF",
-        textAlign: "center",
-      }}
-    >
-      {title}
-    </DialogTitle>
-    <DialogContent sx={{ padding: 4 }}>{content}</DialogContent>
-    <DialogActions>
-      <Button onClick={onClose} sx={{ color: "#FF6F00" }}>
-        Cerrar
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
-
-const CategoryInput = ({
-  category,
-  formData,
-  handleChange,
-  handleColorSelect,
-}) => (
-  <Grid item xs={12} sm={6} md={4}>
-    <Box
+  return (
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={4}
       sx={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         padding: 2,
-
         color: "#FF6F00",
+        width: "100%",
         borderRadius: 2,
       }}
     >
@@ -290,29 +102,15 @@ const CategoryInput = ({
       >
         {category.icon} {category.label}
       </Typography>
-      {category.type === "color" ? (
-        <Select
-          value={formData.color}
-          onChange={handleColorSelect}
-          fullWidth
-          sx={{ mt: 2, backgroundColor: "#FFFFFF", borderRadius: 2 }}
-        >
-          {colorOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Box
-                sx={{
-                  width: 20,
-                  height: 20,
-                  backgroundColor: option.value,
-                  borderRadius: "50%",
-                  marginRight: 1,
-                  display: "inline-block",
-                }}
-              ></Box>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
+
+      {category.type === "file" ? (
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => handleChange(e, category.key)}
+          style={{ marginTop: "16px", width: "200px" }}
+        />
       ) : (
         <TextField
           label={`Ingrese ${category.label}`}
@@ -320,7 +118,7 @@ const CategoryInput = ({
           value={formData[category.key] || ""}
           onChange={handleChange}
           fullWidth
-          type={category.type}
+          type={category.type || "text"}
           sx={{
             mt: 2,
             "& .MuiOutlinedInput-root": {
@@ -330,30 +128,179 @@ const CategoryInput = ({
           }}
         />
       )}
-    </Box>
+    </Grid>
+  );
+};
+
+const DropdownField = ({
+  label,
+  name,
+  value,
+  options,
+  handleChange,
+  icon: Icon,
+}) => (
+  <Grid
+    item
+    xs={12}
+    sm={6}
+    md={4}
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 2,
+      color: "#FF6F00",
+      borderRadius: 2,
+    }}
+  >
+    <Typography
+      variant="h7"
+      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+    >
+      <Icon /> {label}
+    </Typography>
+    <FormControl fullWidth>
+      <InputLabel>{label}</InputLabel>
+      <Select
+        label={label}
+        name={name}
+        value={value}
+        onChange={handleChange}
+        sx={{ background: "transparent" }}
+      >
+        <MenuItem value="" disabled>
+          Seleccionar {label}
+        </MenuItem>
+        {options.map((option) => (
+          <MenuItem key={option.id} value={option.id}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   </Grid>
 );
 
 const FormVehiculo2 = ({ onSendAsientos }) => {
+  const [marcas, setMarcas] = useState([]);
+  const [tiposCombustible, setTiposCombustible] = useState([]);
+  const [tiposVehiculo, setTiposVehiculo] = useState([]);
+  const [tiposTransmision, setTiposTransmision] = useState([]);
   const [formData, setFormData] = useState({
-    capacidadAsientos: "",
-    tipoTransmision: "",
-    capacidadMaletas: "",
-    anioFabricacion: "",
-    numeroChasis: "",
+    capacidad_asientos: "",
+    capacidad_maletas: "",
+    anio_fabricacion: "",
+    num_chasis: "",
     placa: "",
-    color: "#FFFFFF",
-    motor: "",
     modelo: "",
-    kilometrajeInicial: 0,
-    kilometrajeFinal: 0,
+    kilometraje_actual: "",
+    fecha_compra: "",
+    estado: "",
+    fotos_vehiculo: {},
+    id_marca: "",
+    idtransmision: "",
+    idtipo_vehiculo: "",
+    idcombustible: "",
   });
 
-  const [dialogState, setDialogState] = useState({
-    open: false,
-    title: "",
-    content: null,
-  });
+  //--------------------------------coneccion base de datos vehiculo--------------------------------
+  async function handleAddVehiculo(fields) {
+    // Validar que todos los campos están llenos
+    if (
+      Object.values(fields).some((value) => value === "" || value === undefined)
+    ) {
+      alert("Por favor, llena todos los campos antes de enviar.");
+      return;
+    }
+
+    try {
+      // Enviar los datos a la API
+      const response = await api.post("/vehiculos", fields);
+
+      // Extraer los datos de la respuesta
+      const { data } = response.data;
+
+      if (data) {
+        console.log("Vehículo agregado exitosamente:", data);
+        alert("Vehículo guardado exitosamente.");
+      }
+    } catch (error) {
+      console.error("Error al guardar el vehículo:", error);
+      alert(
+        "Ocurrió un error al guardar el vehículo. Por favor, inténtalo nuevamente."
+      );
+    }
+  }
+
+  // async function handleEditVehiculo(index, fields) {
+  //   try {
+  //     const formatData_id = formData[index]?.idvehiculo;
+
+  //     const response = await api.put(`/vehiculos/${formatData_id}`, fields);
+
+  //     const { data } = response.data;
+
+  //     if (data) {
+  //       console.log(data);
+  //     }
+  //   } catch (error) {}
+  // }
+  //--------------------------form-------------------------------------
+  useEffect(() => {
+    async function getMarcas() {
+      try {
+        const response = await api.get("/marcas");
+
+        const { data } = response.data;
+
+        setMarcas(data);
+      } catch (error) {}
+    }
+
+    getMarcas();
+  }, []);
+  useEffect(() => {
+    async function getCombustible() {
+      try {
+        const response = await api.get("/combustibles/con");
+
+        const { data } = response.data;
+
+        setTiposCombustible(data);
+      } catch (error) {}
+    }
+
+    getCombustible();
+  }, []);
+  useEffect(() => {
+    async function getTipoVehiculos() {
+      try {
+        const response = await api.get("/tipos-vehiculo");
+        const { data } = response.data;
+        setTiposVehiculo(data);
+      } catch (error) {
+        console.error("Error fetching vehiculos:", error);
+      }
+    }
+    getTipoVehiculos();
+  }, []);
+  useEffect(() => {
+    async function getTransmision() {
+      try {
+        const response = await api.get("/transmisiones");
+
+        const { data } = response.data;
+
+        setTiposTransmision(data);
+      } catch (error) {}
+    }
+
+    getTransmision();
+  }, []);
+
+  //-----------------------------------------------------------------------------------
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -365,61 +312,29 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleColorSelect = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      color: e.target.value,
-    }));
-  };
-
-  const handleSendAsientos = () => {
-    if (formData.capacidadAsientos > 0) {
-      onSendAsientos(formData.capacidadAsientos);
+    if (key === "fotos_vehiculo") {
+      const files = Array.from(event.target.files); // Obtén todos los archivos seleccionados
+      const fileUrls = files.map((file) => URL.createObjectURL(file)); // Convierte los archivos a URLs temporales
+      setFormData((prevData) => ({
+        ...prevData,
+        [key]: [...(prevData[key] || []), ...fileUrls], // Añade nuevas imágenes a las existentes
+      }));
     } else {
-      alert("Por favor, ingresa un número válido de asientos.");
+      const { name, value } = event.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
     }
   };
 
-  const handleKilometrajeTotal = () => {
-    const kilometrajeTotal =
-      formData.kilometrajeFinal - formData.kilometrajeInicial;
-    setDialogState({
-      open: true,
-      title: "Kilometraje Total",
-      content: (
-        <>
-          <Typography variant="h6" align="center" gutterBottom>
-            Total: {kilometrajeTotal} km
-          </Typography>
-          <Box>
-            <Line
-              data={{
-                labels: [
-                  "Lunes",
-                  "Martes",
-                  "Miércoles",
-                  "Jueves",
-                  "Viernes",
-                  "Sábado",
-                  "Domingo",
-                ],
-                datasets: [
-                  {
-                    label: "Uso de Kilometraje por Día",
-                    data: [10, 20, 15, 30, 25, 40, 35],
-                    borderColor: "#FF6F00",
-                    backgroundColor: "rgba(255, 111, 0, 0.5)",
-                  },
-                ],
-              }}
-            />
-          </Box>
-        </>
-      ),
-    });
-  };
+  // const handleSendAsientos = () => {
+  //   if (formData.capacidadAsientos > 0) {
+  //     onSendAsientos(formData.capacidadAsientos);
+  //   } else {
+  //     alert("Por favor, ingresa un número válido de asientos.");
+  //   }
+  // };
 
   return (
     <Box
@@ -428,17 +343,19 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
+        width: "100%",
         padding: 4,
+        flexDirection: "column",
       }}
     >
-      <Paper
-        elevation={6}
+      <Box
         sx={{
           padding: 4,
-          width: "100%",
-          maxWidth: 1200,
+          width: { xs: "320px", md: "100%" },
+          background: "var(--color-text-secondary)",
           borderRadius: 3,
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.3)",
+
+          justifyContent: "center",
         }}
       >
         <Typography
@@ -452,19 +369,70 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
         >
           <DirectionsCarIcon /> Registro de Vehículo
         </Typography>
+        <Grid container spacing={2}>
+          {/* ----------------------------------- */}
 
-        <Grid container spacing={4}>
+          <DropdownField
+            label="Marcas"
+            name="id_marca"
+            value={formData.id_marca}
+            options={marcas.map((marca) => ({
+              id: marca.id_marca,
+              label: marca.marca,
+            }))}
+            handleChange={handleChange}
+            icon={DirectionsCarIcon}
+          />
+          <DropdownField
+            label="Combustible"
+            name="idcombustible"
+            value={formData.idcombustible}
+            options={tiposCombustible.map((combus) => ({
+              id: combus.idcombustible,
+              label: combus.tipo_combustible,
+            }))}
+            handleChange={handleChange}
+            icon={OilBarrelIcon}
+          />
+          <DropdownField
+            label="Tipo de Vehiculo"
+            name="idtipo_vehiculo"
+            value={formData.idtipo_vehiculo}
+            options={tiposVehiculo.map((vehi) => ({
+              id: vehi.idtipo_vehiculo,
+              label: vehi.tipo_vehiculo,
+            }))}
+            handleChange={handleChange}
+            icon={DirectionsCarIcon}
+          />
+          <DropdownField
+            label="Tipo de Transmision"
+            name="idtransmision"
+            value={formData.idtransmision}
+            options={tiposTransmision.map((transm) => ({
+              id: transm.idtransmision,
+              label: transm.tipo_transmision,
+            }))}
+            handleChange={handleChange}
+            icon={AlignVerticalCenterIcon}
+          />
+
+          {/* ------------------------- ----------------------------------- */}
           {categories.map((category) => (
             <CategoryInput
               key={category.key}
               category={category}
               formData={formData}
+              relatedData={{
+                marcas: marcas || [],
+                tiposCombustible: tiposCombustible || [],
+                tiposVehiculo: tiposVehiculo || [],
+                tiposTransmision: tiposTransmision || [],
+              }}
               handleChange={handleChange}
-              handleColorSelect={handleColorSelect}
             />
           ))}
         </Grid>
-
         <Box sx={{ mt: 4, textAlign: "center" }}>
           <Button
             variant="contained"
@@ -476,37 +444,12 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
               borderRadius: 2,
               padding: "10px 20px",
             }}
-            onClick={handleSendAsientos}
+            onClick={() => handleAddVehiculo(formData)}
           >
             Guardar Vehículo
           </Button>
-          <Button
-            variant="outlined"
-            sx={{
-              marginLeft: 2,
-              backgroundColor: "#FFFFFF",
-              color: "#FF6F00",
-              border: "1px solid #FF6F00",
-              "&:hover": { backgroundColor: "#FFF3E0" },
-              fontWeight: "bold",
-              borderRadius: 2,
-              padding: "10px 20px",
-            }}
-            onClick={handleKilometrajeTotal}
-          >
-            Calcular Kilometraje Total
-          </Button>
         </Box>
-      </Paper>
-
-      <ModularDialog
-        open={dialogState.open}
-        title={dialogState.title}
-        content={dialogState.content}
-        onClose={() =>
-          setDialogState({ open: false, title: "", content: null })
-        }
-      />
+      </Box>
     </Box>
   );
 };
