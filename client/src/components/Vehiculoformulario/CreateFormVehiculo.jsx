@@ -1,22 +1,29 @@
 import React, { useState } from "react";
 import { Box, Typography, Grid, Button } from "@mui/material";
-import "../../css/theme.css"; // Asegúrate de que este archivo esté cargado correctamente
 import FormVehiculo2 from "./VehiculoForm2";
 import AsientoVehiculoform from "./AsientoVehiculoform";
+import api from "../../api/api";
 
 const steps = [
-  { label: "Información del Vehiculo" },
+  { label: "Información del Vehículo" },
   { label: "Detalles del Asiento" },
 ];
 
 const CreateFormVehiculo = () => {
   const [selectedStep, setSelectedStep] = useState(0);
-  const [totalAsientos, setTotalAsientos] = useState(0);
+  const [formData, setFormData] = useState(null);
+  const [floors, setFloors] = useState([
+    {
+      rows: 3,
+      columns: 3,
+      selectedSeats: [],
+    },
+  ]);
+  const [capacidadAsientos, setCapacidadAsientos] = useState(0);
 
-  const handleSendAsientos = (capacidadAsientos) => {
-    setTotalAsientos(capacidadAsientos);
+  const handleUpdateCapacidadAsientos = (totalAsientos) => {
+    setCapacidadAsientos(totalAsientos);
   };
-
   const handleNextStep = () => {
     if (selectedStep < steps.length - 1) {
       setSelectedStep((prev) => prev + 1);
@@ -29,8 +36,80 @@ const CreateFormVehiculo = () => {
     }
   };
 
-  const handleStepClick = (index) => {
-    setSelectedStep(index);
+  const handleSaveVehiculo = async () => {
+    // Procesar las fotos a JSON
+    const processedFotosVehiculo = formData.fotos_vehiculo.map((file) => {
+      // Aquí podrías manejar la transformación del archivo a base64 o URL si es necesario.
+      // Por ahora, asumiremos que las fotos ya son URLs o tienen un formato adecuado.
+      return typeof file === "string" ? file : URL.createObjectURL(file);
+    });
+
+    // Preparar los datos finales
+    const vehicleData = {
+      ...formData,
+      capacidad_asientos: capacidadAsientos,
+      fotos_vehiculo: JSON.stringify(processedFotosVehiculo), // Convertir fotos a JSON
+    };
+
+    try {
+      const response = await api.post("/vehiculos", vehicleData);
+      const { idvehiculo } = response.data.data;
+      alert("Vehículo guardado exitosamente.");
+      return idvehiculo;
+    } catch (error) {
+      console.error("Error al guardar el vehículo:", error);
+      alert("Error al guardar el vehículo.");
+      return null;
+    }
+  };
+  const prepareAsiento = (seat, idvehiculo) => {
+    return {
+      fila: String(seat.row), // Asegúrate de que sea un número entero
+      columna: seat.column.charAt(0), // Extrae la columna como un solo carácter
+      tipo_asiento: seat.tipo_asiento || "normal", // Valor predeterminado si está vacío
+      estado_asiento: seat.estado_asiento || "disponible", // Valor predeterminado si está vacío
+      caracteristica: seat.caracteristica || "", // Si no hay características, envía vacío
+      idvehiculo: idvehiculo, // Relaciona el asiento con el vehículo
+    };
+  };
+  const handleSaveAsientos = async (idvehiculo) => {
+    if (!idvehiculo) {
+      alert("El ID del vehículo es requerido para guardar los asientos.");
+      return;
+    }
+
+    const preparedData = floors.flatMap((floor) =>
+      floor.selectedSeats.map((seat) => prepareAsiento(seat, idvehiculo))
+    );
+
+    for (const asiento of preparedData) {
+      try {
+        await api.post("/asientos", asiento); // Envía cada asiento de forma individual
+        console.log(`Asiento guardado:`, asiento);
+      } catch (error) {
+        console.error(
+          "Error al guardar el asiento:",
+          asiento,
+          error.response?.data || error.message
+        );
+        alert(
+          `Error al guardar el asiento en fila ${asiento.fila} y columna ${asiento.columna}`
+        );
+      }
+    }
+  };
+
+  const handleSaveAll = async () => {
+    if (!formData) {
+      alert("Por favor completa los datos del vehículo.");
+      return;
+    }
+
+    const idvehiculo = await handleSaveVehiculo(formData);
+
+    if (idvehiculo) {
+      await handleSaveAsientos(idvehiculo);
+    }
   };
 
   return (
@@ -60,25 +139,10 @@ const CreateFormVehiculo = () => {
         {steps.map((step, index) => (
           <Box
             key={index}
-            onClick={() => handleStepClick(index)}
             sx={{
               textAlign: "center",
               flex: 1,
               position: "relative",
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                top: "50%",
-                right: index < steps.length - 1 ? "-10px" : "auto",
-                left: index > 0 ? "-10px" : "auto",
-                width: index < steps.length - 1 ? "calc(100% + 20px)" : "0",
-                height: "2px",
-                backgroundColor:
-                  index < selectedStep
-                    ? "var(--color-primary)"
-                    : "var(--color-border-300)",
-                zIndex: -1,
-              },
             }}
           >
             <Box
@@ -87,40 +151,23 @@ const CreateFormVehiculo = () => {
                 height: 40,
                 borderRadius: "50%",
                 backgroundColor:
-                  index === selectedStep
-                    ? "var(--color-primary)"
-                    : "var(--color-border-300)",
-                color: "var(--color-background-100)",
+                  index === selectedStep ? "var(--color-primary)" : "lightgray",
+                color: "white",
                 margin: "0 auto",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 mb: 1,
-                fontWeight: "bold",
               }}
             >
               {index + 1}
             </Box>
-            <Typography
-              sx={{
-                fontSize: {
-                  xs: "0.8rem",
-                  sm: "0.9rem",
-                  md: "1rem",
-                },
-                color:
-                  index === selectedStep
-                    ? "var(--color-primary)"
-                    : "var(--color-text-primary-700)",
-              }}
-            >
-              {step.label}
-            </Typography>
+            <Typography>{step.label}</Typography>
           </Box>
         ))}
       </Box>
 
-      {/*  ======== CONTENIDO DE CADA PASO ==========  */}
+      {/* Contenido del paso */}
       <Box
         sx={{
           flex: 1,
@@ -132,39 +179,22 @@ const CreateFormVehiculo = () => {
           overflowY: "auto",
         }}
       >
-        {/* -- PASO 1: INFORMACIÓN -- */}
-        <Box
-          sx={{
-            display: selectedStep === 0 ? "flex" : "none",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            justifyContent: "center",
-          }}
-        >
-          <FormVehiculo2 onSendAsientos={handleSendAsientos} />
-        </Box>
-
-        {/* -- PASO 2: DETALLES DEL PRODUCTO -- */}
-        <Box
-          sx={{
-            display: selectedStep === 1 ? "flex" : "none",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            justifyContent: "center",
-          }}
-        >
-          <AsientoVehiculoform totalAsientos={totalAsientos} />
-        </Box>
+        {selectedStep === 0 && (
+          <FormVehiculo2 onSave={(data) => setFormData(data)} />
+        )}
+        {selectedStep === 1 && (
+          <AsientoVehiculoform
+            floors={floors}
+            setFloors={setFloors}
+            onUpdateCapacidadAsientos={(totalAsientos) =>
+              setCapacidadAsientos(totalAsientos)
+            }
+          />
+        )}
       </Box>
 
-      {/* ======== Controles de Pasos ========== */}
+      {/* Controles */}
       <Box
-        item
-        xs={12}
         sx={{
           width: "100%",
           maxWidth: "800px",
@@ -173,33 +203,32 @@ const CreateFormVehiculo = () => {
           mt: 4,
         }}
       >
-        <Button
-          variant="contained"
-          sx={{
-            display: selectedStep === 0 ? "none" : "flex",
-            backgroundColor: "var(--color-secondary)",
-            color: "var(--color-text-primary)",
-            "&:hover": {
-              backgroundColor: "var(--color-secondary-700)",
-            },
-          }}
-          onClick={handlePreviousStep}
-        >
-          Retroceder
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "var(--color-secondary)",
-            color: "var(--color-text-primary)",
-            "&:hover": {
-              backgroundColor: "var(--color-secondary-700)",
-            },
-          }}
-          onClick={selectedStep === 1 ? "" : handleNextStep}
-        >
-          {selectedStep === 1 ? "Guardar Tour" : "Siguiente"}
-        </Button>
+        {selectedStep > 0 && (
+          <Button
+            variant="contained"
+            onClick={handlePreviousStep}
+            sx={{ backgroundColor: "#FF6F00" }}
+          >
+            Atrás
+          </Button>
+        )}
+        {selectedStep < steps.length - 1 ? (
+          <Button
+            variant="contained"
+            onClick={handleNextStep}
+            sx={{ backgroundColor: "#FF6F00" }}
+          >
+            Siguiente
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            onClick={handleSaveAll}
+            sx={{ backgroundColor: "#FF6F00" }}
+          >
+            Guardar Todo
+          </Button>
+        )}
       </Box>
     </Box>
   );

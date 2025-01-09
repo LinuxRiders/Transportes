@@ -21,12 +21,6 @@ import api from "../../api/api";
 
 const categories = [
   {
-    key: "capacidad_asientos",
-    label: "Asientos",
-    icon: <EventSeatIcon />,
-    type: "number",
-  },
-  {
     key: "capacidad_maletas",
     label: "Maletas",
     icon: <DirectionsCarIcon />,
@@ -184,13 +178,12 @@ const DropdownField = ({
   </Grid>
 );
 
-const FormVehiculo2 = ({ onSendAsientos }) => {
+const FormVehiculo2 = ({ onSave }) => {
   const [marcas, setMarcas] = useState([]);
   const [tiposCombustible, setTiposCombustible] = useState([]);
   const [tiposVehiculo, setTiposVehiculo] = useState([]);
   const [tiposTransmision, setTiposTransmision] = useState([]);
   const [formData, setFormData] = useState({
-    capacidad_asientos: "",
     capacidad_maletas: "",
     anio_fabricacion: "",
     num_chasis: "",
@@ -207,50 +200,36 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
   });
 
   //--------------------------------coneccion base de datos vehiculo--------------------------------
-  async function handleAddVehiculo(fields) {
-    // Validar que todos los campos estén llenos
-    if (
-      Object.values(fields).some((value) => value === "" || value === undefined)
-    ) {
-      alert("Por favor, llena todos los campos antes de enviar.");
-      return;
-    }
+  // async function handleAddVehiculo(fields) {
+  //   // Validar que todos los campos estén llenos
+  //   if (
+  //     Object.values(fields).some((value) => value === "" || value === undefined)
+  //   ) {
+  //     alert("Por favor, llena todos los campos antes de enviar.");
+  //     return;
+  //   }
 
-    try {
-      // Prepara las imágenes en el formato necesario
-      const processedFields = {
-        ...fields,
-        fotos_vehiculo: JSON.stringify(fields.fotos_vehiculo), // Convertir a JSON si es necesario
-      };
-
-      // Enviar los datos a la API
-      const response = await api.post("/vehiculos", processedFields);
-
-      // Manejo de la respuesta
-      const { data } = response.data;
-
-      if (data) {
-        alert("Vehículo guardado exitosamente.");
-        console.log("Datos guardados:", data);
-      }
-    } catch (error) {
-      console.error("Error al guardar el vehículo:", error);
-      alert("Ocurrió un error al guardar el vehículo. Intenta nuevamente.");
-    }
-  }
-
-  // async function handleEditVehiculo(index, fields) {
   //   try {
-  //     const formatData_id = formData[index]?.idvehiculo;
+  //     // Prepara las imágenes en el formato necesario
+  //     const processedFields = {
+  //       ...fields,
+  //       fotos_vehiculo: JSON.stringify(fields.fotos_vehiculo), // Convertir a JSON si es necesario
+  //     };
 
-  //     const response = await api.put(`/vehiculos/${formatData_id}`, fields);
+  //     // Enviar los datos a la API
+  //     const response = await api.post("/vehiculos", processedFields);
 
+  //     // Manejo de la respuesta
   //     const { data } = response.data;
 
   //     if (data) {
-  //       console.log(data);
+  //       alert("Vehículo guardado exitosamente.");
+  //       console.log("Datos guardados:", data);
   //     }
-  //   } catch (error) {}
+  //   } catch (error) {
+  //     console.error("Error al guardar el vehículo:", error);
+  //     alert("Ocurrió un error al guardar el vehículo. Intenta nuevamente.");
+  //   }
   // }
   //--------------------------form-------------------------------------
   useEffect(() => {
@@ -332,6 +311,9 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
         [name]: value,
       }));
     }
+  };
+  const handleSave = () => {
+    onSave(formData); // Enviar datos al componente principal
   };
 
   // const handleSendAsientos = () => {
@@ -450,10 +432,8 @@ const FormVehiculo2 = ({ onSendAsientos }) => {
               borderRadius: 2,
               padding: "10px 20px",
             }}
-            onClick={() => handleAddVehiculo(formData)}
-          >
-            Guardar Vehículo
-          </Button>
+            onClick={handleSave}
+          ></Button>
         </Box>
       </Box>
     </Box>
