@@ -433,7 +433,9 @@ const FormVehiculo2 = ({ onSave }) => {
               padding: "10px 20px",
             }}
             onClick={handleSave}
-          ></Button>
+          >
+            Guardar información
+          </Button>
         </Box>
       </Box>
     </Box>
