@@ -1,0 +1,63 @@
+.filter-column {
+  width: 300px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: "Work Sans", sans-serif;
+}
+
+.filter-column h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.single-range-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.single-range-container input[type="range"] {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.checkbox-dropdown details {
+  cursor: pointer;
+}
+
+.checkbox-dropdown summary {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-list div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-list input[type="checkbox"] {
+  margin: 0;
+}
