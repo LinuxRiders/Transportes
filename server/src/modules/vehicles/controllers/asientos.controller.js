@@ -1,5 +1,6 @@
 import { Asientos } from '../models/vehicle.model.js';
 import logger from '../../../utils/logger.js';
+import pool from '../../../config/db.js';
 
 /**
  * Crea un asiento individual.
@@ -136,12 +137,14 @@ export const getAllAsientos = async (req, res, next) => {
  * }
  */
 export const assignAsientosToVehicle = async (req, res, next) => {
+
     try {
-        const { idvehiculo, asientos } = req.body;
+        const { asientos } = req.body;
+        const { id } = req.params;
 
         const connection = await pool.getConnection(); // Obtener una conexión de la pool
 
-        if (!idvehiculo || !Array.isArray(asientos)) {
+        if (!id || !Array.isArray(asientos)) {
             return res.status(400).json({ error: 'Datos incompletos o inválidos' });
         }
 
@@ -152,7 +155,7 @@ export const assignAsientosToVehicle = async (req, res, next) => {
 
         for (const seatData of asientos) {
             // Agrega la FK del vehículo
-            const data = { ...seatData, idvehiculo };
+            const data = { ...seatData, idvehiculo: id };
             const seatId = await Asientos.create(data, connection);
             createdIds.push(seatId);
         }
@@ -162,7 +165,7 @@ export const assignAsientosToVehicle = async (req, res, next) => {
 
         // Podrías retornar directamente el listado de asientos creados
         // o hacer un findById para cada ID si quieres más información.
-        logger.info(`AsientosController:assignAsientosToVehicle -> vehiculo=${idvehiculo}, asientosCreados=${createdIds.length}`);
+        logger.info(`AsientosController:assignAsientosToVehicle -> vehiculo=${id}, asientosCreados=${createdIds.length}`);
         return res.status(201).json({
             message: 'Asientos asignados correctamente',
             asientosCreados: createdIds
@@ -175,5 +178,16 @@ export const assignAsientosToVehicle = async (req, res, next) => {
         return next(error);
     } finally {
         connection.release(); // Liberar la conexión
+    }
+};
+
+export const getAsientosToVehicle = async (req, res, next) => {
+    try {
+        const asientos = await Asientos.getByVehicle(req.params.id);
+        logger.info(`AsientosController:getAsientosToVehicle Retrieved ${asientos.length} asientos`);
+        res.json({ data: asientos });
+    } catch (error) {
+        logger.error(`AsientosController:getAsientosToVehicle Error: ${error.message}`, { stack: error.stack });
+        next(error);
     }
 };

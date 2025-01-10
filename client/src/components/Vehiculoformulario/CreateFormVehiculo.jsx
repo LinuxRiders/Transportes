@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Grid, Button } from "@mui/material";
 import FormVehiculo2 from "./VehiculoForm2";
 import AsientoVehiculoform from "./AsientoVehiculoform";
@@ -62,14 +62,13 @@ const CreateFormVehiculo = () => {
       return null;
     }
   };
-  const prepareAsiento = (seat, idvehiculo) => {
+  const prepareAsiento = (seat) => {
     return {
       fila: String(seat.row), // Asegúrate de que sea un número entero
       columna: seat.column.charAt(0), // Extrae la columna como un solo carácter
       tipo_asiento: seat.tipo_asiento || "normal", // Valor predeterminado si está vacío
       estado_asiento: seat.estado_asiento || "disponible", // Valor predeterminado si está vacío
       caracteristica: seat.caracteristica || "", // Si no hay características, envía vacío
-      idvehiculo: idvehiculo, // Relaciona el asiento con el vehículo
     };
   };
   const handleSaveAsientos = async (idvehiculo) => {
@@ -79,24 +78,35 @@ const CreateFormVehiculo = () => {
     }
 
     const preparedData = floors.flatMap((floor) =>
-      floor.selectedSeats.map((seat) => prepareAsiento(seat, idvehiculo))
+      floor.selectedSeats.map((seat) => prepareAsiento(seat))
     );
 
-    for (const asiento of preparedData) {
-      try {
-        await api.post("/asientos", asiento); // Envía cada asiento de forma individual
-        console.log(`Asiento guardado:`, asiento);
-      } catch (error) {
-        console.error(
-          "Error al guardar el asiento:",
-          asiento,
-          error.response?.data || error.message
-        );
-        alert(
-          `Error al guardar el asiento en fila ${asiento.fila} y columna ${asiento.columna}`
-        );
+    try {
+      const response = await api.post(`/asientos/vehicle/${idvehiculo}`, {
+        asientos: preparedData,
+      });
+
+      const { data } = response;
+
+      if (data) {
+        console.log(`Asientos guardados`);
       }
+    } catch (error) {
+      console.error(
+        "Error al guardar asientos",
+        error.response?.data || error.message
+      );
+      alert(
+        `Error al guardar el asiento en fila ${asiento.fila} y columna ${asiento.columna}`
+      );
     }
+
+    // for (const asiento of preparedData) {
+    //   try {
+    //     await api.post("/asientos", asiento); // Envía cada asiento de forma individual
+    //     console.log(`Asiento guardado:`, asiento);
+    //   } catch (error) {}
+    // }
   };
 
   const handleSaveAll = async () => {
