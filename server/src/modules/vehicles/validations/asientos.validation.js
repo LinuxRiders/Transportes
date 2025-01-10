@@ -67,11 +67,6 @@ export const updateAsientoValidation = [
  * }
  */
 export const assignAsientosToVehicleValidation = [
-    // 1) Validar idvehiculo
-    body('idvehiculo')
-        .isInt({ min: 1 })
-        .withMessage('idvehiculo debe ser un entero positivo'),
-
     // 2) Validar que "asientos" sea un array no vacío
     body('asientos')
         .isArray({ min: 1 })
