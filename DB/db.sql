@@ -155,6 +155,7 @@ CREATE TABLE vehiculo (
     idtransmision INT,
     idtipo_vehiculo INT,
     idcombustible INT,
+    id_empresa INT, -- Nuevo
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INT NULL,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -164,6 +165,7 @@ CREATE TABLE vehiculo (
     FOREIGN KEY (idtransmision) REFERENCES transmision(idtransmision) ON DELETE SET NULL,
     FOREIGN KEY (idtipo_vehiculo) REFERENCES tipo_vehiculo(idtipo_vehiculo) ON DELETE SET NULL,
     FOREIGN KEY (idcombustible) REFERENCES combustible(idcombustible) ON DELETE SET NULL,
+    FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa) ON DELETE CASCADE, -- Nuevo
     FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
@@ -186,3 +188,132 @@ CREATE TABLE asientos (
     FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL 
 );
+
+
+-- BD TERMINALES
+-- Usar base de datos actual
+USE db_vehiculo;
+
+-- Crear o actualizar tabla empresas con auditoría
+CREATE TABLE IF NOT EXISTS empresas (
+    id_empresa INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    direccion VARCHAR(200) NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
+    ruc VARCHAR(45) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+-- Crear o actualizar tabla ciudades con auditoría
+CREATE TABLE IF NOT EXISTS ciudades (
+    id_ciudad INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+-- Crear o actualizar tabla terminales con auditoría
+CREATE TABLE IF NOT EXISTS terminales (
+    id_terminal INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    direccion VARCHAR(200),
+    id_empresa INT,
+    id_ciudad INT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa) ON DELETE CASCADE,
+    FOREIGN KEY (id_ciudad) REFERENCES ciudades(id_ciudad) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+-- Ampliar tabla vehiculos para incluir auditoría si no está
+ALTER TABLE vehiculos
+ADD COLUMN IF NOT EXISTS id_empresa INT,
+ADD FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa) ON DELETE CASCADE,
+
+-- Crear tabla viajes con auditoría
+CREATE TABLE IF NOT EXISTS viajes (
+    id_viaje INT AUTO_INCREMENT PRIMARY KEY,
+    id_terminal_origen INT NOT NULL,
+    id_terminal_destino INT NOT NULL,
+    id_vehiculo INT NOT NULL,
+    fecha_hora_salida DATETIME NOT NULL,
+    fecha_hora_llegada DATETIME NOT NULL,
+    estado ENUM('pendiente', 'en_progreso', 'completado', 'interrumpido', 'cancelado') DEFAULT 'pendiente',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (id_terminal_origen) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
+    FOREIGN KEY (id_terminal_destino) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
+    FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+-- Crear tabla colas_terminal con auditoría
+CREATE TABLE IF NOT EXISTS colas_terminal (
+    id_cola INT AUTO_INCREMENT PRIMARY KEY,
+    id_terminal INT NOT NULL,
+    id_vehiculo INT NOT NULL,
+    hora_llegada DATETIME NOT NULL,
+    estado VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (id_terminal) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
+    FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+-- Insertar datos iniciales
+INSERT INTO empresas (nombre, direccion, telefono) VALUES
+('Transporte Urbano A', 'Av. Principal', '123-456-789'),
+('Transporte Interprov.', 'Calle Secundaria', '987-654-321')
+ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), direccion=VALUES(direccion), telefono=VALUES(telefono);
+
+INSERT INTO ciudades (nombre) VALUES
+('Ciudad A'),
+('Ciudad B')
+ON DUPLICATE KEY UPDATE nombre=VALUES(nombre);
+
+INSERT INTO terminales (nombre, direccion, id_empresa, id_ciudad) VALUES
+('Terminal Central', 'Av. Transporte 123', 1, 1),
+('Terminal Norte', 'Calle Secundaria 456', 2, 2)
+ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), direccion=VALUES(direccion), id_empresa=VALUES(id_empresa), id_ciudad=VALUES(id_ciudad);
+
+INSERT INTO vehiculos (placa, marca, modelo, capacidad, id_empresa, estado) VALUES
+('ABC123', 'Toyota', 'HiAce', 15, 1, 'Activo'),
+('DEF456', 'Nissan', 'Urban', 12, 2, 'Activo')
+ON DUPLICATE KEY UPDATE placa=VALUES(placa), marca=VALUES(marca), modelo=VALUES(modelo), capacidad=VALUES(capacidad), id_empresa=VALUES(id_empresa), estado=VALUES(estado);
+
+INSERT INTO viajes (id_terminal_origen, id_terminal_destino, id_vehiculo, fecha_hora_salida, fecha_hora_llegada, estado) VALUES
+(1, 2, 1, '2024-05-20 08:00', '2024-05-20 10:00', 'Completado'),
+(2, 1, 2, '2024-05-21 09:00', NULL, 'En curso')
+ON DUPLICATE KEY UPDATE id_terminal_origen=VALUES(id_terminal_origen), id_terminal_destino=VALUES(id_terminal_destino), id_vehiculo=VALUES(id_vehiculo), fecha_hora_salida=VALUES(fecha_hora_salida), fecha_hora_llegada=VALUES(fecha_hora_llegada), estado=VALUES(estado);
+
+INSERT INTO colas_terminal (id_terminal, id_vehiculo, hora_llegada, estado) VALUES
+(1, 1, '2024-05-20 07:00', 'En cola'),
+(2, 2, '2024-05-21 08:30', 'En cola')
+ON DUPLICATE KEY UPDATE id_terminal=VALUES(id_terminal), id_vehiculo=VALUES(id_vehiculo), hora_llegada=VALUES(hora_llegada), estado=VALUES(estado);
+```
+

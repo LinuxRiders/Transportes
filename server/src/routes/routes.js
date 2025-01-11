@@ -13,6 +13,19 @@ import combustibleRoutes from '../modules/vehicles/routes/combustible.routes.js'
 import vehiculoRoutes from '../modules/vehicles/routes/vehiculo.routes.js';
 import asientosRoutes from '../modules/vehicles/routes/asientos.routes.js';
 
+import terminalRoutes from '../modules/Travels/routes/terminal.routes.js';
+import viajeRoutes from '../modules/Travels/routes/viaje.routes.js';
+import colaTerminalRoutes from '../modules/Travels/routes/colaTerminal.routes.js';
+import ciudadRoutes from '../modules/Travels/routes/ciudad.routes.js';
+import empresaRoutes from '../modules/Travels/routes/empresa.routes.js';
+
+import searchRoutes from '../modules/Search/routes/search.routes.js';
+
+import rutaRoutes from '../modules/Rutas/routes/ruta.routes.js';
+import lugarTuristicoRoutes from '../modules/Rutas/routes/lugarTuristico.routes.js';
+import categoriaLugarRoutes from '../modules/Rutas/routes/categoriaLugar.routes.js';
+import rutaLugarRoutes from '../modules/Rutas/routes/rutaLugar.routes.js';
+
 const router = Router();
 
 // ============== Montar rutas de Users & Auth ==============
@@ -31,6 +44,18 @@ router.use('/combustibles', combustibleRoutes);      // /api/combustibles
 router.use('/vehiculos', vehiculoRoutes);            // /api/vehiculos
 router.use('/asientos', asientosRoutes);             // /api/asientos
 
+router.use('/ciudades', ciudadRoutes);
+router.use('/empresas', empresaRoutes);
+router.use('/terminales', terminalRoutes);
+router.use('/viajes', viajeRoutes);
+router.use('/colas-terminal', colaTerminalRoutes);
+router.use('/search', searchRoutes);                 // /api/search
+
+
+router.use('/rutas', rutaRoutes);                    // /api/rutas
+router.use('/lugares-turisticos', lugarTuristicoRoutes); // /api/lugares-turisticos
+router.use('/categorias-lugares', categoriaLugarRoutes); // /api/categorias-lugares
+router.use('/rutas-lugares', rutaLugarRoutes); // /api/categorias-lugares
 
 router.get('/ping', (req, res) => {
     res.send("Conexion Funcional");
