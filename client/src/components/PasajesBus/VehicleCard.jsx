@@ -1,78 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import api from "../../api/api"; // Asegúrate de importar correctamente tu configuración de axios
 import "./VehicleCard.css";
 
-const VehicleCard = () => {
-  const vehicles = [
-    {
-      idvehiculo: 1,
-      empresa: "Wari Palomino",
-      logo: "https://www.grupopalomino.com.pe/assets/img/palomino.png",
-      clase: "CHASQUI CLASS",
-      primera_salida: "08:00 AM",
-      ultima_llegada: "07:00 AM",
-      duracion: "23h 00m",
-      precio: 140,
-      asientos_disponibles: 50,
-      servicios: [
-        { icon: "🛋️", nombre: "Asiento reclinable 160°" },
-        { icon: "🛋️", nombre: "Asiento reclinable 140°" },
-        { icon: "❄️", nombre: "Aire acondicionado" },
-        { icon: "📺", nombre: "TV" },
-        { icon: "🎵", nombre: "Música" },
-        { icon: "🛁", nombre: "Baños" },
-        { icon: "📱", nombre: "eTicket (boleto electrónico)" },
-        { icon: "🔌", nombre: "Toma corriente" },
-        { icon: "🚿", nombre: "Cuarto de baño" },
-        { icon: "🔋", nombre: "Puerto USB para el cargador" },
-        { icon: "🚻", nombre: "Servicios higiénicos" },
-      ],
-      horarios: [
-        {
-          salida: "08:00 AM",
-          llegada: "07:00 AM",
-          terminal_origen: "Terminal Terrestre Cusco",
-          terminal_destino: "La Victoria",
-          precio: 140,
-        },
-        {
-          salida: "09:00 AM",
-          llegada: "08:00 AM",
-          terminal_origen: "La Victoria",
-          terminal_destino: "Terminal Terrestre Cusco",
-          precio: 150,
-        },
-      ],
-    },
-    {
-      idvehiculo: 2,
-      empresa: "Andes Express",
-      logo: "https://www.grupopalomino.com.pe/assets/img/palomino.png",
-      clase: "LUXURY CLASS",
-      primera_salida: "10:00 AM",
-      ultima_llegada: "09:00 PM",
-      duracion: "11h 00m",
-      precio: 180,
-      asientos_disponibles: 40,
-      servicios: [
-        { icon: "🛋️", nombre: "Asiento reclinable 180°" },
-        { icon: "❄️", nombre: "Aire acondicionado premium" },
-        { icon: "📺", nombre: "TV personal" },
-        { icon: "🎵", nombre: "Auriculares incluidos" },
-        { icon: "🛁", nombre: "Baños" },
-      ],
-      horarios: [
-        {
-          salida: "10:00 AM",
-          llegada: "09:00 PM",
-          terminal_origen: "Terminal Terrestre Lima",
-          terminal_destino: "Terminal Terrestre Arequipa",
-          precio: 180,
-        },
-      ],
-    },
-  ];
+const serviceIcons = {
+  placa: "🪪",
+  carroceria: "🚗",
+  transmision: "⚙️",
+  combustible: "⛽",
+  asientos: "👥",
+  maletas: "🧳",
+  anio: "📅",
+};
 
+const VehicleCard = () => {
+  const [vehicles, setVehicles] = useState([]);
   const [expandedTabs, setExpandedTabs] = useState({});
+
+  // Llama a la API para obtener los vehículos
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await api.get("/vehiculos");
+        const { data } = response.data; // Ajusta si tu API tiene otra estructura de respuesta
+        setVehicles(data);
+      } catch (error) {
+        console.error("Error al obtener los vehículos:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
 
   const toggleTab = (idvehiculo, tab) => {
     setExpandedTabs((prevState) => ({
@@ -99,14 +56,14 @@ const VehicleCard = () => {
           >
             <div className="unique-vehicle-logo-container">
               <img
-                src={vehicle.logo}
-                alt={vehicle.empresa}
+                src={vehicle.logo || "/default-logo.png"} // Logo por defecto si no existe
+                alt={vehicle.marca || "Vehículo"}
                 className="unique-vehicle-logo"
               />
             </div>
             <div className="unique-vehicle-info">
-              <h3 className="unique-vehicle-name">{vehicle.empresa}</h3>
-              <p className="unique-vehicle-class">{vehicle.clase}</p>
+              <h3 className="unique-vehicle-name">{vehicle.marca}</h3>
+              <p className="unique-vehicle-class">{vehicle.modelo}</p>
             </div>
             <div className="unique-vehicle-timing">
               <div className="timing-item">
@@ -129,9 +86,9 @@ const VehicleCard = () => {
               </div>
             </div>
             <div className="unique-vehicle-asientos-precio">
-              <p>👥 {vehicle.asientos_disponibles}</p>
+              <p>👥 {vehicle.capacidad_asientos}</p>
               <p>
-                Desde <strong>s/ {vehicle.precio}</strong>
+                Desde <strong>s/ {vehicle.precio || "N/A"}</strong>
               </p>
             </div>
           </div>
@@ -177,10 +134,26 @@ const VehicleCard = () => {
           {/* Desplegable Servicios */}
           {expandedTabs[vehicle.idvehiculo] === "servicios" && (
             <div className="unique-services-container">
-              {vehicle.servicios.map((servicio, index) => (
-                <div key={index} className="unique-service-item">
-                  <span className="unique-service-icon">{servicio.icon}</span>
-                  <p>{servicio.nombre}</p>
+              {[
+                { key: "placa", value: vehicle.placa },
+                { key: "carroceria", value: vehicle.tipo_carroceria },
+                { key: "transmision", value: vehicle.tipo_transmision },
+                { key: "combustible", value: vehicle.tipo_combustible },
+                {
+                  key: "asientos",
+                  value: `${vehicle.capacidad_asientos} asientos`,
+                },
+                {
+                  key: "maletas",
+                  value: `${vehicle.capacidad_maletas} maletas`,
+                },
+                { key: "anio", value: vehicle.anio_fabricacion },
+              ].map((service) => (
+                <div key={service.key} className="unique-service-item">
+                  <span className="unique-service-icon">
+                    {serviceIcons[service.key]}
+                  </span>
+                  <p>{service.value}</p>
                 </div>
               ))}
             </div>
