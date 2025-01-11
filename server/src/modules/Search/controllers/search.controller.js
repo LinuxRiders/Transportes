@@ -1,9 +1,40 @@
+import logger from '../../../utils/logger.js';
 import { Search } from '../models/search.model.js';
-import logger from '../../utils/logger.js';
 
 export const search = async (req, res, next) => {
     try {
-        const results = await Search.find(req.query);
+        const {
+            marca,
+            modelo,
+            anio_fabricacion,
+            estado,
+            ruta,
+            estado_viaje,
+            fecha_inicio,
+            terminal_nombre,
+            ciudad,
+            limit,
+            page,
+            orderBy,
+            order
+        } = req.query;
+
+        // Llamar al modelo con los parámetros proporcionados
+        const results = await Search.find({
+            marca,
+            modelo,
+            anio_fabricacion,
+            estado,
+            ruta,
+            estado_viaje,
+            fecha_inicio,
+            terminal_nombre,
+            ciudad,
+            limit,
+            page,
+            orderBy,
+            order
+        });
 
         logger.info(`SearchController:search Retrieved ${results.length} results`);
         res.json({ data: results });

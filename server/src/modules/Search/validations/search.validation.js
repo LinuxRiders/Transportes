@@ -43,5 +43,27 @@ export const searchValidation = [
     query('ciudad')
         .optional()
         .isString()
-        .withMessage('El parámetro "ciudad" debe ser una cadena de texto.')
+        .withMessage('El parámetro "ciudad" debe ser una cadena de texto.'),
+
+    // Validaciones para paginación y límites
+    query('limit')
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage('El parámetro "limit" debe ser un entero entre 1 y 100.'),
+    query('page')
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage('El parámetro "page" debe ser un entero mayor o igual a 1.'),
+
+    // Validaciones para ordenación
+    query('orderBy')
+        .optional()
+        .isString()
+        .isIn(['id', 'marca', 'modelo', 'anio_fabricacion', 'estado'])
+        .withMessage('El parámetro "orderBy" debe ser "id", "marca", "modelo", "anio_fabricacion", o "estado".'),
+    query('order')
+        .optional()
+        .isString()
+        .isIn(['asc', 'desc'])
+        .withMessage('El parámetro "order" debe ser "asc" o "desc".')
 ];

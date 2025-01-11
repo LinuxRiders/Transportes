@@ -1,5 +1,5 @@
-import pool from '../../config/db.js';
-import logger from '../../utils/logger.js';
+import pool from '../../../config/db.js';
+import logger from '../../../utils/logger.js';
 
 export const Search = {
     find: async ({
@@ -11,13 +11,17 @@ export const Search = {
         estado_viaje,
         fecha_inicio,
         terminal_nombre,
-        ciudad
+        ciudad,
+        limit = 10,
+        page = 1,
+        orderBy = 'id',
+        order = 'asc'
     }) => {
         try {
             const filters = [];
             const values = [];
 
-            // Construir filtros para vehículos
+            // Construir filtros
             if (marca) {
                 filters.push("v.marca LIKE ?");
                 values.push(`%${marca}%`);
@@ -34,8 +38,6 @@ export const Search = {
                 filters.push("v.estado = ?");
                 values.push(estado);
             }
-
-            // Construir filtros para viajes
             if (ruta) {
                 filters.push("r.nombre_ruta LIKE ?");
                 values.push(`%${ruta}%`);
@@ -48,8 +50,6 @@ export const Search = {
                 filters.push("DATE(vi.fecha_inicio) = ?");
                 values.push(fecha_inicio);
             }
-
-            // Construir filtros para terminales
             if (terminal_nombre) {
                 filters.push("t.nombre LIKE ?");
                 values.push(`%${terminal_nombre}%`);
@@ -59,28 +59,36 @@ export const Search = {
                 values.push(`%${ciudad}%`);
             }
 
-            // Query dinámica
+            // Paginación y orden
+            const offset = (page - 1) * limit;
+            const orderClause = `ORDER BY ${orderBy} ${order.toUpperCase()}`;
+            const limitClause = `LIMIT ? OFFSET ?`;
+            values.push(parseInt(limit), parseInt(offset));
+
+            // Query
             const query = `
-        SELECT 
-          v.idvehiculo AS vehiculo_id,
-          v.marca AS vehiculo_marca,
-          v.modelo AS vehiculo_modelo,
-          v.anio_fabricacion AS vehiculo_anio,
-          v.estado AS vehiculo_estado,
-          vi.id_viaje AS viaje_id,
-          r.nombre_ruta AS viaje_ruta,
-          vi.estado AS viaje_estado,
-          vi.fecha_inicio AS viaje_fecha_inicio,
-          t.id_terminal AS terminal_id,
-          t.nombre AS terminal_nombre,
-          c.nombre AS terminal_ciudad
-        FROM vehiculo v
-        LEFT JOIN viajes vi ON v.idvehiculo = vi.vehiculo_id
-        LEFT JOIN rutas r ON vi.ruta_id = r.id_rutas
-        LEFT JOIN terminales t ON vi.terminal_id_origen = t.id_terminal
-        LEFT JOIN ciudades c ON t.id_ciudad = c.id_ciudad
-        ${filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : ""}
-      `;
+          SELECT 
+            v.idvehiculo AS vehiculo_id,
+            v.marca AS vehiculo_marca,
+            v.modelo AS vehiculo_modelo,
+            v.anio_fabricacion AS vehiculo_anio,
+            v.estado AS vehiculo_estado,
+            vi.id_viaje AS viaje_id,
+            r.nombre_ruta AS viaje_ruta,
+            vi.estado AS viaje_estado,
+            vi.fecha_inicio AS viaje_fecha_inicio,
+            t.id_terminal AS terminal_id,
+            t.nombre AS terminal_nombre,
+            c.nombre AS terminal_ciudad
+          FROM vehiculo v
+          LEFT JOIN viajes vi ON v.idvehiculo = vi.vehiculo_id
+          LEFT JOIN rutas r ON vi.ruta_id = r.id_rutas
+          LEFT JOIN terminales t ON vi.terminal_id_origen = t.id_terminal
+          LEFT JOIN ciudades c ON t.id_ciudad = c.id_ciudad
+          ${filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : ""}
+          ${orderClause}
+          ${limitClause}
+        `;
 
             const [results] = await pool.query(query, values);
             return results;
