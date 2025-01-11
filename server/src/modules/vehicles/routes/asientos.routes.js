@@ -5,7 +5,8 @@ import {
     getAllAsientos,
     assignAsientosToVehicle,
     getAsiento,
-    deleteAsiento
+    deleteAsiento,
+    getAsientosToVehicle
 } from '../controllers/asientos.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { assignAsientosToVehicleValidation, createAsientoValidation, updateAsientoValidation } from '../validations/asientos.validation.js';
@@ -20,8 +21,8 @@ router.get('/:id', idParamValidation, validateResults, getAsiento);
 router.put('/:id', ...idParamValidation, ...updateAsientoValidation, validateResults, updateAsiento);
 router.delete('/:id', idParamValidation, validateResults, deleteAsiento);
 
-
 // Asignar varios asientos a un vehículo
-router.delete('/:id', assignAsientosToVehicleValidation, validateResults, assignAsientosToVehicle);
+router.get('/vehicle/:id', ...idParamValidation, validateResults, getAsientosToVehicle);
+router.post('/vehicle/:id', ...idParamValidation, ...assignAsientosToVehicleValidation, validateResults, assignAsientosToVehicle);
 
 export default router;

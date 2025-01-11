@@ -378,7 +378,7 @@ export const Transmision = {
 
 export const Carroceria = {
     // CREATE
-    create: async ({ tipo_carroceria, created_by }, connection = pool) => {
+    create: async ({ tipo_carroceria, created_by = null }, connection = pool) => {
         try {
             const [result] = await connection.execute(
                 `INSERT INTO carroceria (
@@ -796,6 +796,21 @@ export const Asientos = {
                 `SELECT *
            FROM asientos
            WHERE deleted_at IS NULL`
+            );
+            return rows;
+        } catch (error) {
+            logger.error(`[Model]:Asientos:getAll Error: ${error.message}`, { stack: error.stack });
+            throw error;
+        }
+    },
+
+    // GET BY Vehicle
+    getByVehicle: async (vehicleId, connection = pool) => {
+        try {
+            const [rows] = await connection.execute(
+                `SELECT *
+           FROM asientos
+           WHERE idvehiculo = ? AND deleted_at IS NULL`, [vehicleId]
             );
             return rows;
         } catch (error) {
