@@ -471,19 +471,13 @@ const Buscador = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.71)",
+            transition: "transform 0.3s ease",
             alignSelf: isSmallScreen ? "center" : "flex-start",
             width: isSmallScreen ? "100%" : "auto",
           }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = "#ffa759";
-            e.currentTarget.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.2)";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = "#ff7800";
-            e.currentTarget.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
-          }}
+          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
+          onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           <FaSearch style={{ fontSize: "20px" }} />
         </button>
