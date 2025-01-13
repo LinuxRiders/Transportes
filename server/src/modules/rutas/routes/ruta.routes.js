@@ -15,7 +15,7 @@ const router = Router();
 // Crear una ruta
 router.post(
   '/',
-  [...createRutaValidation, ...createdByValidation],
+  ...createRutaValidation, ...createdByValidation,
   validateResults,
   createRuta
 );
@@ -34,7 +34,7 @@ router.get(
 // Actualizar una ruta por ID
 router.put(
   '/:id',
-  [...idParamValidation, ...updateRutaValidation, ...updatedByValidation],
+  ...idParamValidation, ...updateRutaValidation, ...updatedByValidation,
   validateResults,
   updateRuta
 );
@@ -42,7 +42,7 @@ router.put(
 // Eliminar una ruta (borrado lógico)
 router.delete(
   '/:id',
-  [...idParamValidation, ...updatedByValidation],
+  ...idParamValidation, ...updatedByValidation,
   validateResults,
   deleteRuta
 );

@@ -241,10 +241,6 @@ CREATE TABLE IF NOT EXISTS terminales (
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
--- Ampliar tabla vehiculos para incluir auditoría si no está
-ALTER TABLE vehiculos
-ADD COLUMN IF NOT EXISTS id_empresa INT,
-ADD FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa) ON DELETE CASCADE,
 
 -- Crear tabla viajes con auditoría
 CREATE TABLE IF NOT EXISTS viajes (
@@ -252,16 +248,18 @@ CREATE TABLE IF NOT EXISTS viajes (
     id_terminal_origen INT NOT NULL,
     id_terminal_destino INT NOT NULL,
     id_vehiculo INT NOT NULL,
+     ruta_id INT,
     fecha_hora_salida DATETIME NOT NULL,
     fecha_hora_llegada DATETIME NOT NULL,
     estado ENUM('pendiente', 'en_progreso', 'completado', 'interrumpido', 'cancelado') DEFAULT 'pendiente',
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     created_by INT NULL,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     updated_by INT NULL,
     deleted_at DATETIME NULL,
     FOREIGN KEY (id_terminal_origen) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
     FOREIGN KEY (id_terminal_destino) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
+    FOREIGN KEY (ruta_id) REFERENCES rutas(id_rutas) ON DELETE CASCADE,
     FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
@@ -285,35 +283,68 @@ CREATE TABLE IF NOT EXISTS colas_terminal (
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
--- Insertar datos iniciales
-INSERT INTO empresas (nombre, direccion, telefono) VALUES
-('Transporte Urbano A', 'Av. Principal', '123-456-789'),
-('Transporte Interprov.', 'Calle Secundaria', '987-654-321')
-ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), direccion=VALUES(direccion), telefono=VALUES(telefono);
 
-INSERT INTO ciudades (nombre) VALUES
-('Ciudad A'),
-('Ciudad B')
-ON DUPLICATE KEY UPDATE nombre=VALUES(nombre);
+-- TABLA: rutas
+CREATE TABLE IF NOT EXISTS rutas (
+    id_rutas INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_ruta VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    duracion VARCHAR(50),
+    precio DECIMAL(10, 2),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
 
-INSERT INTO terminales (nombre, direccion, id_empresa, id_ciudad) VALUES
-('Terminal Central', 'Av. Transporte 123', 1, 1),
-('Terminal Norte', 'Calle Secundaria 456', 2, 2)
-ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), direccion=VALUES(direccion), id_empresa=VALUES(id_empresa), id_ciudad=VALUES(id_ciudad);
+-- TABLA: categorias_lugares
+CREATE TABLE IF NOT EXISTS categorias_lugares (
+    id_categoria_lugares INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_categoria VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
 
-INSERT INTO vehiculos (placa, marca, modelo, capacidad, id_empresa, estado) VALUES
-('ABC123', 'Toyota', 'HiAce', 15, 1, 'Activo'),
-('DEF456', 'Nissan', 'Urban', 12, 2, 'Activo')
-ON DUPLICATE KEY UPDATE placa=VALUES(placa), marca=VALUES(marca), modelo=VALUES(modelo), capacidad=VALUES(capacidad), id_empresa=VALUES(id_empresa), estado=VALUES(estado);
+-- TABLA: lugares_turisticos
+CREATE TABLE IF NOT EXISTS lugares_turisticos (
+    id_lugares_turisticos INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    ubicacion VARCHAR(255),
+    categoria_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (categoria_id) REFERENCES categorias_lugares(id_categoria_lugares) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
 
-INSERT INTO viajes (id_terminal_origen, id_terminal_destino, id_vehiculo, fecha_hora_salida, fecha_hora_llegada, estado) VALUES
-(1, 2, 1, '2024-05-20 08:00', '2024-05-20 10:00', 'Completado'),
-(2, 1, 2, '2024-05-21 09:00', NULL, 'En curso')
-ON DUPLICATE KEY UPDATE id_terminal_origen=VALUES(id_terminal_origen), id_terminal_destino=VALUES(id_terminal_destino), id_vehiculo=VALUES(id_vehiculo), fecha_hora_salida=VALUES(fecha_hora_salida), fecha_hora_llegada=VALUES(fecha_hora_llegada), estado=VALUES(estado);
-
-INSERT INTO colas_terminal (id_terminal, id_vehiculo, hora_llegada, estado) VALUES
-(1, 1, '2024-05-20 07:00', 'En cola'),
-(2, 2, '2024-05-21 08:30', 'En cola')
-ON DUPLICATE KEY UPDATE id_terminal=VALUES(id_terminal), id_vehiculo=VALUES(id_vehiculo), hora_llegada=VALUES(hora_llegada), estado=VALUES(estado);
-```
-
+-- TABLA: ruta_lugares
+CREATE TABLE IF NOT EXISTS ruta_lugares (
+    id_ruta_lugares INT AUTO_INCREMENT PRIMARY KEY,
+    ruta_id INT NOT NULL,
+    lugar_turistico_id INT NOT NULL,
+    orden_visita INT NOT NULL,
+    tiempo_estancia INT NOT NULL, -- Tiempo en minutos o horas
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (ruta_id) REFERENCES rutas(id_rutas) ON DELETE CASCADE,
+    FOREIGN KEY (lugar_turistico_id) REFERENCES lugares_turisticos(id_lugares_turisticos) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
