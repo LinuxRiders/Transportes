@@ -398,269 +398,187 @@ const EditableList = ({
 };
 
 const RutaForm = () => {
-  const [rutas, setRutas] = useState([]);
   const [lugaresTuristicos, setLugaresTuristicos] = useState([]);
   const [categoriasLugares, setCategoriasLugares] = useState([]);
   const [rutaLugares, setRutaLugares] = useState([]);
-  const [viajes, setViajes] = useState([]);
   const [selectedStep, setSelectedStep] = useState(0);
   const steps = [
     { label: "Categorías y Ruta Lugares" },
     { label: "Lugares Turísticos" },
   ];
-  //==========================================================
-  useEffect(() => {
-    async function getRutas() {
-      try {
-        const response = await api.get("/ruta");
-        const { data } = response.data;
-        setRutas(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    getRutas();
-  }, []);
-
-  async function handleAddRuta(fields) {
-    try {
-      const response = await api.post("/ruta", fields);
-      const { data } = response.data;
-      if (data) {
-        setRutas((prev) => [...prev, data]);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function handleDeleteRuta(index) {
-    try {
-      const ruta_id = rutas[index]?.id_rutas;
-      if (!ruta_id) return;
-      await api.delete(`/ruta/${ruta_id}`);
-      setRutas((prev) => prev.filter((_, i) => i !== index));
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function handleEditRuta(index, fields) {
-    try {
-      const ruta_id = rutas[index]?.id_rutas;
-      if (!ruta_id) return;
-      await api.put(`/ruta/${ruta_id}`, fields);
-      setRutas((prev) =>
-        prev.map((ruta, i) => (i === index ? { ...ruta, ...fields } : ruta))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  //================================================================
-  useEffect(() => {
-    async function getData() {
-      try {
-        const lugaresResponse = await api.get("/lugares_turisticos");
-        const categoriasResponse = await api.get("/categorias_lugares");
-        setLugaresTuristicos(lugaresResponse.data.data);
-        setCategoriasLugares(categoriasResponse.data.data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    getData();
-  }, []);
-
-  async function handleAddLugar(fields) {
-    try {
-      const response = await api.post("/lugares_turisticos", fields);
-      const { data } = response.data;
-      if (data) {
-        setLugaresTuristicos((prev) => [...prev, data]);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function handleDeleteLugar(index) {
-    try {
-      const lugar_id = lugaresTuristicos[index]?.id_lugares_turisticos;
-      if (!lugar_id) return;
-      await api.delete(`/lugares_turisticos/${lugar_id}`);
-      setLugaresTuristicos((prev) => prev.filter((_, i) => i !== index));
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function handleEditLugar(index, fields) {
-    try {
-      const lugar_id = lugaresTuristicos[index]?.id_lugares_turisticos;
-      if (!lugar_id) return;
-      await api.put(`/lugares_turisticos/${lugar_id}`, fields);
-      setLugaresTuristicos((prev) =>
-        prev.map((lugar, i) => (i === index ? { ...lugar, ...fields } : lugar))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  //============================================================================
+  //============================Categorias Lugares================================================
   useEffect(() => {
     async function getCategorias() {
       try {
-        const response = await api.get("/categorias_lugares");
-        setCategoriasLugares(response.data.data);
-      } catch (error) {
-        console.error(error);
-      }
+        const response = await api.get("/categorias-lugares");
+
+        const { data } = response.data;
+
+        setCategoriasLugares(data);
+      } catch (error) {}
     }
+
     getCategorias();
   }, []);
 
-  async function handleAddCategoria(fields) {
+  async function handleAddCategorias(fields) {
     try {
-      const response = await api.post("/categorias_lugares", fields);
+      const response = await api.post("/categorias-lugares", fields);
+
       const { data } = response.data;
+
       if (data) {
-        setCategoriasLugares((prev) => [...prev, data]);
+        console.log(data);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }
 
-  async function handleDeleteCategoria(index) {
+  async function handleDeleteCategorias(index) {
     try {
-      const categoria_id = categoriasLugares[index]?.Id_catefgoria_lugares;
-      if (!categoria_id) return;
-      await api.delete(`/categorias_lugares/${categoria_id}`);
-      setCategoriasLugares((prev) => prev.filter((_, i) => i !== index));
-    } catch (error) {
-      console.error(error);
-    }
+      const categoria_id = categoriasLugares[index]?.idcategorias_lugares;
+
+      const response = await api.delete(`/categorias-lugares/${categoria_id}`);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
   }
 
-  async function handleEditCategoria(index, fields) {
+  async function handleEditCategorias(index, fields) {
     try {
-      const categoria_id = categoriasLugares[index]?.Id_catefgoria_lugares;
-      if (!categoria_id) return;
-      await api.put(`/categorias_lugares/${categoria_id}`, fields);
-      setCategoriasLugares((prev) =>
-        prev.map((categoria, i) =>
-          i === index ? { ...categoria, ...fields } : categoria
-        )
+      const categoria_id = marcas[index]?.idcategorias_lugares;
+
+      const response = await api.put(
+        `/categorias-lugares/${categoria_id}`,
+        fields
       );
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  //================================================================
-  useEffect(() => {
-    async function getData() {
-      try {
-        const [rutaResponse, lugarResponse, rutaLugarResponse] =
-          await Promise.all([
-            api.get("/ruta"),
-            api.get("/lugares_turisticos"),
-            api.get("/ruta_lugares"),
-          ]);
-        setRutas(rutaResponse.data.data);
-        setLugaresTuristicos(lugarResponse.data.data);
-        setRutaLugares(rutaLugarResponse.data.data);
-      } catch (error) {
-        console.error(error);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
       }
+    } catch (error) {}
+  }
+
+  //============================Ruta Lugares======================================================
+  useEffect(() => {
+    async function getRutas() {
+      try {
+        const response = await api.get("/rutas-lugares");
+
+        const { data } = response.data;
+
+        setRutaLugares(data);
+      } catch (error) {}
     }
-    getData();
+
+    getRutas();
   }, []);
 
-  async function handleAddRutaLugar(fields) {
+  async function handleAddRutas(fields) {
     try {
-      const response = await api.post("/ruta_lugares", fields);
+      const response = await api.post("/rutas-lugares", fields);
+
       const { data } = response.data;
+
       if (data) {
-        setRutaLugares((prev) => [...prev, data]);
+        console.log(data);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }
 
-  async function handleDeleteRutaLugar(index) {
+  async function handleDeleteRutas(index) {
     try {
-      const ruta_lugar_id = rutaLugares[index]?.id_ruta_lugares;
-      if (!ruta_lugar_id) return;
-      await api.delete(`/ruta_lugares/${ruta_lugar_id}`);
-      setRutaLugares((prev) => prev.filter((_, i) => i !== index));
-    } catch (error) {
-      console.error(error);
-    }
+      const lugares_id = marcas[index]?.id_marca;
+
+      const response = await api.delete(`/rutas-lugares/${lugares_id}`);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
   }
 
-  async function handleEditRutaLugar(index, fields) {
+  async function handleEditRutas(index, fields) {
     try {
-      const ruta_lugar_id = rutaLugares[index]?.id_ruta_lugares;
-      if (!ruta_lugar_id) return;
-      await api.put(`/ruta_lugares/${ruta_lugar_id}`, fields);
-      setRutaLugares((prev) =>
-        prev.map((rl, i) => (i === index ? { ...rl, ...fields } : rl))
-      );
-    } catch (error) {
-      console.error(error);
-    }
+      const lugares_id = marcas[index]?.id_marca;
+
+      const response = await api.put(`/rutas-lugares/${lugares_id}`, fields);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
   }
-  //================================================================
+  //============================Lugares Turisticos================================================
+
   useEffect(() => {
-    async function getViajes() {
+    async function getLugaTuri() {
       try {
-        const response = await api.get("/viajes");
-        setViajes(response.data.data);
-      } catch (error) {
-        console.error(error);
-      }
+        const response = await api.get("/lugares-turisticos");
+
+        const { data } = response.data;
+
+        setLugaresTuristicos(data);
+      } catch (error) {}
     }
-    getViajes();
+
+    getMarcas();
   }, []);
 
-  async function handleAddViaje(fields) {
+  async function handleAddLugaTuri(fields) {
     try {
-      const response = await api.post("/viajes", fields);
+      const response = await api.post("/lugares-turisticos", fields);
+
       const { data } = response.data;
+
       if (data) {
-        setViajes((prev) => [...prev, data]);
+        console.log(data);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }
 
-  async function handleDeleteViaje(index) {
+  async function handleDeleteLugaTuri(index) {
     try {
-      const viaje_id = viajes[index]?.Id_viaje;
-      if (!viaje_id) return;
-      await api.delete(`/viajes/${viaje_id}`);
-      setViajes((prev) => prev.filter((_, i) => i !== index));
-    } catch (error) {
-      console.error(error);
-    }
+      const LugaTuri_id = marcas[index]?.id_marca;
+
+      const response = await api.delete(`/lugares-turisticos/${LugaTuri_id}`);
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
   }
 
-  async function handleEditViaje(index, fields) {
+  async function handleEditLugaTuri(index, fields) {
     try {
-      const viaje_id = viajes[index]?.Id_viaje;
-      if (!viaje_id) return;
-      await api.put(`/viajes/${viaje_id}`, fields);
-      setViajes((prev) =>
-        prev.map((viaje, i) => (i === index ? { ...viaje, ...fields } : viaje))
+      const LugaTuri_id = marcas[index]?.id_marca;
+
+      const response = await api.put(
+        `/lugares-turisticos/${LugaTuri_id}`,
+        fields
       );
-    } catch (error) {
-      console.error(error);
-    }
+
+      const { data } = response.data;
+
+      if (data) {
+        console.log(data);
+      }
+    } catch (error) {}
   }
-  //============================================================================
+
+  //==============================================================================================
+
   const handleNextStep = () => {
     if (selectedStep < steps.length - 1) {
       setSelectedStep((prev) => prev + 1);
@@ -705,40 +623,6 @@ const RutaForm = () => {
           </Box>
         ))}
       </Box>
-
-      {/* Contenido del paso */}
-      {/* {selectedStep === 3 && (
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <EditableList
-              title="Rutas"
-              items={rutas}
-              setItems={setRutas}
-              fields={["nombre_ruta", "descripcion", "duracion", "precio"]}
-              onSubmit={handleAddRuta}
-              onDelete={handleDeleteRuta}
-              onEdit={handleEditRuta}
-            />
-          </Grid>
-        </Grid>
-      )}
-
-      {selectedStep === 2 && (
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <EditableList
-              title="Lugares Turísticos"
-              items={lugaresTuristicos}
-              setItems={setLugaresTuristicos}
-              fields={["nombre", "descripcion", "categoria_id"]}
-              onSubmit={handleAddLugar}
-              onDelete={handleDeleteLugar}
-              onEdit={handleEditLugar}
-              relatedData={categoriasLugares}
-            />
-          </Grid>
-        </Grid>
-      )} */}
 
       {selectedStep === 0 && (
         <Grid container spacing={2}>
@@ -787,29 +671,6 @@ const RutaForm = () => {
           </Grid>
         </Grid>
       )}
-      {/* {selectedStep === 0 && (
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <EditableList
-              title="Viajes"
-              items={viajes}
-              setItems={setViajes}
-              fields={[
-                "ruta_id",
-                "vehiculo_id",
-                "Terminal_id_origen",
-                "Terminal_id_destino",
-                "fecha_inicio",
-                "fecha_fin",
-                "estado",
-              ]}
-              onSubmit={handleAddViaje}
-              onDelete={handleDeleteViaje}
-              onEdit={handleEditViaje}
-            />
-          </Grid>
-        </Grid>
-      )} */}
 
       {/* Controles de navegación */}
       <Box
