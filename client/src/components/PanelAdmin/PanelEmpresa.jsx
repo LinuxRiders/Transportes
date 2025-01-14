@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import React, { useState } from "react";
 import AdminBarVehiculo from "./AdminBarVehiculo";
 
-const AdminVehiculo = () => {
+const PanelEmpresa = () => {
   const [data, setData] = useState([]);
 
   return (
@@ -32,4 +32,4 @@ const AdminVehiculo = () => {
     </Box>
   );
 };
-export default AdminVehiculo;
+export default PanelEmpresa;

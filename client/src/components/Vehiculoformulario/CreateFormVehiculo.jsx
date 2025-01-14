@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Grid, Button } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Button } from "@mui/material";
 import FormVehiculo2 from "./VehiculoForm2";
 import AsientoVehiculoform from "./AsientoVehiculoform";
 import api from "../../api/api";
@@ -21,13 +21,18 @@ const CreateFormVehiculo = () => {
   ]);
   const [capacidadAsientos, setCapacidadAsientos] = useState(0);
 
-  const handleUpdateCapacidadAsientos = (totalAsientos) => {
-    setCapacidadAsientos(totalAsientos);
-  };
   const handleNextStep = () => {
     if (selectedStep < steps.length - 1) {
       setSelectedStep((prev) => prev + 1);
     }
+  };
+
+  const handleFormVehiculo2Save = (dataDelFormulario) => {
+    // 1) Guardamos lo que el form envía
+    setFormData(dataDelFormulario);
+
+    // 2) Avanzamos de paso
+    handleNextStep();
   };
 
   const handlePreviousStep = () => {
@@ -36,19 +41,25 @@ const CreateFormVehiculo = () => {
     }
   };
 
-  const handleSaveVehiculo = async () => {
-    // Procesar las fotos a JSON
-    const processedFotosVehiculo = formData.fotos_vehiculo.map((file) => {
-      // Aquí podrías manejar la transformación del archivo a base64 o URL si es necesario.
-      // Por ahora, asumiremos que las fotos ya son URLs o tienen un formato adecuado.
-      return typeof file === "string" ? file : URL.createObjectURL(file);
+  const handleSaveVehiculo = async (data) => {
+    // Verificar que 'fotos_vehiculo' exista y sea un arreglo
+    if (!data || !Array.isArray(data.fotos_vehiculo)) {
+      alert("Datos del vehículo incompletos o fotos no válidas.");
+      return null;
+    }
+
+    // Procesar las fotos a JSON o como sea necesario para tu backend
+    const processedFotosVehiculo = data.fotos_vehiculo.map((file) => {
+      // Aquí podrías manejar la transformación del archivo a base64 o enviar los archivos directamente
+      // Dependiendo de cómo tu backend espera recibir las imágenes
+      return typeof file === "string" ? file : file; // Ajusta según tus necesidades
     });
 
     // Preparar los datos finales
     const vehicleData = {
-      ...formData,
+      ...data,
       capacidad_asientos: capacidadAsientos,
-      fotos_vehiculo: JSON.stringify(processedFotosVehiculo), // Convertir fotos a JSON
+      fotos_vehiculo: JSON.stringify(processedFotosVehiculo), // Convertir fotos a JSON si es necesario
     };
 
     try {
@@ -62,6 +73,7 @@ const CreateFormVehiculo = () => {
       return null;
     }
   };
+
   const prepareAsiento = (seat) => {
     return {
       fila: String(seat.row), // Asegúrate de que sea un número entero
@@ -71,6 +83,7 @@ const CreateFormVehiculo = () => {
       caracteristica: seat.caracteristica || "", // Si no hay características, envía vacío
     };
   };
+
   const handleSaveAsientos = async (idvehiculo) => {
     if (!idvehiculo) {
       alert("El ID del vehículo es requerido para guardar los asientos.");
@@ -97,16 +110,9 @@ const CreateFormVehiculo = () => {
         error.response?.data || error.message
       );
       alert(
-        `Error al guardar el asiento en fila ${asiento.fila} y columna ${asiento.columna}`
+        `Error al guardar los asientos. Por favor, revisa los detalles e intenta nuevamente.`
       );
     }
-
-    // for (const asiento of preparedData) {
-    //   try {
-    //     await api.post("/asientos", asiento); // Envía cada asiento de forma individual
-    //     console.log(`Asiento guardado:`, asiento);
-    //   } catch (error) {}
-    // }
   };
 
   const handleSaveAll = async () => {
@@ -190,8 +196,9 @@ const CreateFormVehiculo = () => {
         }}
       >
         {selectedStep === 0 && (
-          <FormVehiculo2 onSave={(data) => setFormData(data)} />
+          <FormVehiculo2 onSave={handleFormVehiculo2Save} />
         )}
+
         {selectedStep === 1 && (
           <AsientoVehiculoform
             floors={floors}
@@ -223,13 +230,7 @@ const CreateFormVehiculo = () => {
           </Button>
         )}
         {selectedStep < steps.length - 1 ? (
-          <Button
-            variant="contained"
-            onClick={handleNextStep}
-            sx={{ backgroundColor: "#FF6F00" }}
-          >
-            Siguiente
-          </Button>
+          ""
         ) : (
           <Button
             variant="contained"
