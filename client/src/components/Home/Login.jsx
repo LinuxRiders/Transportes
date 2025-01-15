@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import auto from "../../assets/svg_auto.png";
 import { FaEye, FaEyeSlash, FaUpload } from "react-icons/fa";
 import api from "../../api/api";
@@ -12,7 +13,7 @@ const Login = () => {
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [userType, setUserType] = useState("");
 
-  const [email, setEmail] = useState("");
+  const [emaillogin, setEmail] = useState("");
   const [passwordlogin, setPasswordLogin] = useState("");
 
   const { login, getRols, user, isAuthenticated, logOut } = useAuth();
@@ -31,16 +32,22 @@ const Login = () => {
     setPasswordMatch(password === e.target.value);
   };
 
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+
   async function handleSubmit() {
     try {
       const response = await api.post("/auth/login", {
-        email: email,
+        email: emaillogin,
         password: passwordlogin,
       });
 
       login(response.data);
+      setErrorMessage("");
+      navigate("/Perfil");
     } catch (error) {
       console.error(error);
+      setErrorMessage(error);
     }
   }
 
@@ -151,6 +158,7 @@ const Login = () => {
   const inputStyle = {
     width: "80%",
     padding: "10px",
+    fontSize: "1.2rem",
     marginBottom: "10px",
     border: "1px solid #ccc",
     borderRadius: "5px",
@@ -161,6 +169,7 @@ const Login = () => {
   const labelStyle = {
     display: "block",
     width: "80%",
+    fontSize: "1.2rem",
     marginBottom: "10px",
     fontWeight: "bold",
     opacity: userType ? 1 : 0,
@@ -174,6 +183,7 @@ const Login = () => {
     padding: "10px 20px",
     backgroundColor: "#d37012",
     color: "#fff",
+    fontSize: "1rem",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
@@ -195,6 +205,7 @@ const Login = () => {
   const passwordMismatchStyle = {
     color: "red",
     fontSize: "12px",
+    fontSize: "1rem",
     marginTop: "-10px",
     marginBottom: "10px",
     opacity: userType ? 1 : 0,
@@ -235,8 +246,8 @@ const Login = () => {
       <div
         style={{
           display: "flex",
-          width: "800px",
-          height: "400px",
+          width: "70%",
+          height: "70%",
           borderRadius: "20px",
           boxShadow: "0 10px 30px rgba(0, 0, 0, 0.26)",
           overflow: "hidden",
@@ -275,10 +286,10 @@ const Login = () => {
           >
             <img
               src={auto}
-              alt="Decorative"
+              alt="Auto1"
               style={{
-                width: "350px",
-                height: "350px",
+                width: "410px",
+                height: "410px",
                 objectFit: "contain",
                 filter: "invert(1) brightness(2)",
               }}
@@ -298,16 +309,16 @@ const Login = () => {
           >
             <img
               src={auto}
-              alt="Decorative"
+              alt="Auto2"
               style={{
-                width: "350px",
-                height: "350px",
+                width: "410px",
+                height: "410px",
                 objectFit: "contain",
                 filter: "invert(1) brightness(2)",
               }}
             />
           </div>
-          <h2
+          <h1
             style={{
               zIndex: "1",
               marginTop: "80px",
@@ -315,8 +326,8 @@ const Login = () => {
             }}
           >
             {isRegistering ? "¡Hora de registrarse!" : "¡Bienvenido de Nuevo!"}
-          </h2>
-          <p style={{ zIndex: "1" }}>
+          </h1>
+          <p style={{ zIndex: "1", fontSize: "1.1rem" }}>
             {isRegistering
               ? "Si ya tienes una cuenta ve a Iniciar Sesión"
               : "Si aún no tienes cuenta, registrate aquí"}
@@ -326,6 +337,7 @@ const Login = () => {
             style={{
               marginTop: "20px",
               padding: "10px 20px",
+              fontSize: "1.2rem",
               backgroundColor: "#fff",
               color: isRegistering ? "black" : "#d37012",
               border: "none",
@@ -348,7 +360,7 @@ const Login = () => {
         <div style={scrollStyle}>
           {isRegistering ? (
             <>
-              <h2 style={{ marginBottom: "20px" }}>Registro</h2>
+              <h1 style={{ marginBottom: "10%", marginTop: "5%" }}>Registro</h1>
               <select
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
@@ -379,11 +391,11 @@ const Login = () => {
                       onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                       style={{
                         position: "absolute",
-                        top: "35%",
-                        right: "10px",
+                        top: "45%",
+                        right: "10%",
                         transform: "translateY(-50%)",
                         cursor: "pointer",
-                        fontSize: "18px",
+                        fontSize: "1.7rem",
                       }}
                     >
                       {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
@@ -416,9 +428,11 @@ const Login = () => {
                   <button
                     style={{
                       padding: "10px 20px",
+                      marginTop: "10px",
                       backgroundColor: "black",
                       color: "#fff",
                       border: "none",
+                      fontSize: "1.2rem",
                       borderRadius: "10px",
                       cursor: "pointer",
                       transition: "transform 0.3s ease",
@@ -437,7 +451,9 @@ const Login = () => {
             </>
           ) : (
             <>
-              <h2 style={{ marginBottom: "20%" }}>Iniciar Sesión</h2>
+              <h1 style={{ marginBottom: "10%", marginTop: "10%" }}>
+                Iniciar Sesión
+              </h1>
               <input
                 type="text"
                 placeholder="Usuario"
@@ -445,10 +461,11 @@ const Login = () => {
                   width: "80%",
                   padding: "10px",
                   marginBottom: "10px",
+                  fontSize: "1.2rem",
                   border: "1px solid #ccc",
                   borderRadius: "5px",
                 }}
-                value={email}
+                value={emaillogin}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <div style={{ position: "relative", width: "80%" }}>
@@ -458,6 +475,7 @@ const Login = () => {
                   style={{
                     width: "100%",
                     padding: "10px",
+                    fontSize: "1.2rem",
                     marginBottom: "20px",
                     border: "1px solid #ccc",
                     borderRadius: "5px",
@@ -474,12 +492,26 @@ const Login = () => {
                     right: "10px",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
-                    fontSize: "18px",
+                    fontSize: "1.5rem",
                   }}
                 >
                   {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
+              {errorMessage && (
+                <div
+                  style={{
+                    color: "red",
+                    fontSize: "1rem",
+                    marginTop: "2%",
+                    marginBottom: "5%",
+                    textAlign: "center",
+                  }}
+                >
+                  {errorMessage}
+                </div>
+              )}
+
               <button
                 onClick={handleSubmit}
                 style={{
@@ -487,6 +519,7 @@ const Login = () => {
                   backgroundColor: "#ff6100",
                   color: "#fff",
                   border: "none",
+                  fontSize: "1.2rem",
                   borderRadius: "10px",
                   cursor: "pointer",
                   transition: "transform 0.3s ease",
