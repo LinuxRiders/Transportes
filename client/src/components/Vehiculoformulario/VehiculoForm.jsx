@@ -60,6 +60,7 @@ const EditableList = ({
       await onEdit(editIndex, newItem);
       setEditIndex(null);
     } else {
+      setNewItem({});
       await onSubmit(newItem);
     }
     setNewItem({});
