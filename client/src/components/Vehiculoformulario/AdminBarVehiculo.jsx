@@ -45,8 +45,19 @@ const lista = [
     sub: [
       {
         icon: <HikingIcon fontSize="small" />,
-        subtitle: "Registro de Ruta",
-        link: "ruta",
+        subtitle: "Registro de Categorias ",
+        link: "categoria-y-ruta",
+      },
+
+      {
+        icon: <HikingIcon fontSize="small" />,
+        subtitle: "Registro de Rutas",
+        link: "rutas",
+      },
+      {
+        icon: <HikingIcon fontSize="small" />,
+        subtitle: " Registro de Lugar turistico",
+        link: "lugar-turistico",
       },
     ],
   },

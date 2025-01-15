@@ -9,17 +9,22 @@ import VehiculoForm from "./components/Vehiculoformulario/VehiculoForm";
 import ReserAsientos from "./components/AsientosView/ReserAsientos";
 import RutaForm from "./components/Rutas/RutaForm";
 import Paneladmi from "./components/PanelAdmin/Paneladmi";
+import RutaForm2 from "./components/Rutas/RutaForm2";
+import RutaForm3 from "./components/Rutas/RutaForm3";
+import ViewRutas from "./components/Rutas/ViewRutas";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<VisualizarVehiculo />} />;
+        <Route path="/" element={<ViewRutas />} />;
         <Route path="/pasajes-de-bus" element={<PasajesBus />} />;
         <Route path="/formulario" element={<Paneladmi />}>
           <Route path="registro" element={<CreateFormVehiculo />} />
           <Route path="formulario" element={<VehiculoForm />} />
-          <Route path="ruta" element={<RutaForm />} />
+          <Route path="categoria-y-ruta" element={<RutaForm />} />
+          <Route path="rutas" element={<RutaForm2 />} />
+          <Route path="lugar-turistico" element={<RutaForm3 />} />
         </Route>
       </Routes>
     </>
