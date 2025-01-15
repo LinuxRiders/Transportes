@@ -2,7 +2,8 @@ import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 import React, { useState } from "react";
-import AdminBarVehiculo from "./AdminBarVehiculo";
+
+import BarUsuario from "./BarUsuario";
 
 const PanelUsuario = () => {
   const [data, setData] = useState([]);
@@ -15,7 +16,7 @@ const PanelUsuario = () => {
         background: "transparent",
       }}
     >
-      <AdminBarVehiculo />
+      <BarUsuario />
       <Box
         component="main"
         sx={{

@@ -209,7 +209,7 @@ const EditableList = ({
             {/* -------------------------------------------------------------------------------------------------------------------------------- */}
             <Box display="flex" flexDirection="column" gap={1}>
               {fields.map((field) =>
-                field === "descripcionnnn" ? (
+                field === "ruta_id" ? (
                   <Box
                     key={field}
                     display="flex"
@@ -296,7 +296,7 @@ const EditableList = ({
                       </MenuItem>
                     ))}
                   </Select>
-                ) : field === "precio" || field === "duracion" ? (
+                ) : field === "duracion" ? (
                   <TextField
                     key={field}
                     label={field.charAt(0).toUpperCase() + field.slice(1)}
@@ -304,6 +304,26 @@ const EditableList = ({
                     onChange={(e) => {
                       const value = e.target.value;
                       if (/^\d*$/.test(value)) {
+                        handleFieldChange(field, e.target.value);
+                      }
+                    }}
+                    variant="outlined"
+                    type="number"
+                    fullWidth
+                    sx={{
+                      backgroundColor: "#FFFFFF",
+                      color: "#121212",
+                      borderRadius: 2,
+                    }}
+                  />
+                ) : field === "precio" ? (
+                  <TextField
+                    key={field}
+                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                    value={newItem[field] || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d*\.?\d*$/.test(value)) {
                         handleFieldChange(field, e.target.value);
                       }
                     }}

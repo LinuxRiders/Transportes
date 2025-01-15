@@ -14,7 +14,7 @@ import RutaForm3 from "./components/Rutas/RutaForm3";
 import ViewRutas from "./components/Rutas/ViewRutas";
 import Login from "./components/Home/Login";
 import PrivateRoute from "./utils/PrivateRoute";
-
+import PanelUsuario from "./components/PanelAdmin/PanelUsuario";
 function App() {
   return (
     <>
