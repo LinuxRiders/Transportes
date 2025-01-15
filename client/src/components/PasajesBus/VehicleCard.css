@@ -1,105 +1,68 @@
-/* General */
+/* Contenedor principal */
 .unique-vehicle-card-container {
   padding: 20px;
-  background-color: #f9f9f900;
-  margin: 0 auto;
-  max-width: 1200px;
-  font-family: "Work Sans", sans-serif;
+  max-width: 1400px;
+  margin: auto;
 }
 
+/* Card principal */
 .unique-vehicle-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid #ddd;
   border-radius: 8px;
   margin-bottom: 15px;
   background-color: #fff;
   overflow: hidden;
-}
-
-.unique-vehicle-main {
-  display: grid;
-  grid-template-columns: 120px 2fr 2fr 2fr;
-  align-items: center;
-  padding: 15px;
-  gap: 20px; /* Aumentado */
-}
-
-.unique-vehicle-logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.unique-vehicle-logo {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 100px;
-  height: auto;
-  max-height: 80px;
-  object-fit: contain;
+  box-sizing: border-box;
 }
 
+/* Cabecera del card principal */
+.unique-vehicle-main {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
+  gap: 20px; /* Espacio entre columnas */
+}
+
+/* Información de los terminales */
 .unique-vehicle-info {
+  display: flex;
+  flex: 1;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.unique-vehicle-info p {
+  margin: 5px 10px;
+  font-size: 16px;
+  color: #555;
   text-align: left;
 }
 
-.unique-vehicle-name {
-  margin: 0;
-  font-size: 18px; /* Aumentado */
-  font-weight: bold;
-  margin-bottom: 10px; /* Agregado */
-}
-
-.unique-vehicle-class {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #007bff;
-}
-
-.unique-vehicle-timing {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  gap: 15px; /* Ajustado */
-}
-
-.timing-item {
-  text-align: center; /* Centrar los textos en cada sección */
-}
-
-.timing-label {
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 5px;
-}
-
-.unique-vehicle-time,
-.unique-vehicle-duration {
-  font-size: 14px;
-  color: #000;
-}
-
-.unique-vehicle-timing span {
-  margin-right: 10px; /* Agregado */
-}
-
-.unique-vehicle-asientos-precio {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-right: 2%;
-}
-
+/* Tabs */
 .unique-tabs-container {
   display: flex;
-  gap: 15px;
-  padding: 10px 20px;
+  justify-content: center;
+  padding: 15px;
   border-top: 1px solid #ddd;
 }
 
 .unique-tab {
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   color: #555;
-  padding-bottom: 5px;
+  margin: 0 10px;
+  padding: 8px 12px;
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+.unique-tab:hover {
+  color: #fd7e14;
 }
 
 .unique-tab.active {
@@ -107,90 +70,116 @@
   border-bottom: 2px solid red;
 }
 
-.unique-services-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  padding: 15px 20px;
-  background-color: #f1f1f1;
-}
-
-.unique-service-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.unique-service-icon {
-  font-size: 20px;
-}
-
+/* Detalles desplegables */
 .unique-vehicle-details {
   padding: 15px;
-  background-color: #f1f1f1;
-}
-
-.unique-vehicle-schedule {
+  background-color: #f9f9f9;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%; /* Mismo ancho que el card principal */
+  box-sizing: border-box;
+}
+
+/* Contenido de cada salida en el desplegable */
+.unique-vehicle-schedule {
+  display: grid;
+  grid-template-columns: 120px 2fr 2fr 2fr auto; /* 5 columnas bien distribuidas */
   align-items: center;
-  padding: 10px 0;
-  border-top: 1px solid #ddd;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.unique-schedule-info {
-  text-align: center;
-  flex: 1;
+/* Imagen del vehículo */
+.unique-vehicle-image {
+  width: 120px;
+  height: auto;
+  border-radius: 4px;
+  justify-self: center;
 }
 
+/* Información del vehículo */
+.vehicle-info {
+  text-align: left;
+}
+
+.vehicle-info p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Capacidad del vehículo */
+.vehicle-capacity {
+  text-align: left;
+}
+
+.vehicle-capacity p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Estado y hora */
+.vehicle-status {
+  text-align: left;
+}
+
+.vehicle-status p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Botón de compra */
 .unique-buy-button {
-  padding: 8px 12px;
+  padding: 10px 20px;
   background-color: #fd7e14;
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s;
 }
 
 .unique-buy-button:hover {
   background-color: #e96d0f;
 }
 
-/* Responsivo */
-@media (max-width: 480px) {
-  .unique-vehicle-main {
-    grid-template-columns: 1fr;
+/* Responsividad */
+@media (max-width: 1024px) {
+  .unique-vehicle-schedule {
+    grid-template-columns: 1fr; /* Cambia a columnas verticales */
+    gap: 10px;
+  }
+
+  .unique-buy-button {
+    width: 100%;
     text-align: center;
   }
+}
 
-  .unique-vehicle-info {
-    text-align: center;
-    margin-bottom: 10px; /* Agregado */
+@media (max-width: 768px) {
+  .unique-vehicle-card-container {
+    max-width: 95%;
   }
 
-  .unique-vehicle-timing {
-    gap: 10px; /* Aumentado */
-    margin-bottom: 15px; /* Aumentado */
-    flex-direction: column; /* Alineación vertical para pantallas pequeñas */
-  }
-
-  .timing-item {
-    margin-bottom: 5px;
-  }
-
-  .unique-vehicle-asientos-precio {
+  .unique-vehicle-main,
+  .unique-vehicle-schedule {
     flex-direction: column;
-    gap: 10px; /* Aumentado */
-    margin-top: 15px; /* Aumentado */
+    align-items: flex-start;
   }
 
-  .unique-vehicle-details .unique-vehicle-schedule {
-    flex-direction: column;
-    align-items: center;
+  .unique-vehicle-image {
+    width: 80px;
+  }
+
+  .unique-buy-button {
+    width: 100%;
     text-align: center;
-  }
-
-  .unique-services-container {
-    grid-template-columns: 1fr;
   }
 }

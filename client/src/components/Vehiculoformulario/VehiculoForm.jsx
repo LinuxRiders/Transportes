@@ -60,7 +60,6 @@ const EditableList = ({
       await onEdit(editIndex, newItem);
       setEditIndex(null);
     } else {
-      setNewItem({});
       await onSubmit(newItem);
     }
     setNewItem({});
@@ -343,7 +342,7 @@ const VehiculoForm = () => {
       const response = await api.post("/marcas", fields);
 
       const { data } = response.data;
-
+      setMarcas((prev) => [...prev, data]);
       if (data) {
         console.log(data);
       }
@@ -398,7 +397,7 @@ const VehiculoForm = () => {
       const response = await api.post("/combustibles", fields);
 
       const { data } = response.data;
-
+      setTiposCombustible((prev) => [...prev, data]);
       if (data) {
         console.log(data);
       }

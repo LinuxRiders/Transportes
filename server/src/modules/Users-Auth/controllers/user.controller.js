@@ -130,6 +130,7 @@ export const getCurrentUser = async (req, res, next) => {
         const userData = {
             id: user.user_id,
             username: user.username,
+            email: user.email,
             roles: roleNames
         };
 
