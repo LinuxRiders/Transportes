@@ -11,13 +11,13 @@ export const createFullUser = async (req, res, next) => {
         await connection.beginTransaction(); // Iniciar la transacción
 
         // Verificar si existe el usuario
-        const existing = await User.findByUsername(username, connection);
+        const existing = await User.findByEmail(email, connection);
         if (existing)
-            return res.status(409).json({ error: 'Username already exists' });
+            return res.status(409).json({ error: 'Email already exists' });
 
         // Crear usuario
         const password_hash = await hashPassword(password);
-        const userId = await User.create({ username, password_hash }, connection);
+        const userId = await User.create({ username, email, password_hash }, connection);
 
         console.log(userId);
 

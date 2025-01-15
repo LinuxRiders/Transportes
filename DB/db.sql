@@ -65,6 +65,71 @@ CREATE TABLE `USER_ROLE` (
   FOREIGN KEY (`updated_by`) REFERENCES `USER`(`user_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+CREATE TABLE persona (
+  idPersona INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(45) NOT NULL,
+  apellido_paterno VARCHAR(45),
+  apellido_materno VARCHAR(45),
+  fecha_nacimiento DATE,
+  celular VARCHAR(45),
+  direccion VARCHAR(100),
+  user_id INT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by INT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT NULL,
+  deleted_at DATETIME NULL,
+  FOREIGN KEY (user_id) REFERENCES USER(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+  FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+
+CREATE TABLE guia_turistico (
+  idGuia_turistico INT NOT NULL,
+  numero_licencia_turismo VARCHAR(45),
+  idioma_materno JSON,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by INT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT NULL,
+  deleted_at DATETIME NULL,
+  PRIMARY KEY (idGuia_turistico),
+  FOREIGN KEY (idGuia_turistico) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+  FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+CREATE TABLE pasajero (
+  idPasajero INT NOT NULL,
+  foto_pasajero VARCHAR(200),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by INT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT NULL,
+  deleted_at DATETIME NULL,
+  PRIMARY KEY (idPasajero),
+  FOREIGN KEY (idPasajero) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES user(user_id) ON DELETE SET NULL,
+  FOREIGN KEY (updated_by) REFERENCES user(user_id) ON DELETE SET NULL
+);
+
+CREATE TABLE conductor (
+  idConductor INT NOT NULL,
+  foto_conductor VARCHAR(200),
+  celular_contacto VARCHAR(45),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by INT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT NULL,
+  deleted_at DATETIME NULL,
+  PRIMARY KEY (idConductor),
+  FOREIGN KEY (idConductor) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+  FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
 -- //////////////////////////////////////////// VEHICULO ///////////////////////////////////////
 
 -- 2. TABLA DE MARCAS
@@ -189,6 +254,7 @@ CREATE TABLE vehiculo (
 -- 8. TABLA DE ASIENTOS
 CREATE TABLE asientos (
     idAsiento INT AUTO_INCREMENT PRIMARY KEY,
+    piso INT NOT NULL DEFAULT 1,
     fila INT NOT NULL,
     columna CHAR(1) NOT NULL,
     tipo_asiento VARCHAR(45),
@@ -345,4 +411,69 @@ CREATE TABLE IF NOT EXISTS ruta_lugares (
     FOREIGN KEY (lugar_turistico_id) REFERENCES lugares_turisticos(id_lugares_turisticos) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+INSERT INTO `USER` (
+  `user_id`,
+  `username`,
+  `email`,
+  `password_hash`,
+  `status`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+) 
+VALUES (
+  1,
+  'Fractal',
+  'fractalinsight@gmail.com',
+  '$2b$10$n0YmTrcI/Jwr.DO0svPXXO6.yw922L1gRrZLMgYKQM2c24qFLCP.C',
+  'active',
+  '2025-01-15 00:16:28',
+  NULL,
+  '2025-01-15 00:16:28',
+  NULL,
+  NULL
+);
+
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  1,
+  'Admin',
+  'Rol SuperUsuario del Sistema',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+
+INSERT INTO `USER_ROLE` (
+  `user_id`,
+  `role_id`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  1,
+  1,
+  '2025-01-15 00:27:15',
+  NULL,
+  '2025-01-15 00:27:15',
+  NULL,
+  NULL
 );

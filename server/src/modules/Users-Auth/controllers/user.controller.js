@@ -4,18 +4,18 @@ import logger from '../../../utils/logger.js';
 
 export const createUser = async (req, res, next) => {
     try {
-        const { username, password } = req.body;
+        const { username, email, password } = req.body;
 
 
-        const existing = await User.findByUsername(username);
+        const existing = await User.findByEmail(email);
 
         if (existing) {
-            logger.warn(`UserController:createUser Username already exists: ${username}`);
-            return res.status(409).json({ error: 'Username already exists' });
+            logger.warn(`UserController:createUser Email already exists: ${username}`);
+            return res.status(409).json({ error: 'Email already exists' });
         }
 
         const password_hash = await hashPassword(password);
-        const userId = await User.create({ username, password_hash });
+        const userId = await User.create({ username, email, password_hash });
         const user = await User.findById(userId);
 
         logger.info(`UserController: createUser User created: user_id=${userId}`);

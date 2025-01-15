@@ -11,17 +11,15 @@ const MAX_REFRESH_COUNT = parseInt(process.env.MAX_REFRESH_COUNT, 10) || 10;
 
 export const login = async (req, res, next) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
-        const user = await User.findByUsername(username);
+        const user = await User.findByEmail(email);
         if (!user) {
-            // logger.warn(`AuthController:login Invalid credentials username=${username}`);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         const match = await comparePassword(password, user.password_hash);
         if (!match) {
-            // logger.warn(`AuthController:login Invalid password for username=${username}`);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 

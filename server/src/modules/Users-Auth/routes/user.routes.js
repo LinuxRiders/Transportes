@@ -15,11 +15,11 @@ router.use(authMiddleware);
 
 router.get('/me', getCurrentUser);
 
-router.get('/', authMiddleware, authorize('Admin'), getAllUsers);
-router.post('/', authMiddleware, authorize('Admin'), createUserValidation, validateResults, createUser);
-router.get('/:id', authMiddleware, authorize('Admin', 'Staff'), userIdParamValidation, validateResults, getUser);
-router.patch('/:id', authMiddleware, authorize('Admin'), userIdParamValidation, validateResults, updateUser);
-router.delete('/:id', authMiddleware, authorize('Admin'), userIdParamValidation, validateResults, deleteUser);
+router.get('/', authorize('Admin'), getAllUsers);
+router.post('/', authorize('Admin'), createUserValidation, validateResults, createUser);
+router.get('/:id', authorize('Admin', 'Staff'), userIdParamValidation, validateResults, getUser);
+router.patch('/:id', authorize('Admin'), userIdParamValidation, validateResults, updateUser);
+router.delete('/:id', authorize('Admin'), userIdParamValidation, validateResults, deleteUser);
 
 router.post('/full', authorize('Admin'), createFullUserValidation, validateResults, createFullUser);
 
