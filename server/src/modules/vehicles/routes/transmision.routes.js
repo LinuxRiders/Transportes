@@ -9,14 +9,15 @@ import {
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createTransmisionValidation, updateTransmisionValidation } from '../validations/transmision.validation.js';
 import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post('/', createTransmisionValidation, validateResults, createTransmision);
+router.post('/', authMiddleware, createTransmisionValidation, validateResults, createTransmision);
 router.get('/', getAllTransmisiones);
-router.get('/:id', idParamValidation, validateResults, getTransmision);
-router.put('/:id', ...idParamValidation, ...updateTransmisionValidation, validateResults, updateTransmision);
-router.delete('/:id', idParamValidation, validateResults, deleteTransmision);
+router.get('/:id', authMiddleware, idParamValidation, validateResults, getTransmision);
+router.put('/:id', authMiddleware, ...idParamValidation, ...updateTransmisionValidation, validateResults, updateTransmision);
+router.delete('/:id', authMiddleware, idParamValidation, validateResults, deleteTransmision);
 
 
 

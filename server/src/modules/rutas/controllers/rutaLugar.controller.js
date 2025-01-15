@@ -3,7 +3,9 @@ import logger from '../../../utils/logger.js';
 
 export const createRutaLugar = async (req, res, next) => {
   try {
-    const { ruta_id, lugar_turistico_id, orden_visita, tiempo_estancia, created_by } = req.body;
+    const { ruta_id, lugar_turistico_id, orden_visita, tiempo_estancia } = req.body;
+    const created_by = req.user.id || null;
+
     const idRutaLugar = await RutaLugar.create({
       ruta_id,
       lugar_turistico_id,
@@ -45,13 +47,15 @@ export const getRutaLugar = async (req, res, next) => {
 
 export const updateRutaLugar = async (req, res, next) => {
   try {
+    const updated_by = req.user.id || null;
+
     const fields = {};
     if (req.body.ruta_id) fields.ruta_id = req.body.ruta_id;
     if (req.body.lugar_turistico_id) fields.lugar_turistico_id = req.body.lugar_turistico_id;
     if (req.body.orden_visita) fields.orden_visita = req.body.orden_visita;
     if (req.body.tiempo_estancia) fields.tiempo_estancia = req.body.tiempo_estancia;
 
-    await RutaLugar.update(req.params.id, fields, req.body.updated_by);
+    await RutaLugar.update(req.params.id, fields, updated_by);
     const rutaLugar = await RutaLugar.findById(req.params.id);
 
     logger.info(`RutaLugarController:updateRutaLugar Updated id=${req.params.id}`);
@@ -64,7 +68,9 @@ export const updateRutaLugar = async (req, res, next) => {
 
 export const deleteRutaLugar = async (req, res, next) => {
   try {
-    await RutaLugar.softDelete(req.params.id, req.body.updated_by);
+    const updated_by = req.user.id || null;
+
+    await RutaLugar.softDelete(req.params.id, updated_by);
     logger.info(`RutaLugarController:deleteRutaLugar Soft deleted id=${req.params.id}`);
     res.status(204).send();
   } catch (error) {

@@ -8,14 +8,17 @@ import {
 } from '../controllers/rutaLugar.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createRutaLugarValidation, updateRutaLugarValidation } from '../validations/rutaLugar.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 // Crear una relación ruta-lugar
 router.post(
   '/',
-  [...createRutaLugarValidation, ...createdByValidation],
+  createRutaLugarValidation,
   validateResults,
   createRutaLugar
 );
@@ -34,7 +37,7 @@ router.get(
 // Actualizar una relación ruta-lugar por ID
 router.put(
   '/:id',
-  [...idParamValidation, ...updateRutaLugarValidation, ...updatedByValidation],
+  ...idParamValidation, ...updateRutaLugarValidation,
   validateResults,
   updateRutaLugar
 );
@@ -42,7 +45,7 @@ router.put(
 // Eliminar una relación ruta-lugar (borrado lógico)
 router.delete(
   '/:id',
-  [...idParamValidation, ...updatedByValidation],
+  idParamValidation,
   validateResults,
   deleteRutaLugar
 );

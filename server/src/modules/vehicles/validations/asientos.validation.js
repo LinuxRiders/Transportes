@@ -1,5 +1,4 @@
 import { body } from 'express-validator';
-import { createdByValidation, updatedByValidation } from '../../../validations/validations.js';
 
 export const createAsientoValidation = [
     body('fila')
@@ -24,8 +23,7 @@ export const createAsientoValidation = [
         .withMessage('caracteristica debe ser string'),
     body('idvehiculo')
         .isInt({ min: 1 })
-        .withMessage('idvehiculo debe ser un entero positivo'),
-    ...createdByValidation
+        .withMessage('idvehiculo debe ser un entero positivo')
 ];
 
 export const updateAsientoValidation = [
@@ -50,8 +48,7 @@ export const updateAsientoValidation = [
         .isString(),
     body('idvehiculo')
         .optional()
-        .isInt({ min: 1 }),
-    ...updatedByValidation
+        .isInt({ min: 1 })
 ];
 
 /**

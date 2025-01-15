@@ -9,13 +9,14 @@ import {
 import { createCombustibleValidation, updateCombustibleValidation } from '../validations/combustible.validation.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post('/', createCombustibleValidation, validateResults, createCombustible);
+router.post('/', authMiddleware, createCombustibleValidation, validateResults, createCombustible);
 router.get('/con', getAllCombustibles);
-router.get('/:id', idParamValidation, validateResults, getCombustible);
-router.put('/:id', ...idParamValidation, ...updateCombustibleValidation, validateResults, updateCombustible);
-router.delete('/:id', idParamValidation, validateResults, deleteCombustible);
+router.get('/:id', authMiddleware, idParamValidation, validateResults, getCombustible);
+router.put('/:id', authMiddleware, ...idParamValidation, ...updateCombustibleValidation, validateResults, updateCombustible);
+router.delete('/:id', authMiddleware, idParamValidation, validateResults, deleteCombustible);
 
 export default router;

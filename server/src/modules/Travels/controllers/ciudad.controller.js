@@ -3,7 +3,9 @@ import logger from '../../../utils/logger.js';
 
 export const createCiudad = async (req, res, next) => {
     try {
-        const { nombre, created_by } = req.body;
+        const { nombre } = req.body;
+        const created_by = req.user.id;
+
         const idCiudad = await Ciudad.create({ nombre, created_by });
         const ciudad = await Ciudad.findById(idCiudad);
 
@@ -39,10 +41,12 @@ export const getCiudad = async (req, res, next) => {
 
 export const updateCiudad = async (req, res, next) => {
     try {
+        const updated_by = req.user.id || null;
+
         const fields = {};
         if (req.body.nombre) fields.nombre = req.body.nombre;
 
-        await Ciudad.update(req.params.id, fields, req.body.updated_by);
+        await Ciudad.update(req.params.id, fields, updated_by);
         const ciudad = await Ciudad.findById(req.params.id);
 
         logger.info(`CiudadController:updateCiudad Updated id=${req.params.id}`);
@@ -55,7 +59,9 @@ export const updateCiudad = async (req, res, next) => {
 
 export const deleteCiudad = async (req, res, next) => {
     try {
-        await Ciudad.softDelete(req.params.id, req.body.updated_by);
+        const updated_by = req.user.id || null;
+
+        await Ciudad.softDelete(req.params.id, updated_by);
         logger.info(`CiudadController:deleteCiudad Soft deleted id=${req.params.id}`);
         res.status(204).send();
     } catch (error) {

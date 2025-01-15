@@ -22,20 +22,14 @@ function App() {
         <Route path="/" element={<ViewRutas />} />;
         <Route path="/login" element={<Login />} />;
         <Route path="/pasajes-de-bus" element={<PasajesBus />} />;
-        {/* <Route
-          element={<PrivateRoute roles={["Admin"]} to="/pasajes-de-bus" />}
-        > */}
-        <Route path="/formulario" element={<Paneladmi />}>
-          <Route path="registro" element={<VehiculoForm />} />
-          <Route path="categoria-y-ruta" element={<RutaForm />} />
-          <Route path="lugar-turistico" element={<RutaForm3 />} />
-        </Route>
-        <Route
-          element={<PrivateRoute roles={["Admin"]} to="/pasajes-de-bus" />}
-        >
-          <Route path="/formularioUsuario" element={<PanelUsuario />}>
-            <Route path="formularioVehiculo" element={<CreateFormVehiculo />} />
+        <Route path="/reserva" element={<ReserAsientos />} />;
+        <Route element={<PrivateRoute roles={["Admin"]} to="/login" />}>
+          <Route path="/formulario" element={<Paneladmi />}>
+            <Route path="registro" element={<CreateFormVehiculo />} />
+            <Route path="formulario" element={<VehiculoForm />} />
+            <Route path="categoria-y-ruta" element={<RutaForm />} />
             <Route path="rutas" element={<RutaForm2 />} />
+            <Route path="lugar-turistico" element={<RutaForm3 />} />
           </Route>
         </Route>
       </Routes>

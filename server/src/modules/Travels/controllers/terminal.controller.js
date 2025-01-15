@@ -3,7 +3,8 @@ import logger from '../../../utils/logger.js';
 
 export const createTerminal = async (req, res, next) => {
     try {
-        const { nombre, direccion, id_empresa, id_ciudad, created_by } = req.body;
+        const { nombre, direccion, id_empresa, id_ciudad } = req.body;
+        const created_by = req.user.id || null;
         const idTerminal = await Terminal.create({ nombre, direccion, id_empresa, id_ciudad, created_by });
         const terminal = await Terminal.findById(idTerminal);
 
@@ -39,13 +40,15 @@ export const getTerminal = async (req, res, next) => {
 
 export const updateTerminal = async (req, res, next) => {
     try {
+        const updated_by = req.user.id || null;
+
         const fields = {};
         if (req.body.nombre) fields.nombre = req.body.nombre;
         if (req.body.direccion) fields.direccion = req.body.direccion;
         if (req.body.id_empresa) fields.id_empresa = req.body.id_empresa;
         if (req.body.id_ciudad) fields.id_ciudad = req.body.id_ciudad;
 
-        await Terminal.update(req.params.id, fields, req.body.updated_by);
+        await Terminal.update(req.params.id, fields, updated_by);
         const terminal = await Terminal.findById(req.params.id);
 
         logger.info(`TerminalController:updateTerminal Updated id=${req.params.id}`);
@@ -58,7 +61,10 @@ export const updateTerminal = async (req, res, next) => {
 
 export const deleteTerminal = async (req, res, next) => {
     try {
-        await Terminal.softDelete(req.params.id, req.body.updated_by);
+        const updated_by = req.user.id || null;
+
+
+        await Terminal.softDelete(req.params.id, updated_by);
         logger.info(`TerminalController:deleteTerminal Soft deleted id=${req.params.id}`);
         res.status(204).send();
     } catch (error) {

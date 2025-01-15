@@ -9,13 +9,14 @@ import {
 import { createVehiculoValidation, updateVehiculoValidation } from '../validations/vehiculo.validation.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post('/', createVehiculoValidation, validateResults, createVehiculo);
+router.post('/', authMiddleware, createVehiculoValidation, validateResults, createVehiculo);
 router.get('/', getAllVehiculos);
-router.get('/:id', idParamValidation, validateResults, getVehiculo);
-router.put('/:id', ...idParamValidation, ...updateVehiculoValidation, validateResults, updateVehiculo);
-router.delete('/:id', idParamValidation, validateResults, deleteVehiculo);
+router.get('/:id', authMiddleware, idParamValidation, validateResults, getVehiculo);
+router.put('/:id', authMiddleware, ...idParamValidation, ...updateVehiculoValidation, validateResults, updateVehiculo);
+router.delete('/:id', authMiddleware, idParamValidation, validateResults, deleteVehiculo);
 
 export default router;

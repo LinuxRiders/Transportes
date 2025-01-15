@@ -13,9 +13,10 @@ export const createAsiento = async (req, res, next) => {
             tipo_asiento,
             estado_asiento,
             caracteristica,
-            idvehiculo,
-            created_by
+            idvehiculo
         } = req.body;
+
+        const created_by = req.user.id || null;
 
         const idAsiento = await Asientos.create({
             fila,
@@ -59,6 +60,7 @@ export const getAsiento = async (req, res, next) => {
  */
 export const updateAsiento = async (req, res, next) => {
     try {
+
         const asiento = await Asientos.findById(req.params.id);
         if (!asiento) {
             logger.warn(`AsientosController:updateAsiento Not found id=${req.params.id}`);
@@ -73,7 +75,7 @@ export const updateAsiento = async (req, res, next) => {
         if (req.body.caracteristica) fields.caracteristica = req.body.caracteristica;
         if (req.body.idvehiculo) fields.idvehiculo = req.body.idvehiculo;
 
-        const updated_by = req.body.updated_by || null;
+        const updated_by = req.user.id || null;
         if (Object.keys(fields).length > 0) {
             await Asientos.update(req.params.id, fields, updated_by);
         }
@@ -98,8 +100,8 @@ export const deleteAsiento = async (req, res, next) => {
             return res.status(404).json({ error: 'Asiento not found' });
         }
 
-        const userId = req.body.updated_by || null;
-        await Asientos.softDelete(req.params.id, userId);
+        const updated_by = req.user.id || null;
+        await Asientos.softDelete(req.params.id, updated_by);
 
         logger.info(`AsientosController:deleteAsiento Soft deleted id=${req.params.id}`);
         res.status(204).json({ message: 'Asiento eliminado correctamente' });
@@ -141,6 +143,7 @@ export const assignAsientosToVehicle = async (req, res, next) => {
     try {
         const { asientos } = req.body;
         const { id } = req.params;
+        const created_by = req.user.id || null;
 
         const connection = await pool.getConnection(); // Obtener una conexión de la pool
 
@@ -155,7 +158,7 @@ export const assignAsientosToVehicle = async (req, res, next) => {
 
         for (const seatData of asientos) {
             // Agrega la FK del vehículo
-            const data = { ...seatData, idvehiculo: id };
+            const data = { ...seatData, idvehiculo: id, created_by: created_by };
             const seatId = await Asientos.create(data, connection);
             createdIds.push(seatId);
         }

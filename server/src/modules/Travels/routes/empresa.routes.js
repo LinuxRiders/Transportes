@@ -8,14 +8,16 @@ import {
 } from '../controllers/empresa.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createEmpresaValidation, updateEmpresaValidation } from '../validations/empresa.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
 
 // Crear una empresa
 router.post(
     '/',
-    ...createEmpresaValidation, ...createdByValidation,
+    authMiddleware,
+    createEmpresaValidation,
     validateResults,
     createEmpresa
 );
@@ -26,6 +28,7 @@ router.get('/', getAllEmpresas);
 // Obtener una empresa por ID
 router.get(
     '/:id',
+    authMiddleware,
     idParamValidation,
     validateResults,
     getEmpresa
@@ -34,7 +37,8 @@ router.get(
 // Actualizar una empresa por ID
 router.put(
     '/:id',
-    ...idParamValidation, ...updateEmpresaValidation, ...updatedByValidation,
+    authMiddleware,
+    ...idParamValidation, ...updateEmpresaValidation,
     validateResults,
     updateEmpresa
 );
@@ -42,7 +46,8 @@ router.put(
 // Eliminar una empresa (borrado lógico)
 router.delete(
     '/:id',
-    ...idParamValidation, ...updatedByValidation,
+    authMiddleware,
+    idParamValidation,
     validateResults,
     deleteEmpresa
 );

@@ -627,7 +627,7 @@ const VehiculoForm = () => {
             title="Tipos de Vehículo"
             items={tiposVehiculo}
             setItems={setTiposVehiculo}
-            fields={["tipo_vehiculo", "icono_vehiculo", "idcarroceria"]}
+            fields={["tipo_vehiculo", "idcarroceria"]}
             relatedData={tiposCarroseria}
             onSubmit={handleAddVehiculo}
             onDelete={handleDeleteVehiculo}

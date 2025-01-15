@@ -3,7 +3,9 @@ import logger from '../../../utils/logger.js';
 
 export const createLugarTuristico = async (req, res, next) => {
   try {
-    const { nombre, descripcion, ubicacion, categoria_id, created_by } = req.body;
+    const { nombre, descripcion, ubicacion, categoria_id } = req.body;
+    const created_by = req.user.id || null;
+
     const idLugarTuristico = await LugarTuristico.create({
       nombre,
       descripcion,
@@ -11,6 +13,7 @@ export const createLugarTuristico = async (req, res, next) => {
       categoria_id,
       created_by
     });
+
     const lugarTuristico = await LugarTuristico.findById(idLugarTuristico);
 
     logger.info(`LugarTuristicoController:createLugarTuristico Created id=${idLugarTuristico}`);
@@ -53,7 +56,9 @@ export const updateLugarTuristico = async (req, res, next) => {
     if (req.body.ubicacion) fields.ubicacion = req.body.ubicacion;
     if (req.body.categoria_id) fields.categoria_id = req.body.categoria_id;
 
-    await LugarTuristico.update(req.params.id, fields, req.body.updated_by);
+    const updated_by = req.user.id || null;
+
+    await LugarTuristico.update(req.params.id, fields, updated_by);
     const lugarTuristico = await LugarTuristico.findById(req.params.id);
 
     logger.info(`LugarTuristicoController:updateLugarTuristico Updated id=${req.params.id}`);
@@ -66,7 +71,9 @@ export const updateLugarTuristico = async (req, res, next) => {
 
 export const deleteLugarTuristico = async (req, res, next) => {
   try {
-    await LugarTuristico.softDelete(req.params.id, req.body.updated_by);
+    const updated_by = req.user.id || null;
+
+    await LugarTuristico.softDelete(req.params.id, updated_by);
     logger.info(`LugarTuristicoController:deleteLugarTuristico Soft deleted id=${req.params.id}`);
     res.status(204).send();
   } catch (error) {

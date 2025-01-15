@@ -8,14 +8,17 @@ import {
 } from '../controllers/categoriaLugar.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createCategoriaLugarValidation, updateCategoriaLugarValidation } from '../validations/categoriaLugar.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 // Crear una categoría de lugar
 router.post(
   '/',
-  [...createCategoriaLugarValidation, ...createdByValidation],
+  createCategoriaLugarValidation,
   validateResults,
   createCategoriaLugar
 );
@@ -34,7 +37,7 @@ router.get(
 // Actualizar una categoría de lugar por ID
 router.put(
   '/:id',
-  [...idParamValidation, ...updateCategoriaLugarValidation, ...updatedByValidation],
+  ...idParamValidation, ...updateCategoriaLugarValidation,
   validateResults,
   updateCategoriaLugar
 );
@@ -42,7 +45,7 @@ router.put(
 // Eliminar una categoría de lugar (borrado lógico)
 router.delete(
   '/:id',
-  [...idParamValidation, ...updatedByValidation],
+  idParamValidation,
   validateResults,
   deleteCategoriaLugar
 );

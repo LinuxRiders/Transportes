@@ -4,7 +4,8 @@ import logger from '../../../utils/logger.js';
 
 export const createTransmision = async (req, res, next) => {
     try {
-        const { tipo_transmision, created_by } = req.body;
+        const { tipo_transmision } = req.body;
+        const created_by = req.user.id || null;
         const idTransmision = await Transmision.create({ tipo_transmision, created_by });
         const transmision = await Transmision.findById(idTransmision);
 
@@ -53,7 +54,7 @@ export const updateTransmision = async (req, res, next) => {
 
         const fields = {};
         if (req.body.tipo_transmision) fields.tipo_transmision = req.body.tipo_transmision;
-        const updated_by = req.body.updated_by || null;
+        const updated_by = req.user.id || null;
 
         if (Object.keys(fields).length > 0) {
             await Transmision.update(req.params.id, fields, updated_by);
@@ -77,8 +78,8 @@ export const deleteTransmision = async (req, res, next) => {
             return res.status(404).json({ error: 'Transmision not found' });
         }
 
-        const userId = req.body.updated_by || null;
-        await Transmision.softDelete(req.params.id, userId);
+        const updated_by = req.user.id || null;
+        await Transmision.softDelete(req.params.id, updated_by);
 
         logger.info(`TransmisionController:deleteTransmision Soft deleted id=${req.params.id}`);
         res.status(204).send();

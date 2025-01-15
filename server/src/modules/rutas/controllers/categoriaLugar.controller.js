@@ -3,7 +3,9 @@ import logger from '../../../utils/logger.js';
 
 export const createCategoriaLugar = async (req, res, next) => {
   try {
-    const { nombre_categoria, descripcion, created_by } = req.body;
+    const { nombre_categoria, descripcion } = req.body;
+    const created_by = req.user.id;
+
     const idCategoriaLugar = await CategoriaLugar.create({ nombre_categoria, descripcion, created_by });
     const categoriaLugar = await CategoriaLugar.findById(idCategoriaLugar);
 
@@ -43,7 +45,9 @@ export const updateCategoriaLugar = async (req, res, next) => {
     if (req.body.nombre_categoria) fields.nombre_categoria = req.body.nombre_categoria;
     if (req.body.descripcion) fields.descripcion = req.body.descripcion;
 
-    await CategoriaLugar.update(req.params.id, fields, req.body.updated_by);
+    const updated_by = req.user.id;
+
+    await CategoriaLugar.update(req.params.id, fields, updated_by);
     const categoriaLugar = await CategoriaLugar.findById(req.params.id);
 
     logger.info(`CategoriaLugarController:updateCategoriaLugar Updated id=${req.params.id}`);
@@ -56,7 +60,9 @@ export const updateCategoriaLugar = async (req, res, next) => {
 
 export const deleteCategoriaLugar = async (req, res, next) => {
   try {
-    await CategoriaLugar.softDelete(req.params.id, req.body.updated_by);
+    const updated_by = req.user.id;
+
+    await CategoriaLugar.softDelete(req.params.id, updated_by);
     logger.info(`CategoriaLugarController:deleteCategoriaLugar Soft deleted id=${req.params.id}`);
     res.status(204).send();
   } catch (error) {

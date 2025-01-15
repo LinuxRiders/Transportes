@@ -482,7 +482,6 @@ export const TipoVehiculo = {
     create: async (
         {
             tipo_vehiculo,
-            icono_vehiculo,
             idcarroceria,
             created_by = null
         },
@@ -492,7 +491,6 @@ export const TipoVehiculo = {
             const [result] = await connection.execute(
                 `INSERT INTO tipo_vehiculo (
             tipo_vehiculo,
-            icono_vehiculo,
             idcarroceria,
             created_at,
             created_by
@@ -500,11 +498,10 @@ export const TipoVehiculo = {
           VALUES (
             ?,
             ?,
-            ?,
             NOW(),
             ?
           )`,
-                [tipo_vehiculo, icono_vehiculo, idcarroceria, created_by]
+                [tipo_vehiculo, idcarroceria, created_by]
             );
             return result.insertId;
         } catch (error) {
