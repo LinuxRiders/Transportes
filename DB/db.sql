@@ -136,6 +136,22 @@ CREATE TABLE combustible (
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
+-- Crear o actualizar tabla empresas con auditoría
+CREATE TABLE IF NOT EXISTS empresas (
+    id_empresa INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    direccion VARCHAR(200) NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
+    ruc VARCHAR(45) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
 -- 7. TABLA DE VEHÍCULO
 -- Fotos en un campo JSON [{foto1}, {foto2}, {foto3]
 CREATE TABLE vehiculo (
@@ -190,26 +206,6 @@ CREATE TABLE asientos (
 );
 
 
--- BD TERMINALES
--- Usar base de datos actual
-USE db_vehiculo;
-
--- Crear o actualizar tabla empresas con auditoría
-CREATE TABLE IF NOT EXISTS empresas (
-    id_empresa INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    direccion VARCHAR(200) NOT NULL,
-    telefono VARCHAR(20) NOT NULL,
-    ruc VARCHAR(45) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by INT NULL,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    updated_by INT NULL,
-    deleted_at DATETIME NULL,
-    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
-    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
-);
-
 -- Crear o actualizar tabla ciudades con auditoría
 CREATE TABLE IF NOT EXISTS ciudades (
     id_ciudad INT AUTO_INCREMENT PRIMARY KEY,
@@ -242,13 +238,31 @@ CREATE TABLE IF NOT EXISTS terminales (
 );
 
 
+
+-- TABLA: rutas
+CREATE TABLE IF NOT EXISTS rutas (
+    id_rutas INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_ruta VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    duracion VARCHAR(50),
+    precio DECIMAL(10, 2),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
+);
+
+
 -- Crear tabla viajes con auditoría
 CREATE TABLE IF NOT EXISTS viajes (
     id_viaje INT AUTO_INCREMENT PRIMARY KEY,
     id_terminal_origen INT NOT NULL,
     id_terminal_destino INT NOT NULL,
     id_vehiculo INT NOT NULL,
-     ruta_id INT,
+    ruta_id INT,
     fecha_hora_salida DATETIME NOT NULL,
     fecha_hora_llegada DATETIME NOT NULL,
     estado ENUM('pendiente', 'en_progreso', 'completado', 'interrumpido', 'cancelado') DEFAULT 'pendiente',
@@ -260,7 +274,7 @@ CREATE TABLE IF NOT EXISTS viajes (
     FOREIGN KEY (id_terminal_origen) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
     FOREIGN KEY (id_terminal_destino) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
     FOREIGN KEY (ruta_id) REFERENCES rutas(id_rutas) ON DELETE CASCADE,
-    FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
+    FOREIGN KEY (id_vehiculo) REFERENCES vehiculo(idvehiculo) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
@@ -278,27 +292,11 @@ CREATE TABLE IF NOT EXISTS colas_terminal (
     updated_by INT NULL,
     deleted_at DATETIME NULL,
     FOREIGN KEY (id_terminal) REFERENCES terminales(id_terminal) ON DELETE CASCADE,
-    FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
+    FOREIGN KEY (id_vehiculo) REFERENCES vehiculo(idvehiculo) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
-
--- TABLA: rutas
-CREATE TABLE IF NOT EXISTS rutas (
-    id_rutas INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_ruta VARCHAR(255) NOT NULL,
-    descripcion TEXT,
-    duracion VARCHAR(50),
-    precio DECIMAL(10, 2),
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by INT NULL,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    updated_by INT NULL,
-    deleted_at DATETIME NULL,
-    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
-    FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
-);
 
 -- TABLA: categorias_lugares
 CREATE TABLE IF NOT EXISTS categorias_lugares (
