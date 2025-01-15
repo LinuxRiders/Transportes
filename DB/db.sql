@@ -87,45 +87,45 @@ CREATE TABLE persona (
 
 
 CREATE TABLE guia_turistico (
-  idGuia_turistico INT NOT NULL,
+  idGuia_turistico INT AUTO_INCREMENT PRIMARY KEY,
   numero_licencia_turismo VARCHAR(45),
   idioma_materno JSON,
+  idPersona INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   updated_by INT NULL,
   deleted_at DATETIME NULL,
-  PRIMARY KEY (idGuia_turistico),
-  FOREIGN KEY (idGuia_turistico) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
   FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE pasajero (
-  idPasajero INT NOT NULL,
+  idPasajero INT AUTO_INCREMENT PRIMARY KEY,
   foto_pasajero VARCHAR(200),
+  idPersona INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   updated_by INT NULL,
   deleted_at DATETIME NULL,
-  PRIMARY KEY (idPasajero),
-  FOREIGN KEY (idPasajero) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES user(user_id) ON DELETE SET NULL,
   FOREIGN KEY (updated_by) REFERENCES user(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE conductor (
-  idConductor INT NOT NULL,
-  foto_conductor VARCHAR(200),
-  celular_contacto VARCHAR(45),
+  idConductor INT AUTO_INCREMENT PRIMARY KEY,
+  foto_conductor TEXT,
+  celular_contacto VARCHAR(17),
+  idPersona INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   updated_by INT NULL,
   deleted_at DATETIME NULL,
-  PRIMARY KEY (idConductor),
-  FOREIGN KEY (idConductor) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
   FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );

@@ -1,11 +1,11 @@
-import { Persona, Role, User, UserRole } from '../models/user.model.js';
+import { Conductor, GuiaTuristico, Persona, Role, User, UserRole } from '../models/user.model.js';
 import { hashPassword } from '../../../utils/password.js';
 import logger from '../../../utils/logger.js';
 import pool from '../../../config/db.js';
 
 export const createFullUser = async (req, res, next) => {
-    const { username, password, email, profile, roles } = req.body;
-    const created_by = req.user.id;
+    const { username, password, email, profile } = req.body;
+    const created_by = req.user.id || null;
 
     const connection = await pool.getConnection(); // Obtener una conexión de la pool
     try {
@@ -22,25 +22,14 @@ export const createFullUser = async (req, res, next) => {
 
         console.log(userId);
 
-        // Asignación de roles
-        const newRoles = [...new Set(roles)]; // Eliminamos duplicados con SET
-        // Lista de roles válidos
-        const allowedRoles = ['User', 'Guia', 'Conductor'];
-
-        for (const roleName of newRoles) {
-            const role = await Role.findByName(roleName, connection);
-            if (!role) {
-                // Si un rol no existe, revertimos la transacción
-                await connection.rollback();
-                return res.status(400).json({ error: `Role not found: ${roleName}` });
-            }
-            if (!allowedRoles.includes(role)) {
-                // Si un rol no es valido, revertimos la transacción
-                await connection.rollback();
-                return res.status(400).json({ error: `[Forbidden] Insufficient permissions: ${roleName}` });
-            }
-            await UserRole.assignRole(userId, role.role_id, connection);
+        // Asignación de rol User por defecto
+        const role = await Role.findByName('User', connection);
+        if (!role) {
+            // Si rol User no existe, revertimos la transacción
+            await connection.rollback();
+            return res.status(400).json({ error: `Role not found: User` });
         }
+        await UserRole.assignRole(userId, role.role_id, connection);
 
         // Crear perfil de usuario
         const { nombre, apellido_paterno, apellido_materno, fecha_nacimiento, celular, direccion } = profile;
@@ -82,3 +71,133 @@ export const createFullUser = async (req, res, next) => {
     }
 };
 
+
+export const assignGuiaToUser = async (req, res, next) => {
+    const { idPersona, numero_licencia_turismo, idioma_materno } = req.body;
+    const created_by = req.user.id || null;
+
+    const connection = await pool.getConnection(); // Obtener una conexión de la pool
+    try {
+        await connection.beginTransaction(); // Iniciar la transacción
+
+        // Verificar si existe Persona
+        const persona = await Persona.findById(idPersona, connection);
+        if (!persona)
+            return res.status(409).json({ error: 'Persona not exists' });
+
+        // Obtener usuario de la persona
+        const userId = persona.user_id;
+
+        // Verificar si existe el usuario
+        const existing = await User.findById(userId, connection);
+        if (!existing)
+            return res.status(409).json({ error: 'User not exists' });
+
+        // Asignación de rol Guia
+        const role = await Role.findByName('Guia', connection);
+        if (!role) {
+            // Si rol Guia no existe, revertimos la transacción
+            await connection.rollback();
+            return res.status(400).json({ error: `Role not found: Guia` });
+        }
+        await UserRole.assignRole(userId, role.role_id, connection);
+
+        // Crear perfil de Guia y asignar a persona
+        await GuiaTuristico.create({
+            idPersona,
+            numero_licencia_turismo,
+            idioma_materno,
+            created_by
+        }, connection);
+
+        // Confirmar la transacción si todo es exitoso
+        await connection.commit();
+
+        // Recuperar la info final del usuario y perfil para devolver
+        const user = await User.findById(userId, connection);
+        const userRoles = await UserRole.getRolesByUser(userId, connection);
+        const perfil = await Persona.getByUser(userId, connection);
+
+        logger.info(`UserFullController:assignGuiaToUser Guia assign to user_id=${userId}`);
+        res.status(201).json({
+            data: {
+                user,
+                roles: userRoles.map(r => r.name),
+                persona: perfil
+            }
+        });
+
+    } catch (error) {
+        // Si ocurre un error, revertimos la transacción
+        await connection.rollback();
+        logger.error(`UserFullController:assignGuiaToUser Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    } finally {
+        connection.release(); // Liberar la conexión
+    }
+};
+
+export const assignConductorToUser = async (req, res, next) => {
+    const { idPersona, foto_conductor, celular_contacto } = req.body;
+    const created_by = req.user.id || null;
+
+    const connection = await pool.getConnection(); // Obtener una conexión de la pool
+    try {
+        await connection.beginTransaction(); // Iniciar la transacción
+
+        // Verificar si existe Persona
+        const persona = await Persona.findById(idPersona, connection);
+        if (!persona)
+            return res.status(409).json({ error: 'Persona not exists' });
+
+        // Obtener usuario de la persona
+        const userId = persona.user_id;
+
+        // Verificar si existe el usuario
+        const existing = await User.findById(userId, connection);
+        if (!existing)
+            return res.status(409).json({ error: 'User not exists' });
+
+        // Asignación de rol Conductor
+        const role = await Role.findByName('Conductor', connection);
+        if (!role) {
+            // Si rol Guia no existe, revertimos la transacción
+            await connection.rollback();
+            return res.status(400).json({ error: `Role not found: Conductor` });
+        }
+        await UserRole.assignRole(userId, role.role_id, connection);
+
+        // Crear perfil de Conductor y asignar a persona
+        await Conductor.create({
+            idPersona,
+            foto_conductor,
+            celular_contacto,
+            created_by
+        }, connection);
+
+        // Confirmar la transacción si todo es exitoso
+        await connection.commit();
+
+        // Recuperar la info final del usuario y perfil para devolver
+        const user = await User.findById(userId, connection);
+        const userRoles = await UserRole.getRolesByUser(userId, connection);
+        const perfil = await Persona.getByUser(userId, connection);
+
+        logger.info(`UserFullController:assignConductorToUser Conductor assign to user_id=${userId}`);
+        res.status(201).json({
+            data: {
+                user,
+                roles: userRoles.map(r => r.name),
+                persona: perfil
+            }
+        });
+
+    } catch (error) {
+        // Si ocurre un error, revertimos la transacción
+        await connection.rollback();
+        logger.error(`UserFullController:assignConductorToUser Error: ${error.message}`, { stack: error.stack });
+        next(error);
+    } finally {
+        connection.release(); // Liberar la conexión
+    }
+};

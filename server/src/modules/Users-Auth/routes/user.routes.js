@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { createUser, getAllUsers, getUser, updateUser, deleteUser, getCurrentUser } from '../controllers/user.controller.js';
-import { createFullUserValidation, createUserValidation } from '../validations/user.validation.js';
+import { assignConductorToUserValidation, assignGuiaToUserValidation, createFullUserValidation, createUserValidation } from '../validations/user.validation.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 import { authorize } from '../../../middlewares/authorize.middleware.js';
-import { createFullUser } from '../controllers/userFull.controller.js';
+import { assignConductorToUser, assignGuiaToUser, createFullUser } from '../controllers/userFull.controller.js';
 import { idParamValidation } from '../../../validations/validations.js';
 
 // Ejemplo: solo Admin puede ver todos los usuarios
@@ -13,6 +13,8 @@ const router = Router();
 
 
 router.post('/full', createFullUserValidation, validateResults, createFullUser);
+router.post('/assignGuia', assignGuiaToUserValidation, validateResults, assignGuiaToUser);
+router.post('/assignConductor', assignConductorToUserValidation, validateResults, assignConductorToUser);
 
 // Aplicar el middleware de autenticación a todas las rutas
 router.use(authMiddleware);
