@@ -1,14 +1,204 @@
 import React, { useState } from "react";
 import auto from "../../assets/svg_auto.png";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUpload } from "react-icons/fa";
 
 const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMatch, setPasswordMatch] = useState(true);
+  const [userType, setUserType] = useState("");
 
   const toggleMode = () => {
     setIsRegistering((prev) => !prev);
   };
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    setPasswordMatch(e.target.value === confirmPassword);
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    setPasswordMatch(password === e.target.value);
+  };
+
+  const renderAdditionalFields = () => {
+    switch (userType) {
+      case "Cliente":
+        return (
+          <>
+            <input
+              type="text"
+              placeholder="Nombre completo"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Apellido(s)" style={inputStyle} />
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              style={inputStyle}
+            />
+            <input
+              type="text"
+              placeholder="Teléfono de contacto"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Dirección" style={inputStyle} />
+            <input
+              type="text"
+              placeholder="Documento de identidad (DNI)"
+              style={inputStyle}
+            />
+          </>
+        );
+      case "Conductor":
+        return (
+          <>
+            <input
+              type="text"
+              placeholder="Nombre completo"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Apellido(s)" style={inputStyle} />
+            <input
+              type="text"
+              placeholder="Teléfono de contacto"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Dirección" style={inputStyle} />
+            <input
+              type="text"
+              placeholder="Documento de identidad (DNI)"
+              style={inputStyle}
+            />
+            <input
+              type="text"
+              placeholder="Número de licencia"
+              style={inputStyle}
+            />
+            <input
+              type="text"
+              placeholder="Categoría de licencia"
+              style={inputStyle}
+            />
+            <input
+              type="date"
+              placeholder="Fecha de expiración de licencia"
+              style={inputStyle}
+            />
+          </>
+        );
+      case "Guía":
+        return (
+          <>
+            <input
+              type="text"
+              placeholder="Nombre completo"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Apellido(s)" style={inputStyle} />
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              style={inputStyle}
+            />
+            <input
+              type="text"
+              placeholder="Teléfono de contacto"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Dirección" style={inputStyle} />
+            <input
+              type="text"
+              placeholder="Documento de identidad (DNI)"
+              style={inputStyle}
+            />
+            <input type="text" placeholder="Idioma nativo" style={inputStyle} />
+            <input
+              type="text"
+              placeholder="Idiomas hablados (agregar más separados por comas)"
+              style={inputStyle}
+            />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const inputStyle = {
+    width: "80%",
+    padding: "10px",
+    marginBottom: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    opacity: 1,
+    transition: "opacity 0.5s ease-in-out",
+  };
+
+  const labelStyle = {
+    display: "block",
+    width: "80%",
+    marginBottom: "10px",
+    fontWeight: "bold",
+    opacity: userType ? 1 : 0,
+    transition: "opacity 0.5s ease-in-out",
+  };
+
+  const fileButtonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "10px 20px",
+    backgroundColor: "#d37012",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    position: "relative",
+    overflow: "hidden",
+    transition: "background-color 0.3s ease, transform 0.3s ease",
+  };
+
+  const fileInputStyle = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    cursor: "pointer",
+  };
+
+  const passwordMismatchStyle = {
+    color: "red",
+    fontSize: "12px",
+    marginTop: "-10px",
+    marginBottom: "10px",
+    opacity: userType ? 1 : 0,
+    transition: "opacity 0.5s ease-in-out",
+  };
+
+  const scrollStyle = {
+    flex: "1",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    transition: "all 0.8s ease-in-out",
+    transform: isRegistering ? "translateX(-100%)" : "translateX(0)",
+    position: "absolute",
+    width: "50%",
+    height: "100%",
+    right: "0",
+    overflowY: "auto",
+    padding: "20px",
+    scrollbarWidth: "thin",
+    scrollbarColor: "black #e0e0e0",
+  };
 
   return (
     <div
@@ -97,7 +287,6 @@ const Login = () => {
               }}
             />
           </div>
-
           <h2
             style={{
               zIndex: "1",
@@ -136,121 +325,99 @@ const Login = () => {
         </div>
 
         {/* Right Section */}
-        <div
-          style={{
-            flex: "1",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#fff",
-            transition: "all 0.8s ease-in-out",
-            transform: isRegistering ? "translateX(-100%)" : "translateX(0)",
-            position: "absolute",
-            width: "50%",
-            height: "100%",
-            right: "0",
-          }}
-        >
+        <div style={scrollStyle}>
           {isRegistering ? (
             <>
               <h2 style={{ marginBottom: "20px" }}>Registro</h2>
-              <input
-                type="text"
-                placeholder="Usuario"
+              <select
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
                 style={{
-                  width: "80%",
-                  padding: "10px",
-                  marginBottom: "10px",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                }}
-              />
-              <input
-                type="email"
-                placeholder="Correo"
-                style={{
-                  width: "80%",
-                  padding: "10px",
-                  marginBottom: "10px",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                }}
-              />
-              <div style={{ position: "relative", width: "80%" }}>
-                <input
-                  type={isPasswordVisible ? "text" : "password"}
-                  placeholder="Contraseña"
-                  id="password-input"
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    marginBottom: "20px",
-                    border: "1px solid #ccc",
-                    borderRadius: "5px",
-                    paddingRight: "40px",
-                  }}
-                />
-                <span
-                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                  style={{
-                    position: "absolute",
-                    top: "35%",
-                    right: "10px",
-                    transform: "translateY(-50%)",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                  }}
-                >
-                  {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
-                </span>
-              </div>
-
-              <input
-                type="name"
-                placeholder="Nombre completo"
-                style={{
-                  width: "80%",
-                  padding: "10px",
+                  ...inputStyle,
                   marginBottom: "20px",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
+                  opacity: 1,
+                  transition: "opacity 0.5s ease-in-out",
                 }}
-              />
-              <input
-                type="phoner"
-                placeholder="Número de celular"
-                style={{
-                  width: "80%",
-                  padding: "10px",
-                  marginBottom: "20px",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                }}
-              />
-              <button
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "black",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  transition: "transform 0.3s ease",
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.1)")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
               >
-                Registrarse
-              </button>
+                <option value="">Seleccione un tipo de usuario</option>
+                <option value="Cliente">Cliente</option>
+                <option value="Conductor">Conductor</option>
+                <option value="Guía">Guía</option>
+              </select>
+              {userType && renderAdditionalFields()}
+              {userType && (
+                <>
+                  <div style={{ position: "relative", width: "80%" }}>
+                    <input
+                      type={isPasswordVisible ? "text" : "password"}
+                      placeholder="Contraseña"
+                      value={password}
+                      onChange={handlePasswordChange}
+                      style={inputStyle}
+                    />
+                    <span
+                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                      style={{
+                        position: "absolute",
+                        top: "35%",
+                        right: "10px",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        fontSize: "18px",
+                      }}
+                    >
+                      {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+                  <input
+                    type={isPasswordVisible ? "text" : "password"}
+                    placeholder="Confirmar Contraseña"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    style={inputStyle}
+                  />
+                  {!passwordMatch && (
+                    <div style={passwordMismatchStyle}>
+                      Las contraseñas no coinciden
+                    </div>
+                  )}
+                  <label style={labelStyle}>
+                    Fotografía (obligatoria):
+                    <button style={fileButtonStyle}>
+                      <FaUpload style={{ marginRight: "8px" }} /> Subir
+                      Fotografía
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={fileInputStyle}
+                      />
+                    </button>
+                  </label>
+                  <button
+                    style={{
+                      padding: "10px 20px",
+                      backgroundColor: "black",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      transition: "transform 0.3s ease",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.1)")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
+                  >
+                    Registrarse
+                  </button>
+                </>
+              )}
             </>
           ) : (
             <>
-              <h2 style={{ marginBottom: "20px" }}>Iniciar Sesión</h2>
+              <h2 style={{ marginBottom: "20%" }}>Iniciar Sesión</h2>
               <input
                 type="text"
                 placeholder="Usuario"
@@ -266,7 +433,6 @@ const Login = () => {
                 <input
                   type={isPasswordVisible ? "text" : "password"}
                   placeholder="Contraseña"
-                  id="password-input"
                   style={{
                     width: "100%",
                     padding: "10px",

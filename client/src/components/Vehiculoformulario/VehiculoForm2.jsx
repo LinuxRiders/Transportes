@@ -434,7 +434,7 @@ const FormVehiculo2 = ({ onSave }) => {
             }}
             onClick={handleSave}
           >
-            Guardar información
+            Siguiente
           </Button>
         </Box>
       </Box>

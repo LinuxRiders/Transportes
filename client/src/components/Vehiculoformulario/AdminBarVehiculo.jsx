@@ -20,21 +20,33 @@ import {
 import SpeedIcon from "@mui/icons-material/Speed";
 import "../../css/theme.css"; // Asegúrate de que este archivo esté cargado
 import { Link } from "react-router-dom";
-
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import HikingIcon from "@mui/icons-material/Hiking";
 const lista = [
   {
-    iconos: <SpeedIcon />,
+    iconos: <DirectionsCarIcon />,
     title: "Vehículo",
     sub: [
       {
-        icon: <SpeedIcon fontSize="small" />,
+        icon: <DirectionsCarIcon fontSize="small" />,
         subtitle: "Registro de Vehículo",
         link: "registro",
       },
       {
-        icon: <SpeedIcon fontSize="small" />,
+        icon: <DirectionsCarIcon fontSize="small" />,
         subtitle: "Registro de Componentes",
         link: "formulario",
+      },
+    ],
+  },
+  {
+    iconos: <HikingIcon />,
+    title: "Ruta",
+    sub: [
+      {
+        icon: <HikingIcon fontSize="small" />,
+        subtitle: "Registro de Ruta",
+        link: "ruta",
       },
     ],
   },
