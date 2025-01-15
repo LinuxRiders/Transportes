@@ -3,7 +3,9 @@ import logger from '../../../utils/logger.js';
 
 export const createRuta = async (req, res, next) => {
   try {
-    const { nombre_ruta, descripcion, duracion, precio, created_by } = req.body;
+    const { nombre_ruta, descripcion, duracion, precio } = req.body;
+    const created_by = req.user.id || null;
+
     const idRuta = await Ruta.create({ nombre_ruta, descripcion, duracion, precio, created_by });
     const ruta = await Ruta.findById(idRuta);
 
@@ -39,13 +41,16 @@ export const getRuta = async (req, res, next) => {
 
 export const updateRuta = async (req, res, next) => {
   try {
+    const updated_by = req.user.id || null;
+
     const fields = {};
     if (req.body.nombre_ruta) fields.nombre_ruta = req.body.nombre_ruta;
     if (req.body.descripcion) fields.descripcion = req.body.descripcion;
     if (req.body.duracion) fields.duracion = req.body.duracion;
     if (req.body.precio) fields.precio = req.body.precio;
 
-    await Ruta.update(req.params.id, fields, req.body.updated_by);
+
+    await Ruta.update(req.params.id, fields, updated_by);
     const ruta = await Ruta.findById(req.params.id);
 
     logger.info(`RutaController:updateRuta Updated id=${req.params.id}`);
@@ -58,7 +63,9 @@ export const updateRuta = async (req, res, next) => {
 
 export const deleteRuta = async (req, res, next) => {
   try {
-    await Ruta.softDelete(req.params.id, req.body.updated_by);
+    const updated_by = req.user.id || null;
+
+    await Ruta.softDelete(req.params.id, updated_by);
     logger.info(`RutaController:deleteRuta Soft deleted id=${req.params.id}`);
     res.status(204).send();
   } catch (error) {

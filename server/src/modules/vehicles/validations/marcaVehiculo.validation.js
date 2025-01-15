@@ -1,5 +1,4 @@
 import { body } from 'express-validator';
-import { createdByValidation, updatedByValidation } from '../../../validations/validations.js';
 
 export const createMarcaVehiculoValidation = [
     body('marca')
@@ -9,8 +8,7 @@ export const createMarcaVehiculoValidation = [
     body('descripcion')
         .optional()
         .isString()
-        .withMessage('descripcion debe ser un string'),
-    ...createdByValidation
+        .withMessage('descripcion debe ser un string')
 ];
 
 export const updateMarcaVehiculoValidation = [
@@ -20,6 +18,5 @@ export const updateMarcaVehiculoValidation = [
         .notEmpty(),
     body('descripcion')
         .optional()
-        .isString(),
-    ...updatedByValidation
+        .isString()
 ];

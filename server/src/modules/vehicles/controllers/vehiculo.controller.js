@@ -18,9 +18,10 @@ export const createVehiculo = async (req, res, next) => {
             id_marca,
             idtransmision,
             idtipo_vehiculo,
-            idcombustible,
-            created_by // o req.user.id, si usas auth
+            idcombustible
+
         } = req.body;
+        const created_by = req.user.id || null;
 
         const idVehiculo = await Vehiculo.create({
             capacidad_asientos,
@@ -106,7 +107,7 @@ export const updateVehiculo = async (req, res, next) => {
         if (req.body.idcombustible) fields.idcombustible = req.body.idcombustible;
 
         // El updated_by puede venir de req.user.id o req.body.updated_by
-        const updated_by = req.body.updated_by || null;
+        const updated_by = req.user.id || null;
 
         // Si hay algo para actualizar, llamamos al modelo
         if (Object.keys(fields).length > 0) {
@@ -133,8 +134,8 @@ export const deleteVehiculo = async (req, res, next) => {
         }
 
         // "softDelete" => borrado lógico
-        const userId = req.body.updated_by || null;
-        await Vehiculo.softDelete(req.params.id, userId);
+        const updated_by = req.user.id || null;
+        await Vehiculo.softDelete(req.params.id, updated_by);
 
         logger.info(`VehiculoController:deleteVehiculo Soft deleted id=${req.params.id}`);
         res.status(204).send();

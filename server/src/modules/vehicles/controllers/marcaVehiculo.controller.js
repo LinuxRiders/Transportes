@@ -4,7 +4,8 @@ import logger from '../../../utils/logger.js';
 
 export const createMarcaVehiculo = async (req, res, next) => {
     try {
-        const { marca, descripcion, created_by } = req.body;
+        const { marca, descripcion } = req.body;
+        const created_by = req.user.id || null;
         const idMarca = await MarcaVehiculo.create({ marca, descripcion, created_by });
         const marcaVehiculo = await MarcaVehiculo.findById(idMarca);
 
@@ -56,7 +57,7 @@ export const updateMarcaVehiculo = async (req, res, next) => {
         if (req.body.marca) fields.marca = req.body.marca;
         if (req.body.descripcion) fields.descripcion = req.body.descripcion;
 
-        const updated_by = req.body.updated_by || null;
+        const updated_by = req.user.id || null;
 
         if (Object.keys(fields).length > 0) {
             await MarcaVehiculo.update(req.params.id, fields, updated_by);
@@ -81,8 +82,8 @@ export const deleteMarcaVehiculo = async (req, res, next) => {
             return res.status(404).json({ error: 'MarcaVehiculo not found' });
         }
 
-        const userId = req.body.updated_by || null;
-        await MarcaVehiculo.softDelete(req.params.id, userId);
+        const updated_by = req.user.id || null;
+        await MarcaVehiculo.softDelete(req.params.id, updated_by);
 
         logger.info(`MarcaVehiculoController:deleteMarcaVehiculo Soft deleted id=${req.params.id}`);
         res.status(204).send();

@@ -8,14 +8,16 @@ import {
 } from '../controllers/terminal.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createTerminalValidation, updateTerminalValidation } from '../validations/terminal.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
 
 // Crear una terminal
 router.post(
     '/',
-    ...createTerminalValidation, ...createdByValidation,
+    authMiddleware,
+    createTerminalValidation,
     validateResults,
     createTerminal
 );
@@ -26,6 +28,7 @@ router.get('/', getAllTerminales);
 // Obtener una terminal por ID
 router.get(
     '/:id',
+    authMiddleware,
     idParamValidation,
     validateResults,
     getTerminal
@@ -34,7 +37,8 @@ router.get(
 // Actualizar una terminal por ID
 router.put(
     '/:id',
-    ...idParamValidation, ...updateTerminalValidation, ...updatedByValidation,
+    authMiddleware,
+    ...idParamValidation, ...updateTerminalValidation,
     validateResults,
     updateTerminal
 );
@@ -42,7 +46,8 @@ router.put(
 // Eliminar una terminal (borrado lógico)
 router.delete(
     '/:id',
-    ...idParamValidation, ...updatedByValidation,
+    authMiddleware,
+    idParamValidation,
     validateResults,
     deleteTerminal
 );

@@ -8,14 +8,17 @@ import {
 } from '../controllers/viaje.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createViajeValidation, updateViajeValidation } from '../validations/viaje.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation, } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 // Crear un viaje
 router.post(
   '/',
-  [...createViajeValidation, ...createdByValidation],
+  createViajeValidation,
   validateResults,
   createViaje
 );
@@ -34,7 +37,7 @@ router.get(
 // Actualizar un viaje por ID
 router.put(
   '/:id',
-  [...idParamValidation, ...updateViajeValidation, ...updatedByValidation],
+  ...idParamValidation, ...updateViajeValidation,
   validateResults,
   updateViaje
 );
@@ -42,7 +45,7 @@ router.put(
 // Eliminar un viaje (borrado lógico)
 router.delete(
   '/:id',
-  [...idParamValidation, ...updatedByValidation],
+  idParamValidation,
   validateResults,
   deleteViaje
 );

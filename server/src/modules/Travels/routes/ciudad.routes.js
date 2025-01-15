@@ -8,14 +8,17 @@ import {
 } from '../controllers/ciudad.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createCiudadValidation, updateCiudadValidation } from '../validations/ciudad.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
+
 
 // Crear una ciudad
 router.post(
     '/',
-    ...createCiudadValidation, ...createdByValidation,
+    authMiddleware,
+    createCiudadValidation,
     validateResults,
     createCiudad
 );
@@ -26,6 +29,7 @@ router.get('/', getAllCiudades);
 // Obtener una ciudad por ID
 router.get(
     '/:id',
+    authMiddleware,
     idParamValidation,
     validateResults,
     getCiudad
@@ -34,7 +38,8 @@ router.get(
 // Actualizar una ciudad por ID
 router.put(
     '/:id',
-    ...idParamValidation, ...updateCiudadValidation, ...updatedByValidation,
+    authMiddleware,
+    ...idParamValidation, ...updateCiudadValidation,
     validateResults,
     updateCiudad
 );
@@ -42,7 +47,8 @@ router.put(
 // Eliminar una ciudad (borrado lógico)
 router.delete(
     '/:id',
-    ...idParamValidation, ...updatedByValidation,
+    authMiddleware,
+    idParamValidation,
     validateResults,
     deleteCiudad
 );

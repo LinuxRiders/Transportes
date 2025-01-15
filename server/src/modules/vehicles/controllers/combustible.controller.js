@@ -3,7 +3,8 @@ import logger from '../../../utils/logger.js';
 
 export const createCombustible = async (req, res, next) => {
     try {
-        const { tipo_combustible, created_by } = req.body;
+        const { tipo_combustible } = req.body;
+        const created_by = req.user.id || null;
         const idCombustible = await Combustible.create({
             tipo_combustible,
             created_by
@@ -55,7 +56,7 @@ export const updateCombustible = async (req, res, next) => {
         const fields = {};
         if (req.body.tipo_combustible) fields.tipo_combustible = req.body.tipo_combustible;
 
-        const updated_by = req.body.updated_by || null;
+        const updated_by = req.user.id || null;
         if (Object.keys(fields).length > 0) {
             await Combustible.update(req.params.id, fields, updated_by);
         }
@@ -77,8 +78,8 @@ export const deleteCombustible = async (req, res, next) => {
             return res.status(404).json({ error: 'Combustible not found' });
         }
 
-        const userId = req.body.updated_by || null;
-        await Combustible.softDelete(req.params.id, userId);
+        const updated_by = req.user.id || null;
+        await Combustible.softDelete(req.params.id, updated_by);
 
         logger.info(`CombustibleController:deleteCombustible Soft deleted id=${req.params.id}`);
         res.status(204).json({ message: 'Combustible eliminado' });

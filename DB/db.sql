@@ -176,7 +176,6 @@ CREATE TABLE carroceria (
 CREATE TABLE tipo_vehiculo (
     idtipo_vehiculo INT AUTO_INCREMENT PRIMARY KEY,
     tipo_vehiculo VARCHAR(45) NOT NULL,
-    icono_vehiculo VARCHAR(100),
     idcarroceria INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INT NULL,

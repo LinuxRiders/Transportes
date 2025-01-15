@@ -1,5 +1,4 @@
 import { body } from 'express-validator';
-import { createdByValidation, updatedByValidation } from '../../../validations/validations.js';
 
 
 // Validaciones para crear (POST /vehiculo)
@@ -51,8 +50,7 @@ export const createVehiculoValidation = [
         .withMessage('idtipo_vehiculo debe ser un entero positivo'),
     body('idcombustible')
         .isInt({ min: 1 })
-        .withMessage('idcombustible debe ser un entero positivo'),
-    ...createdByValidation
+        .withMessage('idcombustible debe ser un entero positivo')
 ];
 
 // Validaciones para actualizar (PUT /vehiculo/:id)
@@ -102,6 +100,5 @@ export const updateVehiculoValidation = [
         .isInt({ min: 1 }),
     body('idcombustible')
         .optional()
-        .isInt({ min: 1 }),
-    ...updatedByValidation
+        .isInt({ min: 1 })
 ];

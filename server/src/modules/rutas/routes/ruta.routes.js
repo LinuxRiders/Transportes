@@ -8,14 +8,17 @@ import {
 } from '../controllers/ruta.controller.js';
 import { validateResults } from '../../../middlewares/validationResult.js';
 import { createRutaValidation, updateRutaValidation } from '../validations/ruta.validation.js';
-import { idParamValidation, createdByValidation, updatedByValidation } from '../../../validations/validations.js';
+import { idParamValidation } from '../../../validations/validations.js';
+import { authMiddleware } from '../../../middlewares/auth.middleware.js';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 // Crear una ruta
 router.post(
   '/',
-  ...createRutaValidation, ...createdByValidation,
+  createRutaValidation,
   validateResults,
   createRuta
 );
@@ -34,7 +37,7 @@ router.get(
 // Actualizar una ruta por ID
 router.put(
   '/:id',
-  ...idParamValidation, ...updateRutaValidation, ...updatedByValidation,
+  ...idParamValidation, ...updateRutaValidation,
   validateResults,
   updateRuta
 );
@@ -42,7 +45,7 @@ router.put(
 // Eliminar una ruta (borrado lógico)
 router.delete(
   '/:id',
-  ...idParamValidation, ...updatedByValidation,
+  idParamValidation,
   validateResults,
   deleteRuta
 );

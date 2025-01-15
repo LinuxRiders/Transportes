@@ -1,18 +1,15 @@
 import { body } from 'express-validator';
-import { createdByValidation, updatedByValidation } from '../../../validations/validations.js';
 
 export const createCarroceriaValidation = [
     body('tipo_carroceria')
         .isString()
         .notEmpty()
-        .withMessage('tipo_carroceria es obligatorio'),
-    ...createdByValidation
+        .withMessage('tipo_carroceria es obligatorio')
 ];
 
 export const updateCarroceriaValidation = [
     body('tipo_carroceria')
         .optional()
         .isString()
-        .notEmpty(),
-    ...updatedByValidation
+        .notEmpty()
 ];
