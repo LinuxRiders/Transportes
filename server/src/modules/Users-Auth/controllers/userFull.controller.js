@@ -1,10 +1,11 @@
-import { Role, User, UserRole } from '../models/user.model.js';
+import { Persona, Role, User, UserRole } from '../models/user.model.js';
 import { hashPassword } from '../../../utils/password.js';
 import logger from '../../../utils/logger.js';
 import pool from '../../../config/db.js';
 
 export const createFullUser = async (req, res, next) => {
-    const { username, password, email, roles } = req.body;
+    const { username, password, email, profile, roles } = req.body;
+    const created_by = req.user.id;
 
     const connection = await pool.getConnection(); // Obtener una conexión de la pool
     try {
@@ -23,6 +24,9 @@ export const createFullUser = async (req, res, next) => {
 
         // Asignación de roles
         const newRoles = [...new Set(roles)]; // Eliminamos duplicados con SET
+        // Lista de roles válidos
+        const allowedRoles = ['User', 'Guia', 'Conductor'];
+
         for (const roleName of newRoles) {
             const role = await Role.findByName(roleName, connection);
             if (!role) {
@@ -30,8 +34,26 @@ export const createFullUser = async (req, res, next) => {
                 await connection.rollback();
                 return res.status(400).json({ error: `Role not found: ${roleName}` });
             }
+            if (!allowedRoles.includes(role)) {
+                // Si un rol no es valido, revertimos la transacción
+                await connection.rollback();
+                return res.status(400).json({ error: `[Forbidden] Insufficient permissions: ${roleName}` });
+            }
             await UserRole.assignRole(userId, role.role_id, connection);
         }
+
+        // Crear perfil de usuario
+        const { nombre, apellido_paterno, apellido_materno, fecha_nacimiento, celular, direccion } = profile;
+        await Persona.create({
+            nombre,
+            apellido_paterno,
+            apellido_materno,
+            fecha_nacimiento,
+            celular,
+            direccion,
+            user_id: userId,
+            created_by
+        }, connection);
 
         // Confirmar la transacción si todo es exitoso
         await connection.commit();
@@ -39,12 +61,14 @@ export const createFullUser = async (req, res, next) => {
         // Recuperar la info final del usuario y perfil para devolver
         const user = await User.findById(userId, connection);
         const userRoles = await UserRole.getRolesByUser(userId, connection);
+        const perfil = await Persona.getByUser(userId, connection);
 
         logger.info(`UserFullController:createFullUser User created with full data user_id=${userId}`);
         res.status(201).json({
             data: {
                 user,
-                roles: userRoles.map(r => r.name)
+                roles: userRoles.map(r => r.name),
+                persona: perfil
             }
         });
 
@@ -58,16 +82,3 @@ export const createFullUser = async (req, res, next) => {
     }
 };
 
-
-//  {
-//     "username": "jdoe",
-//     "password": "secret123",
-//     "email": "john.doe@example.com",
-//     "profile": {
-//       "dni": "12345678",
-//       "first_name": "John",
-//       "last_name": "Doe",
-//       "phone": "555-1234"
-//     },
-//     "roles": ["Admin", "Staff"]
-//   }

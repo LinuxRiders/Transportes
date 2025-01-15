@@ -320,6 +320,22 @@ export const Persona = {
             logger.error(`[Model]:Persona:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
+    },
+
+    getByUser: async (user_id, connection = pool) => {
+        try {
+            const query = `
+                SELECT *
+                FROM persona
+                WHERE user_id = ?
+                  AND deleted_at IS NULL
+            `;
+            const [rows] = await connection.execute(query, [user_id]);
+            return rows[0] || null;
+        } catch (error) {
+            logger.error(`[Model]:Persona:findById Error: ${error.message}`, { stack: error.stack });
+            throw error;
+        }
     }
 };
 

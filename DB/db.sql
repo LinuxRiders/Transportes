@@ -400,7 +400,7 @@ CREATE TABLE IF NOT EXISTS ruta_lugares (
     ruta_id INT NOT NULL,
     lugar_turistico_id INT NOT NULL,
     orden_visita INT NOT NULL,
-    tiempo_estancia INT NOT NULL, -- Tiempo en minutos o horas
+    tiempo_estancia DECIMAL(8,2) NOT NULL, -- Tiempo en minutos o horas
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INT NULL,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -451,6 +451,66 @@ VALUES (
   1,
   'Admin',
   'Rol SuperUsuario del Sistema',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  2,
+  'User',
+  'Rol usuario común',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  3,
+  'Guia',
+  'Rol usuario tipo Guia',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  4,
+  'Conductor',
+  'Rol usuario tipo Conductor',
   '2025-01-15 00:26:08',
   NULL,
   '2025-01-15 00:26:08',
