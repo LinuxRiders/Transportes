@@ -12,13 +12,19 @@ import Paneladmi from "./components/PanelAdmin/Paneladmi";
 import RutaForm2 from "./components/Rutas/RutaForm2";
 import RutaForm3 from "./components/Rutas/RutaForm3";
 import ViewRutas from "./components/Rutas/ViewRutas";
+import Login from "./components/Home/Login";
+import PrivateRoute from "./utils/PrivateRoute";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<ViewRutas />} />;
+        <Route path="/login" element={<Login />} />;
         <Route path="/pasajes-de-bus" element={<PasajesBus />} />;
+        {/* <Route
+          element={<PrivateRoute roles={["Admin"]} to="/pasajes-de-bus" />}
+        > */}
         <Route path="/formulario" element={<Paneladmi />}>
           <Route path="registro" element={<CreateFormVehiculo />} />
           <Route path="formulario" element={<VehiculoForm />} />
@@ -26,6 +32,7 @@ function App() {
           <Route path="rutas" element={<RutaForm2 />} />
           <Route path="lugar-turistico" element={<RutaForm3 />} />
         </Route>
+        {/* </Route> */}
       </Routes>
     </>
   );

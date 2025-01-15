@@ -18,7 +18,7 @@ export const User = {
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                'SELECT user_id, username, status, created_at, updated_at FROM USER WHERE user_id = ? AND deleted_at IS NULL',
+                'SELECT user_id, username, email, status, created_at, updated_at FROM USER WHERE user_id = ? AND deleted_at IS NULL',
                 [id]
             );
             return rows[0] || null;

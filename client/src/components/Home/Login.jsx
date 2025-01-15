@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import auto from "../../assets/svg_auto.png";
 import { FaEye, FaEyeSlash, FaUpload } from "react-icons/fa";
+import api from "../../api/api";
+import { useAuth } from "../../context/AuthProvider";
 
 const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -9,6 +11,11 @@ const Login = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [userType, setUserType] = useState("");
+
+  const [email, setEmail] = useState("");
+  const [passwordlogin, setPasswordLogin] = useState("");
+
+  const { login, getRols, user, isAuthenticated, logOut } = useAuth();
 
   const toggleMode = () => {
     setIsRegistering((prev) => !prev);
@@ -23,6 +30,19 @@ const Login = () => {
     setConfirmPassword(e.target.value);
     setPasswordMatch(password === e.target.value);
   };
+
+  async function handleSubmit() {
+    try {
+      const response = await api.post("/auth/login", {
+        email: email,
+        password: passwordlogin,
+      });
+
+      login(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const renderAdditionalFields = () => {
     switch (userType) {
@@ -428,6 +448,8 @@ const Login = () => {
                   border: "1px solid #ccc",
                   borderRadius: "5px",
                 }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <div style={{ position: "relative", width: "80%" }}>
                 <input
@@ -441,6 +463,8 @@ const Login = () => {
                     borderRadius: "5px",
                     paddingRight: "40px",
                   }}
+                  value={passwordlogin}
+                  onChange={(e) => setPasswordLogin(e.target.value)}
                 />
                 <span
                   onClick={() => setIsPasswordVisible(!isPasswordVisible)}
@@ -457,6 +481,7 @@ const Login = () => {
                 </span>
               </div>
               <button
+                onClick={handleSubmit}
                 style={{
                   padding: "10px 20px",
                   backgroundColor: "#ff6100",
