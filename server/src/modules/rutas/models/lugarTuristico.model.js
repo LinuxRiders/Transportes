@@ -3,7 +3,7 @@ import logger from '../../../utils/logger.js';
 
 export const LugarTuristico = {
   // CREATE
-  create: async ({ nombre, descripcion, ubicacion, categoria_id, created_by }, connection = pool) => {
+  create: async ({ nombre, descripcion, ubicacion, categoria_id, created_by = null }, connection = pool) => {
     try {
       const [result] = await connection.execute(
         `INSERT INTO lugares_turisticos (nombre, descripcion, ubicacion, categoria_id, created_at, created_by)

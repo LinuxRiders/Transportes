@@ -23,14 +23,14 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar"; // General Car Icon
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
 import AirportShuttleIcon from "@mui/icons-material/AirportShuttle";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import BusAlertIcon from "@mui/icons-material/BusAlert";
-import BuildIcon from "@mui/icons-material/Build"; // Mecánica
-import SyncIcon from "@mui/icons-material/Sync"; // Semi Automática
-import AutoAwesomeMotionIcon from "@mui/icons-material/AutoAwesomeMotion"; // Variable Continua
+import BuildIcon from "@mui/icons-material/Build";
+import SyncIcon from "@mui/icons-material/Sync";
+import AutoAwesomeMotionIcon from "@mui/icons-material/AutoAwesomeMotion";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { DataGrid } from "@mui/x-data-grid";
@@ -55,19 +55,13 @@ const EditableList = ({
     setNewItem((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAddOrEdit = () => {
+  const handleAddOrEdit = async () => {
     if (editIndex !== null) {
-      setItems((prev) =>
-        prev.map((item, index) =>
-          index === editIndex ? { ...item, ...newItem } : item
-        )
-      );
-
-      onEdit(editIndex, newItem);
+      await onEdit(editIndex, newItem);
       setEditIndex(null);
     } else {
-      setItems((prev) => [...prev, { ...newItem }]);
-      onSubmit(newItem);
+      setNewItem({});
+      await onSubmit(newItem);
     }
     setNewItem({});
   };
@@ -108,7 +102,7 @@ const EditableList = ({
         await onEdit(index, updatedFields);
       } else if (title === "Tipos de Carrocería") {
         await onEdit(index, updatedFields);
-      } else if (title === "Tipos de Transmisión") {
+      } else if (title === "Tipos de Transmision") {
         await onEdit(index, updatedFields);
       }
 
@@ -148,58 +142,63 @@ const EditableList = ({
         </AccordionSummary>
         <AccordionDetails>
           <Box>
+            {/* ----------------------- Muestra el contenido de la tabla -------------------- */}
             <List>
-              {items?.slice(0, 2)?.map((item, index) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <>
-                      <IconButton
-                        edge="end"
-                        aria-label="edit"
-                        onClick={() => handleEdit(index)}
-                        sx={{ color: "#FFC107" }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDelete(index)}
-                        sx={{ color: "#D32F2F" }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </>
-                  }
-                >
-                  <ListItemText
-                    primary={
-                      <Box display="flex" alignItems="center">
-                        <Typography sx={{ color: "black", fontWeight: "bold" }}>
-                          {item.label ||
-                            item.marca ||
-                            item.tipo_combustible ||
-                            item.tipo_vehiculo ||
-                            item.tipo_carroceria ||
-                            item.tipo_transmision}
-                        </Typography>
-                      </Box>
+              {Array.isArray(items) &&
+                items.slice(0, 2).map((item, index) => (
+                  <ListItem
+                    key={index}
+                    secondaryAction={
+                      <>
+                        <IconButton
+                          edge="end"
+                          aria-label="edit"
+                          onClick={() => handleEdit(index)}
+                          sx={{ color: "#FFC107" }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDelete(index)}
+                          sx={{ color: "#D32F2F" }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </>
                     }
-                    secondary={
-                      item.descripcion && (
-                        <Typography
-                          sx={{ color: "#757575" }}
-                          dangerouslySetInnerHTML={{
-                            __html: item?.descripcion,
-                          }}
-                        ></Typography>
-                      )
-                    }
-                  />
-                </ListItem>
-              ))}
+                  >
+                    <ListItemText
+                      primary={
+                        <Box display="flex" alignItems="center">
+                          <Typography
+                            sx={{ color: "black", fontWeight: "bold" }}
+                          >
+                            {item.label ||
+                              item.marca ||
+                              item.tipo_combustible ||
+                              item.tipo_vehiculo ||
+                              item.tipo_carroceria ||
+                              item.tipo_transmision}
+                          </Typography>
+                        </Box>
+                      }
+                      secondary={
+                        item.descripcion && (
+                          <Typography
+                            sx={{ color: "#757575" }}
+                            dangerouslySetInnerHTML={{
+                              __html: item?.descripcion,
+                            }}
+                          ></Typography>
+                        )
+                      }
+                    />
+                  </ListItem>
+                ))}
             </List>
+            {/* -------------------------------------------------------------------------------------------------------------------------------- */}
             <Box display="flex" flexDirection="column" gap={1} mt={2}>
               {fields.map((field) =>
                 field === "descripcion" || field === "icono_vehiculo" ? (
@@ -295,7 +294,11 @@ const EditableList = ({
         <DialogContent>
           <Paper sx={{ height: 400, width: "100%" }}>
             <DataGrid
-              rows={items.map((item, index) => ({ id: index + 1, ...item }))}
+              rows={
+                Array.isArray(items)
+                  ? items.map((item, index) => ({ id: index + 1, ...item }))
+                  : []
+              }
               columns={fields.map((field) => ({
                 field,
                 headerName: field,
@@ -320,7 +323,7 @@ const VehiculoForm = () => {
   const [tiposVehiculo, setTiposVehiculo] = useState([]);
   const [tiposCarroseria, setTiposCarroseria] = useState([]);
   const [tiposTransmision, setTiposTransmision] = useState([]);
-  //----------------------------------------------------------------
+  //  ----------------------------------------------------------------
   useEffect(() => {
     async function getMarcas() {
       try {
@@ -336,8 +339,6 @@ const VehiculoForm = () => {
   }, []);
 
   async function handleAddMarca(fields) {
-    // if (!Object.keys(fields).length <= 0) return;
-
     try {
       const response = await api.post("/marcas", fields);
 
@@ -376,7 +377,7 @@ const VehiculoForm = () => {
       }
     } catch (error) {}
   }
-  //---------------------Combustible----------------------------------------
+  //  ---------------------Combustible----------------------------------------
 
   useEffect(() => {
     async function getCombustible() {
@@ -431,7 +432,7 @@ const VehiculoForm = () => {
       }
     } catch (error) {}
   }
-  //-----------------Vehículo-----------------------------------------------
+  //  -----------------Vehículo-----------------------------------------------
 
   useEffect(() => {
     async function getVehiculos() {
@@ -478,7 +479,7 @@ const VehiculoForm = () => {
       console.error("Error deleting vehiculo:", error);
     }
   }
-  //------------------------------carroseria -------------------------------------------
+  //  ------------------------------carroseria -------------------------------------------
 
   useEffect(() => {
     async function getCarroserias() {
@@ -493,7 +494,7 @@ const VehiculoForm = () => {
     getCarroserias();
   }, []);
 
-  //---------------------Transmision----------------------------------------
+  //  ---------------------Transmision----------------------------------------
 
   useEffect(() => {
     async function getTransmision() {
@@ -512,7 +513,6 @@ const VehiculoForm = () => {
     try {
       const response = await api.post("/transmisiones", fields);
       const { data } = response.data;
-      setTiposTransmision(data);
     } catch (error) {
       console.error("Error adding vehiculo:", error);
     }
@@ -526,7 +526,6 @@ const VehiculoForm = () => {
         fields
       );
       const { data } = response.data;
-      setTiposTransmision(data);
     } catch (error) {
       console.error("Error editing vehiculo:", error);
     }
@@ -539,6 +538,7 @@ const VehiculoForm = () => {
       const response = await api.delete(`/transmisiones/${id_transmision}`);
 
       const { data } = response.data;
+
       if (data) {
         console.log(data);
       }
@@ -565,7 +565,6 @@ const VehiculoForm = () => {
             items={marcas}
             setItems={setMarcas}
             fields={["marca", "descripcion"]}
-            useRichText={true}
             onSubmit={handleAddMarca}
             onDelete={handleDeleteMarca}
             onEdit={handleEditMarca}

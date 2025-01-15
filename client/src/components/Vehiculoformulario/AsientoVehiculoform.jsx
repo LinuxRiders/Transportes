@@ -21,6 +21,7 @@ const AsientoVehiculoform = ({
   const [openEditDialog, setOpenEditDialog] = useState(false); // Estado del modal
   const [draggedSeat, setDraggedSeat] = useState(null);
 
+  // Función para agregar un nuevo piso
   const handleAddFloor = () => {
     setFloors((prevFloors) => [
       ...prevFloors,
@@ -32,137 +33,160 @@ const AsientoVehiculoform = ({
     ]);
   };
 
+  // Función para cambiar el número de filas de un piso
   const handleRowsChange = (floorIndex, newRows) => {
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
-      const floor = updatedFloors[floorIndex];
-      floor.rows = newRows;
-
-      // Eliminar asientos fuera de los límites
-      floor.selectedSeats = floor.selectedSeats.filter(
-        (seat) => seat.row <= newRows
-      );
-
-      return updatedFloors;
-    });
-  };
-
-  const handleColumnsChange = (floorIndex, newColumns) => {
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
-      const floor = updatedFloors[floorIndex];
-      floor.columns = newColumns;
-
-      // Eliminar asientos fuera de los límites
-      floor.selectedSeats = floor.selectedSeats.filter(
-        (seat) => seat.column.charCodeAt(0) - 65 < newColumns
-      );
-
-      return updatedFloors;
-    });
-  };
-
-  const handleSeatClick = (floorIndex, seat, rowIndex, colIndex) => {
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
-      const floor = updatedFloors[floorIndex];
-
-      if (seat) {
-        // Eliminar asiento
-        floor.selectedSeats = floor.selectedSeats.filter(
-          (s) =>
-            !(
-              s.row === rowIndex + 1 &&
-              s.column === String.fromCharCode(65 + colIndex)
-            )
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        if (idx !== floorIndex) return floor;
+        // Filtrar asientos que exceden el nuevo número de filas
+        const updatedSeats = floor.selectedSeats.filter(
+          (seat) => seat.row <= newRows
         );
-      } else {
-        // Agregar asiento
-        const newSeatId =
-          Math.max(...floor.selectedSeats.map((s) => s.id), 0) + 1;
-        const columnLabel = String.fromCharCode(65 + colIndex);
+        return { ...floor, rows: newRows, selectedSeats: updatedSeats };
+      })
+    );
+  };
 
-        const existingSeat = floor.selectedSeats.find(
+  // Función para cambiar el número de columnas de un piso
+  const handleColumnsChange = (floorIndex, newColumns) => {
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        if (idx !== floorIndex) return floor;
+        // Filtrar asientos que exceden el nuevo número de columnas
+        const updatedSeats = floor.selectedSeats.filter(
+          (seat) => seat.column.charCodeAt(0) - 65 < newColumns
+        );
+        return { ...floor, columns: newColumns, selectedSeats: updatedSeats };
+      })
+    );
+  };
+
+  // Función para manejar el clic en un asiento (agregar o eliminar)
+  const handleSeatClick = (floorIndex, seat, rowIndex, colIndex) => {
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        if (idx !== floorIndex) return floor;
+
+        const columnLabel = String.fromCharCode(65 + colIndex);
+        const existingSeatIndex = floor.selectedSeats.findIndex(
           (s) => s.row === rowIndex + 1 && s.column === columnLabel
         );
-        if (!existingSeat) {
-          floor.selectedSeats.push({
-            id: newSeatId,
-            row: rowIndex + 1,
-            column: columnLabel,
-            tipo_asiento: "Normal",
-            estado_asiento: "Disponible",
-            caracteristica: "",
-          });
+
+        let updatedSeats = [...floor.selectedSeats];
+
+        if (seat) {
+          // Eliminar asiento existente
+          updatedSeats.splice(existingSeatIndex, 1);
+        } else {
+          // Agregar nuevo asiento si no existe en la posición
+          if (existingSeatIndex === -1) {
+            const newSeat = {
+              id: Date.now(), // Usar timestamp para ID único
+              row: rowIndex + 1,
+              column: columnLabel,
+              tipo_asiento: "Normal",
+              estado_asiento: "Disponible",
+              caracteristica: "",
+            };
+            updatedSeats.push(newSeat);
+          }
         }
-      }
 
-      return updatedFloors;
-    });
+        return { ...floor, selectedSeats: updatedSeats };
+      })
+    );
   };
 
+  // Función para manejar la eliminación de una columna
   const handleColumnDelete = (floorIndex, colIndex) => {
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
-      const floor = updatedFloors[floorIndex];
-
-      floor.selectedSeats = floor.selectedSeats.filter(
-        (seat) => seat.column.charCodeAt(0) - 65 !== colIndex
-      );
-
-      return updatedFloors;
-    });
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        if (idx !== floorIndex) return floor;
+        const updatedSeats = floor.selectedSeats.filter(
+          (seat) => seat.column.charCodeAt(0) - 65 !== colIndex
+        );
+        return { ...floor, selectedSeats: updatedSeats };
+      })
+    );
   };
 
+  // Función para manejar la eliminación de una fila
   const handleRowDelete = (floorIndex, rowIndex) => {
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
-      const floor = updatedFloors[floorIndex];
-
-      floor.selectedSeats = floor.selectedSeats.filter(
-        (seat) => seat.row - 1 !== rowIndex
-      );
-
-      return updatedFloors;
-    });
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        if (idx !== floorIndex) return floor;
+        const updatedSeats = floor.selectedSeats.filter(
+          (seat) => seat.row !== rowIndex + 1
+        );
+        return { ...floor, selectedSeats: updatedSeats };
+      })
+    );
   };
+
+  // Función para iniciar el arrastre de un asiento
   const handleDragStart = (seat, floorIndex) => {
     setDraggedSeat({ seat, floorIndex });
   };
 
-  const handleDrop = (floorIndex, rowIndex, colIndex) => {
+  // Función para manejar la colocación de un asiento arrastrado
+  const handleDrop = (targetFloorIndex, rowIndex, colIndex) => {
     if (!draggedSeat) return;
 
-    const { seat, floorIndex: sourceFloorIndex } = draggedSeat;
+    const { seat: draggedSeatData, floorIndex: sourceFloorIndex } = draggedSeat;
     const columnLabel = String.fromCharCode(65 + colIndex);
+    const targetFloor = floors[targetFloorIndex];
 
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
+    // Verificar si la posición de destino ya está ocupada
+    const isOccupied = targetFloor.selectedSeats.some(
+      (s) => s.row === rowIndex + 1 && s.column === columnLabel
+    );
 
-      // Eliminar asiento de su posición original
-      const sourceFloor = updatedFloors[sourceFloorIndex];
-      sourceFloor.selectedSeats = sourceFloor.selectedSeats.filter(
-        (s) => s.id !== seat.id
-      );
+    if (isOccupied) {
+      alert("La posición de destino ya está ocupada por otro asiento.");
+      setDraggedSeat(null);
+      return;
+    }
 
-      // Agregar asiento a la nueva posición
-      const targetFloor = updatedFloors[floorIndex];
-      targetFloor.selectedSeats.push({
-        ...seat,
-        row: rowIndex + 1,
-        column: columnLabel,
-      });
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        // Eliminar asiento de su piso original
+        if (idx === sourceFloorIndex) {
+          return {
+            ...floor,
+            selectedSeats: floor.selectedSeats.filter(
+              (s) => s.id !== draggedSeatData.id
+            ),
+          };
+        }
 
-      return updatedFloors;
-    });
+        // Agregar asiento al piso de destino
+        if (idx === targetFloorIndex) {
+          return {
+            ...floor,
+            selectedSeats: [
+              ...floor.selectedSeats,
+              {
+                ...draggedSeatData,
+                row: rowIndex + 1,
+                column: columnLabel,
+              },
+            ],
+          };
+        }
+
+        return floor;
+      })
+    );
 
     setDraggedSeat(null);
   };
 
+  // Función para permitir el arrastre sobre un elemento
   const handleDragOver = (event) => {
     event.preventDefault();
   };
 
+  // Función para manejar el clic derecho en un asiento (abrir diálogo de edición)
   const handleRightClick = (e, floorIndex, seat) => {
     e.preventDefault(); // Evita el menú contextual por defecto
     if (seat) {
@@ -171,31 +195,30 @@ const AsientoVehiculoform = ({
     }
   };
 
+  // Función para guardar los cambios en el asiento editado
   const handleSaveSeatEdit = () => {
     const { floorIndex, seat } = editSeat;
-    setFloors((prevFloors) => {
-      const updatedFloors = [...prevFloors];
-      const floor = updatedFloors[floorIndex];
+    setFloors((prevFloors) =>
+      prevFloors.map((floor, idx) => {
+        if (idx !== floorIndex) return floor;
 
-      floor.selectedSeats = floor.selectedSeats.map((s) =>
-        s.id === seat.id ? seat : s
-      );
+        const updatedSeats = floor.selectedSeats.map((s) =>
+          s.id === seat.id ? seat : s
+        );
 
-      return updatedFloors;
-    });
+        return { ...floor, selectedSeats: updatedSeats };
+      })
+    );
 
     setOpenEditDialog(false);
     setEditSeat(null);
   };
+
+  // Genera etiquetas de columna basadas en el número de columnas
   const generateColumnLabels = (num) =>
     Array.from({ length: num }, (_, i) => String.fromCharCode(65 + i));
 
-  //=========================link BASE DE DATOS =======================================
-
-  //--------------------------------Coneccion asientos----------------------------------------
-
-  //================================================================
-
+  // Actualiza la capacidad total de asientos cada vez que cambia 'floors'
   useEffect(() => {
     const totalAsientos = floors.reduce(
       (acc, floor) => acc + floor.selectedSeats.length,
@@ -203,6 +226,7 @@ const AsientoVehiculoform = ({
     );
     onUpdateCapacidadAsientos(totalAsientos); // Pasa la capacidad de asientos al componente principal
   }, [floors, onUpdateCapacidadAsientos]);
+
   return (
     <Box sx={{ p: 4 }}>
       <Typography
@@ -213,7 +237,7 @@ const AsientoVehiculoform = ({
           color: "#FF6F00",
         }}
       >
-        Registro de asientos - Múltiples Pisos
+        Registro de Asientos - Múltiples Pisos
       </Typography>
 
       <Button
@@ -227,14 +251,14 @@ const AsientoVehiculoform = ({
       {floors.map((floor, floorIndex) => (
         <Box key={floorIndex} sx={{ mb: 6 }}>
           <Typography sx={{ mb: 2, fontWeight: "bold", color: "#FF6F00" }}>
-            Piso {floorIndex + 1} - Total de asientos:{" "}
+            Piso {floorIndex + 1} - Total de Asientos:{" "}
             {floor.selectedSeats.length}
           </Typography>
 
           {/* Inputs para tamaño de matriz */}
           <Box sx={{ mb: 4, display: "flex", gap: 2, alignItems: "center" }}>
             <TextField
-              label="Rows"
+              label="Filas"
               type="number"
               value={floor.rows}
               onChange={(e) =>
@@ -244,7 +268,7 @@ const AsientoVehiculoform = ({
               size="small"
             />
             <TextField
-              label="Columns"
+              label="Columnas"
               type="number"
               value={floor.columns}
               onChange={(e) =>
@@ -255,10 +279,12 @@ const AsientoVehiculoform = ({
             />
           </Box>
 
-          {/* Representación de la matriz */}
+          {/* Representación de la matriz de asientos */}
           <Box>
             <Grid container spacing={0}>
+              {/* Espacio para las etiquetas de filas */}
               <Grid item xs={1} sx={{ m: 2 }}></Grid>
+              {/* Etiquetas de columnas */}
               {generateColumnLabels(floor.columns).map((label, colIndex) => (
                 <Grid item xs={1} key={label} sx={{ m: 2 }}>
                   <Box
@@ -269,6 +295,7 @@ const AsientoVehiculoform = ({
                       color: "orange",
                       border: "1px solid #FF6F00",
                       borderRadius: "50%",
+                      padding: "5px",
                     }}
                     onClick={() => handleColumnDelete(floorIndex, colIndex)}
                   >
@@ -278,8 +305,10 @@ const AsientoVehiculoform = ({
               ))}
             </Grid>
 
+            {/* Filas de asientos */}
             {Array.from({ length: floor.rows }).map((_, rowIndex) => (
               <Grid container spacing={0} key={rowIndex}>
+                {/* Etiqueta de fila */}
                 <Grid item xs={1} sx={{ m: 2 }}>
                   <Box
                     sx={{
@@ -288,12 +317,14 @@ const AsientoVehiculoform = ({
                       borderRadius: "50%",
                       cursor: "pointer",
                       color: "orange",
+                      padding: "5px",
                     }}
                     onClick={() => handleRowDelete(floorIndex, rowIndex)}
                   >
                     {rowIndex + 1}
                   </Box>
                 </Grid>
+                {/* Asientos */}
                 {Array.from({ length: floor.columns }).map((_, colIndex) => {
                   const seat = floor.selectedSeats.find(
                     (s) =>
@@ -346,6 +377,8 @@ const AsientoVehiculoform = ({
                             height: "100%",
                             background: "rgba(187, 187, 187, 0.3)",
                             cursor: "pointer",
+
+                            borderRadius: "4px",
                           }}
                           onClick={() =>
                             handleSeatClick(
@@ -365,6 +398,7 @@ const AsientoVehiculoform = ({
           </Box>
         </Box>
       ))}
+
       {/* Modal para editar asiento */}
       <Dialog
         open={openEditDialog}
