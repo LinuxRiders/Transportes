@@ -32,11 +32,6 @@ const lista = [
         subtitle: "Registro de Vehículo",
         link: "registro",
       },
-      {
-        icon: <DirectionsCarIcon fontSize="small" />,
-        subtitle: "Registro de Componentes",
-        link: "formulario",
-      },
     ],
   },
   {
@@ -49,11 +44,6 @@ const lista = [
         link: "categoria-y-ruta",
       },
 
-      {
-        icon: <HikingIcon fontSize="small" />,
-        subtitle: "Registro de Rutas",
-        link: "rutas",
-      },
       {
         icon: <HikingIcon fontSize="small" />,
         subtitle: " Registro de Lugar turistico",
