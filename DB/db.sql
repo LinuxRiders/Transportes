@@ -87,45 +87,45 @@ CREATE TABLE persona (
 
 
 CREATE TABLE guia_turistico (
-  idGuia_turistico INT NOT NULL,
+  idGuia_turistico INT AUTO_INCREMENT PRIMARY KEY,
   numero_licencia_turismo VARCHAR(45),
   idioma_materno JSON,
+  idPersona INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   updated_by INT NULL,
   deleted_at DATETIME NULL,
-  PRIMARY KEY (idGuia_turistico),
-  FOREIGN KEY (idGuia_turistico) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
   FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE pasajero (
-  idPasajero INT NOT NULL,
+  idPasajero INT AUTO_INCREMENT PRIMARY KEY,
   foto_pasajero VARCHAR(200),
+  idPersona INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   updated_by INT NULL,
   deleted_at DATETIME NULL,
-  PRIMARY KEY (idPasajero),
-  FOREIGN KEY (idPasajero) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES user(user_id) ON DELETE SET NULL,
   FOREIGN KEY (updated_by) REFERENCES user(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE conductor (
-  idConductor INT NOT NULL,
-  foto_conductor VARCHAR(200),
-  celular_contacto VARCHAR(45),
+  idConductor INT AUTO_INCREMENT PRIMARY KEY,
+  foto_conductor TEXT,
+  celular_contacto VARCHAR(17),
+  idPersona INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   updated_by INT NULL,
   deleted_at DATETIME NULL,
-  PRIMARY KEY (idConductor),
-  FOREIGN KEY (idConductor) REFERENCES persona(idPersona) ON DELETE CASCADE,
+  FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
   FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
@@ -400,7 +400,7 @@ CREATE TABLE IF NOT EXISTS ruta_lugares (
     ruta_id INT NOT NULL,
     lugar_turistico_id INT NOT NULL,
     orden_visita INT NOT NULL,
-    tiempo_estancia INT NOT NULL, -- Tiempo en minutos o horas
+    tiempo_estancia DECIMAL(8,2) NOT NULL, -- Tiempo en minutos o horas
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INT NULL,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -451,6 +451,66 @@ VALUES (
   1,
   'Admin',
   'Rol SuperUsuario del Sistema',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  2,
+  'User',
+  'Rol usuario común',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  3,
+  'Guia',
+  'Rol usuario tipo Guia',
+  '2025-01-15 00:26:08',
+  NULL,
+  '2025-01-15 00:26:08',
+  NULL,
+  NULL
+);
+INSERT INTO `ROLE` (
+  `role_id`,
+  `name`,
+  `description`,
+  `created_at`,
+  `created_by`,
+  `updated_at`,
+  `updated_by`,
+  `deleted_at`
+)
+VALUES (
+  4,
+  'Conductor',
+  'Rol usuario tipo Conductor',
   '2025-01-15 00:26:08',
   NULL,
   '2025-01-15 00:26:08',

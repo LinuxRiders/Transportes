@@ -320,13 +320,29 @@ export const Persona = {
             logger.error(`[Model]:Persona:getAll Error: ${error.message}`, { stack: error.stack });
             throw error;
         }
+    },
+
+    getByUser: async (user_id, connection = pool) => {
+        try {
+            const query = `
+                SELECT *
+                FROM persona
+                WHERE user_id = ?
+                  AND deleted_at IS NULL
+            `;
+            const [rows] = await connection.execute(query, [user_id]);
+            return rows[0] || null;
+        } catch (error) {
+            logger.error(`[Model]:Persona:findById Error: ${error.message}`, { stack: error.stack });
+            throw error;
+        }
     }
 };
 
 export const GuiaTuristico = {
     create: async (
         {
-            idGuia_turistico, // Debe ser el mismo ID de persona
+            idPersona, // Debe ser el mismo ID de persona
             numero_licencia_turismo,
             idioma_materno,
             created_by = null
@@ -336,17 +352,17 @@ export const GuiaTuristico = {
         try {
             const query = `
                 INSERT INTO guia_turistico (
-                  idGuia_turistico,
-                  numero_licencia_turismo,
-                  idioma_materno,
-                  created_by
+                    numero_licencia_turismo,
+                    idioma_materno,
+                    idPersona,
+                    created_by
                 )
                 VALUES (?,?,?,?)
             `;
             const values = [
-                idGuia_turistico,
                 numero_licencia_turismo,
                 JSON.stringify(idioma_materno), // si está en objeto JS
+                idPersona,
                 created_by
             ];
             const [result] = await connection.execute(query, values);
@@ -440,7 +456,7 @@ export const GuiaTuristico = {
 export const Pasajero = {
     create: async (
         {
-            idPasajero, // coincide con persona.idPersona
+            idPersona, // coincide con persona.idPersona
             foto_pasajero,
             created_by = null
         },
@@ -449,15 +465,15 @@ export const Pasajero = {
         try {
             const query = `
                 INSERT INTO pasajero (
-                  idPasajero,
                   foto_pasajero,
+                  idPersona,
                   created_by
                 )
                 VALUES (?,?,?)
             `;
             const values = [
-                idPasajero,
                 foto_pasajero,
+                idPersona,
                 created_by
             ];
             const [result] = await connection.execute(query, values);
@@ -543,7 +559,7 @@ export const Pasajero = {
 export const Conductor = {
     create: async (
         {
-            idConductor,
+            idPersona,
             foto_conductor,
             celular_contacto,
             created_by = null
@@ -553,17 +569,17 @@ export const Conductor = {
         try {
             const query = `
                 INSERT INTO conductor (
-                  idConductor,
                   foto_conductor,
                   celular_contacto,
+                  idPersona,
                   created_by
                 )
                 VALUES (?,?,?,?)
             `;
             const values = [
-                idConductor,
                 foto_conductor,
                 celular_contacto,
+                idPersona,
                 created_by
             ];
             const [result] = await connection.execute(query, values);
