@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createRutaLugar = async (req, res, next) => {
   try {
     const { ruta_id, lugar_turistico_id, orden_visita, tiempo_estancia } = req.body;
-    const created_by = req.user.id || null;
+    const created_by = req.user?.id ?? null;
 
     const idRutaLugar = await RutaLugar.create({
       ruta_id,
@@ -47,7 +47,7 @@ export const getRutaLugar = async (req, res, next) => {
 
 export const updateRutaLugar = async (req, res, next) => {
   try {
-    const updated_by = req.user.id || null;
+    const updated_by = req.user?.id ?? null;
 
     const fields = {};
     if (req.body.ruta_id) fields.ruta_id = req.body.ruta_id;
@@ -68,7 +68,7 @@ export const updateRutaLugar = async (req, res, next) => {
 
 export const deleteRutaLugar = async (req, res, next) => {
   try {
-    const updated_by = req.user.id || null;
+    const updated_by = req.user?.id ?? null;
 
     await RutaLugar.softDelete(req.params.id, updated_by);
     logger.info(`RutaLugarController:deleteRutaLugar Soft deleted id=${req.params.id}`);

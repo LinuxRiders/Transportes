@@ -41,7 +41,7 @@ export const getCiudad = async (req, res, next) => {
 
 export const updateCiudad = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         const fields = {};
         if (req.body.nombre) fields.nombre = req.body.nombre;
@@ -59,7 +59,7 @@ export const updateCiudad = async (req, res, next) => {
 
 export const deleteCiudad = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         await Ciudad.softDelete(req.params.id, updated_by);
         logger.info(`CiudadController:deleteCiudad Soft deleted id=${req.params.id}`);

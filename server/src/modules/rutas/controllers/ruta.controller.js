@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createRuta = async (req, res, next) => {
   try {
     const { nombre_ruta, descripcion, duracion, precio } = req.body;
-    const created_by = req.user.id || null;
+    const created_by = req.user?.id ?? null;
 
     const idRuta = await Ruta.create({ nombre_ruta, descripcion, duracion, precio, created_by });
     const ruta = await Ruta.findById(idRuta);
@@ -41,7 +41,7 @@ export const getRuta = async (req, res, next) => {
 
 export const updateRuta = async (req, res, next) => {
   try {
-    const updated_by = req.user.id || null;
+    const updated_by = req.user?.id ?? null;
 
     const fields = {};
     if (req.body.nombre_ruta) fields.nombre_ruta = req.body.nombre_ruta;
@@ -63,7 +63,7 @@ export const updateRuta = async (req, res, next) => {
 
 export const deleteRuta = async (req, res, next) => {
   try {
-    const updated_by = req.user.id || null;
+    const updated_by = req.user?.id ?? null;
 
     await Ruta.softDelete(req.params.id, updated_by);
     logger.info(`RutaController:deleteRuta Soft deleted id=${req.params.id}`);

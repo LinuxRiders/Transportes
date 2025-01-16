@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createEmpresa = async (req, res, next) => {
     try {
         const { nombre, direccion, telefono, ruc } = req.body;
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
         const idEmpresa = await Empresa.create({ nombre, direccion, telefono, ruc, created_by });
         const empresa = await Empresa.findById(idEmpresa);
 
@@ -40,7 +40,7 @@ export const getEmpresa = async (req, res, next) => {
 
 export const updateEmpresa = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         const fields = {};
         const { nombre, direccion, telefono, ruc } = req.body;
@@ -62,7 +62,7 @@ export const updateEmpresa = async (req, res, next) => {
 
 export const deleteEmpresa = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         await Empresa.softDelete(req.params.id, updated_by);
         logger.info(`EmpresaController:deleteEmpresa Soft deleted id=${req.params.id}`);

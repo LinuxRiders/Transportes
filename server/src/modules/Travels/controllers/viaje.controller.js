@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createViaje = async (req, res, next) => {
     try {
         const { id_terminal_origen, id_terminal_destino, id_vehiculo, fecha_hora_salida, fecha_hora_llegada, estado } = req.body;
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
         const idViaje = await Viaje.create({ id_terminal_origen, id_terminal_destino, id_vehiculo, fecha_hora_salida, fecha_hora_llegada, estado, created_by });
         const viaje = await Viaje.findById(idViaje);
 
@@ -40,7 +40,7 @@ export const getViaje = async (req, res, next) => {
 
 export const updateViaje = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         const fields = {};
         if (req.body.id_terminal_origen) fields.id_terminal_origen = req.body.id_terminal_origen;
@@ -63,7 +63,7 @@ export const updateViaje = async (req, res, next) => {
 
 export const deleteViaje = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         await Viaje.softDelete(req.params.id, updated_by);
         logger.info(`ViajeController:deleteViaje Soft deleted id=${req.params.id}`);

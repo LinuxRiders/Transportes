@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createTerminal = async (req, res, next) => {
     try {
         const { nombre, direccion, id_empresa, id_ciudad } = req.body;
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
         const idTerminal = await Terminal.create({ nombre, direccion, id_empresa, id_ciudad, created_by });
         const terminal = await Terminal.findById(idTerminal);
 
@@ -40,7 +40,7 @@ export const getTerminal = async (req, res, next) => {
 
 export const updateTerminal = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         const fields = {};
         if (req.body.nombre) fields.nombre = req.body.nombre;
@@ -61,7 +61,7 @@ export const updateTerminal = async (req, res, next) => {
 
 export const deleteTerminal = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
 
         await Terminal.softDelete(req.params.id, updated_by);

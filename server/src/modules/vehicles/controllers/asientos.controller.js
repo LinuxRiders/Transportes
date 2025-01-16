@@ -16,7 +16,7 @@ export const createAsiento = async (req, res, next) => {
             idvehiculo
         } = req.body;
 
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
 
         const idAsiento = await Asientos.create({
             fila,
@@ -75,7 +75,7 @@ export const updateAsiento = async (req, res, next) => {
         if (req.body.caracteristica) fields.caracteristica = req.body.caracteristica;
         if (req.body.idvehiculo) fields.idvehiculo = req.body.idvehiculo;
 
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
         if (Object.keys(fields).length > 0) {
             await Asientos.update(req.params.id, fields, updated_by);
         }
@@ -100,7 +100,7 @@ export const deleteAsiento = async (req, res, next) => {
             return res.status(404).json({ error: 'Asiento not found' });
         }
 
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
         await Asientos.softDelete(req.params.id, updated_by);
 
         logger.info(`AsientosController:deleteAsiento Soft deleted id=${req.params.id}`);
@@ -143,7 +143,7 @@ export const assignAsientosToVehicle = async (req, res, next) => {
     try {
         const { asientos } = req.body;
         const { id } = req.params;
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
 
         const connection = await pool.getConnection(); // Obtener una conexión de la pool
 

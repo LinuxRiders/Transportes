@@ -5,7 +5,7 @@ import pool from '../../../config/db.js';
 
 export const createFullUser = async (req, res, next) => {
     const { username, password, email, profile } = req.body;
-    const created_by = req.user.id || null;
+    const created_by = req.user?.id ?? null;
 
     const connection = await pool.getConnection(); // Obtener una conexión de la pool
     try {
@@ -74,7 +74,7 @@ export const createFullUser = async (req, res, next) => {
 
 export const assignGuiaToUser = async (req, res, next) => {
     const { idPersona, numero_licencia_turismo, idioma_materno } = req.body;
-    const created_by = req.user.id || null;
+    const created_by = req.user?.id ?? null;
 
     const connection = await pool.getConnection(); // Obtener una conexión de la pool
     try {
@@ -139,7 +139,7 @@ export const assignGuiaToUser = async (req, res, next) => {
 
 export const assignConductorToUser = async (req, res, next) => {
     const { idPersona, foto_conductor, celular_contacto } = req.body;
-    const created_by = req.user.id || null;
+    const created_by = req.user?.id ?? null;
 
     const connection = await pool.getConnection(); // Obtener una conexión de la pool
     try {

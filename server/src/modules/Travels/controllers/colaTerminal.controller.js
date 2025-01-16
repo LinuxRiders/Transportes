@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createCola = async (req, res, next) => {
     try {
         const { id_terminal, id_vehiculo, hora_llegada, estado } = req.body;
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
         const idCola = await ColaTerminal.create({ id_terminal, id_vehiculo, hora_llegada, estado, created_by });
         const cola = await ColaTerminal.findById(idCola);
 
@@ -40,7 +40,7 @@ export const getCola = async (req, res, next) => {
 
 export const updateCola = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         const fields = {};
         if (req.body.id_terminal) fields.id_terminal = req.body.id_terminal;
@@ -61,7 +61,7 @@ export const updateCola = async (req, res, next) => {
 
 export const deleteCola = async (req, res, next) => {
     try {
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
         await ColaTerminal.softDelete(req.params.id, updated_by);
         logger.info(`ColaTerminalController:deleteCola Soft deleted id=${req.params.id}`);
         res.status(204).send();

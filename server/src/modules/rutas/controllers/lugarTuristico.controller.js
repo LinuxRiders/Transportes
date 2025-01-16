@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createLugarTuristico = async (req, res, next) => {
   try {
     const { nombre, descripcion, ubicacion, categoria_id } = req.body;
-    const created_by = req.user.id || null;
+    const created_by = req.user?.id ?? null;
 
     const idLugarTuristico = await LugarTuristico.create({
       nombre,
@@ -56,7 +56,7 @@ export const updateLugarTuristico = async (req, res, next) => {
     if (req.body.ubicacion) fields.ubicacion = req.body.ubicacion;
     if (req.body.categoria_id) fields.categoria_id = req.body.categoria_id;
 
-    const updated_by = req.user.id || null;
+    const updated_by = req.user?.id ?? null;
 
     await LugarTuristico.update(req.params.id, fields, updated_by);
     const lugarTuristico = await LugarTuristico.findById(req.params.id);
@@ -71,7 +71,7 @@ export const updateLugarTuristico = async (req, res, next) => {
 
 export const deleteLugarTuristico = async (req, res, next) => {
   try {
-    const updated_by = req.user.id || null;
+    const updated_by = req.user?.id ?? null;
 
     await LugarTuristico.softDelete(req.params.id, updated_by);
     logger.info(`LugarTuristicoController:deleteLugarTuristico Soft deleted id=${req.params.id}`);

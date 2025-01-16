@@ -4,7 +4,7 @@ import logger from '../../../utils/logger.js';
 export const createCarroceria = async (req, res, next) => {
     try {
         const { tipo_carroceria } = req.body;
-        const created_by = req.user.id || null;
+        const created_by = req.user?.id ?? null;
         const idCarroceria = await Carroceria.create({ tipo_carroceria, created_by });
         const carroceria = await Carroceria.findById(idCarroceria);
 
@@ -52,7 +52,7 @@ export const updateCarroceria = async (req, res, next) => {
 
         const fields = {};
         if (req.body.tipo_carroceria) fields.tipo_carroceria = req.body.tipo_carroceria;
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
 
         if (Object.keys(fields).length > 0) {
             await Carroceria.update(req.params.id, fields, updated_by);
@@ -75,7 +75,7 @@ export const deleteCarroceria = async (req, res, next) => {
             return res.status(404).json({ error: 'Carroceria not found' });
         }
 
-        const updated_by = req.user.id || null;
+        const updated_by = req.user?.id ?? null;
         await Carroceria.softDelete(req.params.id, updated_by);
 
         logger.info(`CarroceriaController:deleteCarroceria Soft deleted id=${req.params.id}`);
