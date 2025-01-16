@@ -22,6 +22,7 @@ import "../../css/theme.css"; // Asegúrate de que este archivo esté cargado
 import { Link } from "react-router-dom";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import HikingIcon from "@mui/icons-material/Hiking";
+import PersonCircle from "@mui/icons-material/SupervisedUserCircle";
 const lista = [
   {
     iconos: <DirectionsCarIcon />,
@@ -48,6 +49,23 @@ const lista = [
         icon: <HikingIcon fontSize="small" />,
         subtitle: " Registro de Lugar turistico",
         link: "lugar-turistico",
+      },
+    ],
+  },
+  {
+    iconos: <PersonCircle />,
+    title: "Persona",
+    sub: [
+      {
+        icon: <PersonCircle fontSize="small" />,
+        subtitle: "Asignar Roles",
+        link: "asignar_roles",
+      },
+
+      {
+        icon: <PersonCircle fontSize="small" />,
+        subtitle: "Registrar Usuario",
+        link: "registrar_user",
       },
     ],
   },
