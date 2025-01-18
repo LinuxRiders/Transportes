@@ -111,8 +111,8 @@ CREATE TABLE pasajero (
   updated_by INT NULL,
   deleted_at DATETIME NULL,
   FOREIGN KEY (idPersona) REFERENCES persona(idPersona) ON DELETE CASCADE,
-  FOREIGN KEY (created_by) REFERENCES user(user_id) ON DELETE SET NULL,
-  FOREIGN KEY (updated_by) REFERENCES user(user_id) ON DELETE SET NULL
+  FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE SET NULL,
+  FOREIGN KEY (updated_by) REFERENCES USER(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE conductor (
