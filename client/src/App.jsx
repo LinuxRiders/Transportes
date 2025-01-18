@@ -15,12 +15,14 @@ import ViewRutas from "./components/Rutas/ViewRutas";
 import Login from "./components/Home/Login";
 import PrivateRoute from "./utils/PrivateRoute";
 import PanelUsuario from "./components/PanelAdmin/PanelUsuario";
+import ManageUser from "./components/PanelAdmin/ManageUser";
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<ViewRutas />} />;
         <Route path="/login" element={<Login />} />;
+        <Route path="/manageUser" element={<ManageUser />} />;
         <Route path="/pasajes-de-bus" element={<PasajesBus />} />;
         <Route path="/reserva" element={<ReserAsientos />} />;
         <Route element={<PrivateRoute roles={["Admin"]} to="/login" />}>

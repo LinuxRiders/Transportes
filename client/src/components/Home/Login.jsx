@@ -6,6 +6,15 @@ import api from "../../api/api";
 import { useAuth } from "../../context/AuthProvider";
 
 const Login = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmailR] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido_paterno, setApellidoPaterno] = useState("");
+  const [apellido_materno, setApellidoMaterno] = useState("");
+  const [fecha_nacimiento, setFechaNacimiento] = useState("");
+  const [celular, setCelular] = useState("");
+  const [direccion, setDireccion] = useState("");
+
   const [isRegistering, setIsRegistering] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [password, setPassword] = useState("");
@@ -44,10 +53,85 @@ const Login = () => {
 
       login(response.data);
       setErrorMessage("");
-      navigate("/Perfil");
+      navigate("/manageUser");
     } catch (error) {
       console.error(error);
       setErrorMessage(error);
+    }
+  }
+  async function handleRegisterUser() {
+    try {
+      // Validar que las contraseñas coincidan
+      if (!passwordMatch) {
+        setErrorMessage("Las contraseñas no coinciden");
+        return;
+      }
+
+      // Validar que todos los campos obligatorios estén completos
+      if (
+        !username ||
+        !email ||
+        !password ||
+        !confirmPassword ||
+        !nombre ||
+        !apellido_paterno ||
+        !apellido_materno ||
+        !fecha_nacimiento ||
+        !celular ||
+        !direccion
+      ) {
+        setErrorMessage("Por favor, complete todos los campos obligatorios");
+        return;
+      }
+
+      // Construir el cuerpo de la solicitud con la estructura correcta
+      const requestBody = {
+        username,
+        email,
+        password,
+        profile: {
+          nombre,
+          apellido_paterno,
+          apellido_materno,
+          fecha_nacimiento,
+          celular: celular, // Convertir "celular" a "phone" o viceversa
+          direccion,
+        },
+      };
+
+      // --- LOGS DE DEPURACIÓN ---
+      console.log("=== DEPURACIÓN: Campos enviados desde el FRONT ===");
+      console.log("username:", username);
+      console.log("email:", email);
+      console.log("password:", password ? "********" : undefined); // Para no mostrar la contraseña real
+      console.log("confirmPassword:", confirmPassword ? "********" : undefined);
+      console.log("nombre:", nombre);
+      console.log("apellido_paterno:", apellido_paterno);
+      console.log("apellido_materno:", apellido_materno);
+      console.log("fecha_nacimiento:", fecha_nacimiento);
+      console.log("celular:", celular);
+      console.log("direccion:", direccion);
+
+      console.log(
+        "=== DEPURACIÓN: requestBody que se envía al /users/full ==="
+      );
+      console.log(requestBody);
+      // --- FIN LOGS DE DEPURACIÓN ---
+
+      // Enviar la solicitud al backend
+      const response = await api.post("/users/full", requestBody);
+
+      // Manejo exitoso
+      console.log("Registro exitoso:", response.data);
+      setErrorMessage("");
+      alert("Registro exitoso. Ahora puedes iniciar sesión.");
+      setIsRegistering(false); // Cambiar a la vista de inicio de sesión
+    } catch (error) {
+      // Manejar errores
+      console.error("Error al registrar:", error);
+      setErrorMessage(
+        error.response?.data?.error || "Error al registrar. Intente nuevamente."
+      );
     }
   }
 
@@ -58,28 +142,92 @@ const Login = () => {
           <>
             <input
               type="text"
-              placeholder="Nombre completo"
+              placeholder="Nombre de Usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               style={inputStyle}
             />
-            <input type="text" placeholder="Apellido(s)" style={inputStyle} />
             <input
               type="email"
-              placeholder="Correo electrónico"
+              placeholder="Correo Electrónico"
+              value={email}
+              onChange={(e) => setEmailR(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              type={isPasswordVisible ? "text" : "password"}
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+            />
+            <div style={{ position: "relative", width: "80%" }}>
+              <input
+                type={isPasswordVisible ? "text" : "password"}
+                placeholder="Confirmar Contraseña"
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+                style={inputStyle}
+              />
+              <span
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                style={{
+                  position: "absolute",
+                  top: "35%",
+                  right: "10px",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  fontSize: "1.5rem",
+                }}
+              >
+                {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
               style={inputStyle}
             />
             <input
               type="text"
-              placeholder="Teléfono de contacto"
+              placeholder="Apellido Paterno"
+              value={apellido_paterno}
+              onChange={(e) => setApellidoPaterno(e.target.value)}
               style={inputStyle}
             />
-            <input type="text" placeholder="Dirección" style={inputStyle} />
             <input
               type="text"
-              placeholder="Documento de identidad (DNI)"
+              placeholder="Apellido Materno"
+              value={apellido_materno}
+              onChange={(e) => setApellidoMaterno(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              type="date"
+              placeholder="Fecha de Nacimiento"
+              value={fecha_nacimiento}
+              onChange={(e) => setFechaNacimiento(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              type="text"
+              placeholder="Teléfono"
+              value={celular}
+              onChange={(e) => setCelular(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              type="text"
+              placeholder="Dirección"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
               style={inputStyle}
             />
           </>
         );
+
       case "Conductor":
         return (
           <>
@@ -379,40 +527,7 @@ const Login = () => {
               {userType && renderAdditionalFields()}
               {userType && (
                 <>
-                  <div style={{ position: "relative", width: "80%" }}>
-                    <input
-                      type={isPasswordVisible ? "text" : "password"}
-                      placeholder="Contraseña"
-                      value={password}
-                      onChange={handlePasswordChange}
-                      style={inputStyle}
-                    />
-                    <span
-                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                      style={{
-                        position: "absolute",
-                        top: "45%",
-                        right: "10%",
-                        transform: "translateY(-50%)",
-                        cursor: "pointer",
-                        fontSize: "1.7rem",
-                      }}
-                    >
-                      {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
-                    </span>
-                  </div>
-                  <input
-                    type={isPasswordVisible ? "text" : "password"}
-                    placeholder="Confirmar Contraseña"
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                    style={inputStyle}
-                  />
-                  {!passwordMatch && (
-                    <div style={passwordMismatchStyle}>
-                      Las contraseñas no coinciden
-                    </div>
-                  )}
+                  {/**/}
                   <label style={labelStyle}>
                     Fotografía (obligatoria):
                     <button style={fileButtonStyle}>
@@ -425,11 +540,24 @@ const Login = () => {
                       />
                     </button>
                   </label>
+                  {errorMessage && (
+                    <div
+                      style={{
+                        color: "red",
+                        fontSize: "1rem",
+                        marginTop: "10px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {errorMessage}
+                    </div>
+                  )}
+
                   <button
+                    onClick={handleRegisterUser}
                     style={{
                       padding: "10px 20px",
-                      marginTop: "10px",
-                      backgroundColor: "black",
+                      backgroundColor: "#ff6100",
                       color: "#fff",
                       border: "none",
                       fontSize: "1.2rem",
@@ -444,7 +572,7 @@ const Login = () => {
                       (e.currentTarget.style.transform = "scale(1)")
                     }
                   >
-                    Registrarse
+                    Registrar
                   </button>
                 </>
               )}

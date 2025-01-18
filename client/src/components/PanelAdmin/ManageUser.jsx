@@ -1,38 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../../api/api";
 import { FaEdit, FaSave } from "react-icons/fa";
 
 const ManageUser = () => {
-  // Datos de ejemplo para los usuarios
-  const [users, setUsers] = useState([
-    { id: 1, name: "John Doe", email: "john.doe@example.com", role: "Usuario" },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      role: "Guía",
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike.johnson@example.com",
-      role: "Conductor",
-    },
-    {
-      id: 4,
-      name: "Anna Brown",
-      email: "anna.brown@example.com",
-      role: "Administrador",
-    },
-  ]);
-
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]); // Estado para almacenar los roles
   const [editingUserId, setEditingUserId] = useState(null);
   const [newRole, setNewRole] = useState("");
 
-  // Función para guardar el cambio de rol
+  const accessToken = localStorage.getItem("accessToken");
+
+  // Obtener usuarios
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get("/users/", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      setUsers(response.data.data);
+    } catch (error) {
+      console.error("Error al obtener usuarios:", error);
+    }
+  };
+
+  // Obtener roles
+  const fetchRoles = async () => {
+    try {
+      const response = await api.get("/roles", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      setRoles(response.data.data); // Guardar los roles en el estado
+    } catch (error) {
+      console.error("Error al obtener roles:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    fetchRoles();
+  }, []);
+
+  // Guardar cambios de rol
   const saveRole = (id) => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
-        user.id === id ? { ...user, role: newRole || user.role } : user
+        user.user_id === id ? { ...user, role: newRole || user.role } : user
       )
     );
     setEditingUserId(null);
@@ -48,7 +59,6 @@ const ManageUser = () => {
         padding: "20px",
       }}
     >
-      {/* Encabezado */}
       <header
         style={{
           textAlign: "center",
@@ -62,7 +72,6 @@ const ManageUser = () => {
         <h1 style={{ fontSize: "2rem", margin: 0 }}>Gestión de Usuarios</h1>
       </header>
 
-      {/* Contenedor principal */}
       <div
         style={{
           maxWidth: "800px",
@@ -73,7 +82,6 @@ const ManageUser = () => {
           overflow: "hidden",
         }}
       >
-        {/* Tabla de usuarios */}
         <table
           style={{
             width: "100%",
@@ -98,22 +106,16 @@ const ManageUser = () => {
           <tbody>
             {users.map((user) => (
               <tr
-                key={user.id}
+                key={user.user_id}
                 style={{
                   borderBottom: "1px solid #eee",
                   transition: "background-color 0.3s ease",
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#f9f9f9")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#fff")
-                }
               >
-                <td style={{ padding: "10px" }}>{user.name}</td>
-                <td style={{ padding: "10px" }}>{user.email}</td>
+                <td style={{ padding: "10px" }}>{user.username}</td>
+                <td style={{ padding: "10px" }}>correo@example.com</td>
                 <td style={{ padding: "10px" }}>
-                  {editingUserId === user.id ? (
+                  {editingUserId === user.user_id ? (
                     <select
                       value={newRole || user.role}
                       onChange={(e) => setNewRole(e.target.value)}
@@ -124,19 +126,20 @@ const ManageUser = () => {
                         outline: "none",
                       }}
                     >
-                      <option value="Usuario">Usuario</option>
-                      <option value="Guía">Guía</option>
-                      <option value="Conductor">Conductor</option>
-                      <option value="Administrador">Administrador</option>
+                      {roles.map((role) => (
+                        <option key={role.id} value={role.name}>
+                          {role.name}
+                        </option>
+                      ))}
                     </select>
                   ) : (
-                    user.role
+                    user.role || "Usuario"
                   )}
                 </td>
                 <td style={{ padding: "10px", textAlign: "center" }}>
-                  {editingUserId === user.id ? (
+                  {editingUserId === user.user_id ? (
                     <button
-                      onClick={() => saveRole(user.id)}
+                      onClick={() => saveRole(user.user_id)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#4CAF50",
@@ -144,20 +147,13 @@ const ManageUser = () => {
                         border: "none",
                         borderRadius: "5px",
                         cursor: "pointer",
-                        transition: "background-color 0.3s ease",
                       }}
-                      onMouseOver={(e) =>
-                        (e.target.style.backgroundColor = "#45a049")
-                      }
-                      onMouseOut={(e) =>
-                        (e.target.style.backgroundColor = "#4CAF50")
-                      }
                     >
                       <FaSave /> Guardar
                     </button>
                   ) : (
                     <button
-                      onClick={() => setEditingUserId(user.id)}
+                      onClick={() => setEditingUserId(user.user_id)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#d37012",
@@ -165,14 +161,7 @@ const ManageUser = () => {
                         border: "none",
                         borderRadius: "5px",
                         cursor: "pointer",
-                        transition: "background-color 0.3s ease",
                       }}
-                      onMouseOver={(e) =>
-                        (e.target.style.backgroundColor = "#b25e0f")
-                      }
-                      onMouseOut={(e) =>
-                        (e.target.style.backgroundColor = "#d37012")
-                      }
                     >
                       <FaEdit /> Editar
                     </button>
