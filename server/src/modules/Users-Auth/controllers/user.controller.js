@@ -1,4 +1,10 @@
-import { User, UserRole } from "../models/user.model.js";
+import {
+  Conductor,
+  GuiaTuristico,
+  Persona,
+  User,
+  UserRole,
+} from "../models/user.model.js";
 import { hashPassword } from "../../../utils/password.js";
 import logger from "../../../utils/logger.js";
 
@@ -140,12 +146,37 @@ export const getCurrentUser = async (req, res, next) => {
     const roles = await UserRole.getRolesByUser(userId);
     const roleNames = roles.map((role) => role.name);
 
-    // Construir la respuesta
+    // Obtener Persona si existe
+    const persona = await Persona.getByUser(user.user_id);
+    // Eliminar campos no deseados de 'persona'
+    const {
+      user_id,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by,
+      deleted_at,
+      ...perfil
+    } = persona || {};
+
+    // Obtener Datos adicionales según el tipo de usuario (Guía o Conductor)
+    const guia = await GuiaTuristico.findByUserId(user.user_id);
+    const conductor = await Conductor.findByUserId(user.user_id);
+
+    // Si existe 'guia', convertir idioma_materno en array
+    if (guia && guia.idioma_materno) {
+      guia.idioma_materno = JSON.parse(guia.idioma_materno); // Asumiendo que el campo está como JSON
+    }
+
+    // Construir la respuestaconst
     const userData = {
       id: user.user_id,
       username: user.username,
       email: user.email,
       roles: roleNames,
+      ...(persona && { perfil }),
+      ...(guia && { guia }),
+      ...(conductor && { conductor }),
     };
 
     logger.info(`UserController:getCurrentUser user_id=${userId}`);

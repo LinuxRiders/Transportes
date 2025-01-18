@@ -510,6 +510,31 @@ export const GuiaTuristico = {
       throw error;
     }
   },
+
+  // Función para obtener la información del guía turístico por user_id
+  findByUserId: async (user_id, connection = pool) => {
+    try {
+      const query = `
+        SELECT
+          gt.idGuia_turistico,
+          gt.numero_licencia_turismo,
+          gt.idioma_materno
+        FROM guia_turistico gt
+        JOIN persona p ON gt.idPersona = p.idPersona
+        WHERE p.user_id = ? AND gt.deleted_at IS NULL
+      `;
+      const [rows] = await connection.execute(query, [user_id]);
+      return rows[0] || null; // Retorna el primer resultado o null si no existe
+    } catch (error) {
+      logger.error(
+        `[Model]:GuiaTuristico:findByUserId Error: ${error.message}`,
+        {
+          stack: error.stack,
+        }
+      );
+      throw error;
+    }
+  },
 };
 
 export const Pasajero = {
@@ -720,6 +745,31 @@ export const Conductor = {
       return rows;
     } catch (error) {
       logger.error(`[Model]:Conductor:getAll Error: ${error.message}`, {
+        stack: error.stack,
+      });
+      throw error;
+    }
+  },
+
+  // Función para obtener la información del conductor por user_id
+  findByUserId: async (user_id, connection = pool) => {
+    try {
+      const query = `
+        SELECT
+          c.idConductor,
+          c.foto_conductor,
+          c.celular_contacto,
+          c.created_at AS conductor_created_at,
+          c.updated_at AS conductor_updated_at,
+          c.deleted_at AS conductor_deleted_at
+        FROM conductor c
+        JOIN persona p ON c.idPersona = p.idPersona
+        WHERE p.user_id = ? AND c.deleted_at IS NULL
+      `;
+      const [rows] = await connection.execute(query, [user_id]);
+      return rows[0] || null; // Retorna el primer resultado o null si no existe
+    } catch (error) {
+      logger.error(`[Model]:Conductor:findByUserId Error: ${error.message}`, {
         stack: error.stack,
       });
       throw error;
