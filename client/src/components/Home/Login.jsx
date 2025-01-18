@@ -52,13 +52,16 @@ const Login = () => {
       });
 
       login(response.data);
-      setErrorMessage("");
-      navigate("/manageUser");
+      setErrorMessage(""); // Limpiar cualquier error previo
+      navigate("/perfil");
     } catch (error) {
-      console.error(error);
-      setErrorMessage(error);
+      console.error("Error en inicio de sesión:", error);
+      setErrorMessage(
+        error.response?.data?.message || "Credenciales incorrectas"
+      );
     }
   }
+
   async function handleRegisterUser() {
     try {
       // Validar que las contraseñas coincidan

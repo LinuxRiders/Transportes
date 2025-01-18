@@ -1,42 +1,30 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
-import { FaEdit, FaSave } from "react-icons/fa";
+import { FaEdit, FaSave, FaSignOutAlt } from "react-icons/fa";
 
 const ManageUser = () => {
   const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState([]); // Estado para almacenar los roles
   const [editingUserId, setEditingUserId] = useState(null);
   const [newRole, setNewRole] = useState("");
-
   const accessToken = localStorage.getItem("accessToken");
+  const refreshToken = localStorage.getItem("refreshToken");
+  const navigate = useNavigate();
 
-  // Obtener usuarios
+  // Obtener usuarios con sus roles
   const fetchUsers = async () => {
     try {
-      const response = await api.get("/users/", {
+      const response = await api.get("/users/roles", {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      setUsers(response.data.data);
+      setUsers(response.data.data); // Guardar los usuarios con roles
     } catch (error) {
-      console.error("Error al obtener usuarios:", error);
-    }
-  };
-
-  // Obtener roles
-  const fetchRoles = async () => {
-    try {
-      const response = await api.get("/roles", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      setRoles(response.data.data); // Guardar los roles en el estado
-    } catch (error) {
-      console.error("Error al obtener roles:", error);
+      console.error("Error al obtener usuarios con roles:", error);
     }
   };
 
   useEffect(() => {
     fetchUsers();
-    fetchRoles();
   }, []);
 
   // Guardar cambios de rol
@@ -48,6 +36,42 @@ const ManageUser = () => {
     );
     setEditingUserId(null);
     setNewRole("");
+  };
+
+  // Función de logout
+  const logout = async (navigate) => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!refreshToken) {
+      console.error("No se encontró el refreshToken. Redirigiendo a login...");
+      localStorage.removeItem("accessToken"); // Asegura que los tokens se eliminen
+      localStorage.removeItem("refreshToken");
+      navigate("/Login");
+      return; // Salimos de la función
+    }
+
+    try {
+      const response = await api.post(
+        "/auth/logout",
+        { refresh_token: refreshToken },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      if (response.status === 204) {
+        console.log("Sesión cerrada correctamente.");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        navigate("/Login");
+      }
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      navigate("/Login"); // Redirigir aunque haya error
+    }
   };
 
   return (
@@ -67,9 +91,28 @@ const ManageUser = () => {
           backgroundColor: "#d37012",
           color: "#fff",
           borderRadius: "10px",
+          position: "relative",
         }}
       >
         <h1 style={{ fontSize: "2rem", margin: 0 }}>Gestión de Usuarios</h1>
+
+        {/* Botón de cerrar sesión */}
+        <button
+          onClick={() => logout(navigate)}
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            backgroundColor: "#d37012",
+            color: "#fff",
+            border: "none",
+            padding: "10px 15px",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          <FaSignOutAlt /> Cerrar sesión
+        </button>
       </header>
 
       <div
@@ -113,11 +156,11 @@ const ManageUser = () => {
                 }}
               >
                 <td style={{ padding: "10px" }}>{user.username}</td>
-                <td style={{ padding: "10px" }}>correo@example.com</td>
+                <td style={{ padding: "10px" }}>{user.email || "N/A"}</td>
                 <td style={{ padding: "10px" }}>
                   {editingUserId === user.user_id ? (
                     <select
-                      value={newRole || user.role}
+                      value={newRole || user.roles[0]?.name}
                       onChange={(e) => setNewRole(e.target.value)}
                       style={{
                         padding: "5px",
@@ -126,14 +169,14 @@ const ManageUser = () => {
                         outline: "none",
                       }}
                     >
-                      {roles.map((role) => (
+                      {user.roles.map((role) => (
                         <option key={role.id} value={role.name}>
                           {role.name}
                         </option>
                       ))}
                     </select>
                   ) : (
-                    user.role || "Usuario"
+                    user.roles.map((role) => role.name).join(", ") || "Sin rol"
                   )}
                 </td>
                 <td style={{ padding: "10px", textAlign: "center" }}>
