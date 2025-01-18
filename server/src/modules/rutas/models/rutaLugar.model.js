@@ -1,9 +1,12 @@
-import pool from '../../../config/db.js';
-import logger from '../../../utils/logger.js';
+import pool from "../../../config/db.js";
+import logger from "../../../utils/logger.js";
 
 export const RutaLugar = {
   // CREATE
-  create: async ({ ruta_id, lugar_turistico_id, orden_visita, tiempo_estancia, created_by }, connection = pool) => {
+  create: async (
+    { ruta_id, lugar_turistico_id, orden_visita, tiempo_estancia, created_by },
+    connection = pool
+  ) => {
     try {
       const [result] = await connection.execute(
         `INSERT INTO ruta_lugares (ruta_id, lugar_turistico_id, orden_visita, tiempo_estancia, created_at, created_by)
@@ -12,7 +15,9 @@ export const RutaLugar = {
       );
       return result.insertId;
     } catch (error) {
-      logger.error(`[Model]:RutaLugar:create Error: ${error.message}`, { stack: error.stack });
+      logger.error(`[Model]:RutaLugar:create Error: ${error.message}`, {
+        stack: error.stack,
+      });
       throw error;
     }
   },
@@ -26,7 +31,9 @@ export const RutaLugar = {
       );
       return rows[0] || null;
     } catch (error) {
-      logger.error(`[Model]:RutaLugar:findById Error: ${error.message}`, { stack: error.stack });
+      logger.error(`[Model]:RutaLugar:findById Error: ${error.message}`, {
+        stack: error.stack,
+      });
       throw error;
     }
   },
@@ -36,8 +43,8 @@ export const RutaLugar = {
     try {
       const keys = Object.keys(fields);
       const values = Object.values(fields);
-      let setClause = keys.map((k) => `${k} = ?`).join(', ');
-      setClause += ', updated_at = NOW(), updated_by = ?';
+      let setClause = keys.map((k) => `${k} = ?`).join(", ");
+      setClause += ", updated_at = NOW(), updated_by = ?";
       values.push(updated_by, id);
 
       await connection.execute(
@@ -45,7 +52,9 @@ export const RutaLugar = {
         values
       );
     } catch (error) {
-      logger.error(`[Model]:RutaLugar:update Error: ${error.message}`, { stack: error.stack });
+      logger.error(`[Model]:RutaLugar:update Error: ${error.message}`, {
+        stack: error.stack,
+      });
       throw error;
     }
   },
@@ -58,7 +67,9 @@ export const RutaLugar = {
         [updated_by, id]
       );
     } catch (error) {
-      logger.error(`[Model]:RutaLugar:softDelete Error: ${error.message}`, { stack: error.stack });
+      logger.error(`[Model]:RutaLugar:softDelete Error: ${error.message}`, {
+        stack: error.stack,
+      });
       throw error;
     }
   },
@@ -66,11 +77,47 @@ export const RutaLugar = {
   // GET ALL
   getAll: async (connection = pool) => {
     try {
-      const [rows] = await connection.execute(`SELECT * FROM ruta_lugares WHERE deleted_at IS NULL`);
+      const [rows] = await connection.execute(
+        `SELECT * FROM ruta_lugares WHERE deleted_at IS NULL`
+      );
       return rows;
     } catch (error) {
-      logger.error(`[Model]:RutaLugar:getAll Error: ${error.message}`, { stack: error.stack });
+      logger.error(`[Model]:RutaLugar:getAll Error: ${error.message}`, {
+        stack: error.stack,
+      });
       throw error;
     }
-  }
+  },
+
+  getDataByRutaId: async (rutaId, connection = pool) => {
+    try {
+      const [rows] = await connection.execute(
+        `SELECT
+          rl.id_ruta_lugares,
+          rl.orden_visita,
+          rl.tiempo_estancia,
+          l.id_lugares_turisticos,
+          l.nombre AS lugar_nombre,
+          l.descripcion AS lugar_descripcion,
+          l.ubicacion AS lugar_ubicacion,
+          c.id_categoria_lugares,
+          c.nombre_categoria AS categoria_nombre,
+          c.descripcion AS categoria_descripcion
+        FROM ruta_lugares rl
+        JOIN lugares_turisticos l ON rl.lugar_turistico_id = l.id_lugares_turisticos
+        JOIN categorias_lugares c ON l.categoria_id = c.id_categoria_lugares
+        WHERE rl.ruta_id = ? AND rl.deleted_at IS NULL
+        AND l.deleted_at IS NULL AND c.deleted_at IS NULL`,
+        [rutaId]
+      );
+
+      return rows;
+    } catch (error) {
+      logger.error(
+        `[Model]:RutaLugar:getDataByRutaId Error: ${error.message}`,
+        { stack: error.stack }
+      );
+      throw error;
+    }
+  },
 };
