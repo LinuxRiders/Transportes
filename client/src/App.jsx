@@ -21,11 +21,13 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<ViewRutas />} />;
+        <Route path="/" element={<Home />} />;
         <Route path="/login" element={<Login />} />;
         <Route path="/pasajes-de-bus" element={<PasajesBus />} />;
         <Route path="/reserva" element={<ReserAsientos />} />;
-        <Route path="/perfil" element={<Perfil />} />;
+        <Route element={<PrivateRoute roles={["Admin", "User"]} to="/login" />}>
+          <Route path="/perfil" element={<Perfil />} />;
+        </Route>
         <Route element={<PrivateRoute roles={["Admin"]} to="/login" />}>
           <Route path="/manageUser" element={<ManageUser />} />;
           <Route path="/formulario" element={<Paneladmi />}>
