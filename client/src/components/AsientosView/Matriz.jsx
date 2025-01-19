@@ -116,8 +116,7 @@ const getSeatSX = (estado) => {
   }
 };
 
-const Matriz = () => {
-  const [selectedVehiculoId, setSelectedVehiculoId] = useState("");
+const Matriz = ({ selectedVehiculoId }) => {
   const [vehiculos, setVehiculos] = useState([]);
   const [asientos, setAsientos] = useState([]);
 
@@ -225,163 +224,11 @@ const Matriz = () => {
   const containerWidth = (columnLabels.length + 2) * 60;
   const containerHeight = (maxRow + 2) * 60;
 
-  // Leyenda con mucha información -> la dividimos en secciones
-  const legendItems = [
-    {
-      label: "Asiento disponible",
-      color: "#FF6F00",
-      info: "Precio: $10 (Ej.)",
-    },
-    { label: "Asiento VIP", color: "#FF7043", info: "Precio: $15 (Ej.)" },
-    { label: "Asiento ocupado", color: "gray", info: "No disponible" },
-    { label: "Promoción especial", color: "#4CAF50", info: "Precio: $8 (Ej.)" },
-  ];
-
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", p: 2 }}>
       <Grid container spacing={2}>
-        <Grid item xs={3}>
-          {/* Leyenda e información en un Accordion independiente */}
-          <Accordion
-            sx={{
-              color: "#FFFFFF",
-              border: `1px solid #FF6F00`,
-              borderRadius: 4,
-              marginBottom: 2,
-            }}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon sx={{ color: "#FF6F00" }} />}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  color: "#FF6F00",
-                  borderBottom: "2px solid #FF6F00",
-                  width: "100%",
-                }}
-              >
-                Leyenda e Información de Viaje
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              {/* Selección de vehículo */}
-              <Box sx={{ mb: 3 }}>
-                <DropdownField
-                  label="Vehículo"
-                  name="idvehiculo"
-                  value={selectedVehiculoId}
-                  options={vehiculos.map((v) => ({
-                    id: v.idvehiculo,
-                    label: v.placa
-                      ? `Placa: ${v.placa} - Modelo: ${v.modelo}`
-                      : `Vehículo #${v.idvehiculo}`,
-                  }))}
-                  onChange={(e) => setSelectedVehiculoId(e.target.value)}
-                />
-              </Box>
-
-              {/* Información breve (por defecto) */}
-              <Typography
-                variant="subtitle2"
-                sx={{ color: "#FF6F00", fontWeight: "bold" }}
-              >
-                Datos del Viaje (Básico):
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#000", ml: 2 }}>
-                Origen: Terminal Principal
-                <br />
-                Destino: Terminal Sur
-                <br />
-                Hora de salida: 08:00 AM
-                <br />
-                Servicio: Bus Semi-cama
-              </Typography>
-
-              <Divider sx={{ my: 2 }} />
-
-              {/* Botón para mostrar más info */}
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{ borderColor: "#FF6F00", color: "#FF6F00" }}
-                onClick={() => setShowExtraData(!showExtraData)}
-              >
-                {showExtraData ? "Ocultar detalles" : "Mostrar detalles"}
-              </Button>
-
-              {/* Info extra (colapsable) */}
-              <Collapse in={showExtraData} timeout="auto" unmountOnExit>
-                <Box sx={{ mt: 2, color: "#000" }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ color: "#FF6F00", fontWeight: "bold" }}
-                  >
-                    Detalles Avanzados:
-                  </Typography>
-                  <ul style={{ marginLeft: "1rem" }}>
-                    <li>Fecha/Hora de llegada aprox: 15/09/2025 - 02:00 PM</li>
-                    <li>Carrocería: Bus Pequeño</li>
-                    <li>Transmisión: Manual</li>
-                    <li>Tipo de Vehículo: Bus Urbano</li>
-                    <li>Combustible: Diesel</li>
-                    <li>Capacidad de Maletas: 20</li>
-                  </ul>
-                </Box>
-              </Collapse>
-
-              <Divider sx={{ my: 2 }} />
-
-              {/* Leyenda de estados */}
-              <Typography
-                variant="subtitle2"
-                sx={{ color: "#FF6F00", fontWeight: "bold", mb: 1 }}
-              >
-                Estados de Asientos:
-              </Typography>
-              <Box
-                sx={{ display: "flex", flexDirection: "column", gap: 1, ml: 2 }}
-              >
-                {legendItems.map((item, idx) => (
-                  <Box
-                    key={idx}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      backgroundColor: "#FFF3E0",
-                      p: 1,
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: "50%",
-                        backgroundColor: item.color,
-                      }}
-                    />
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "#000", fontWeight: "bold" }}
-                      >
-                        {item.label}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "#333" }}>
-                        {item.info}
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
+        {/* Matriz */}
         <Grid item xs={6}>
-          {/* Contenedor de la matriz (independiente del accordion) */}
           <Paper
             sx={{
               mt: 2,
