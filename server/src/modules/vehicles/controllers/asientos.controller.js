@@ -139,13 +139,14 @@ export const getAllAsientos = async (req, res, next) => {
  * }
  */
 export const assignAsientosToVehicle = async (req, res, next) => {
+    const { asientos } = req.body;
+    const { id } = req.params;
+    const created_by = req.user?.id ?? null;
+
+    const connection = await pool.getConnection(); // Obtener una conexión de la pool
 
     try {
-        const { asientos } = req.body;
-        const { id } = req.params;
-        const created_by = req.user?.id ?? null;
 
-        const connection = await pool.getConnection(); // Obtener una conexión de la pool
 
         if (!id || !Array.isArray(asientos)) {
             return res.status(400).json({ error: 'Datos incompletos o inválidos' });
