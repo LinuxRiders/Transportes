@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
-import { FaEdit, FaSave, FaSignOutAlt } from "react-icons/fa";
+import { FaEdit, FaSave, FaSignOutAlt, MdDelete } from "react-icons/fa";
 
 const ManageUser = () => {
   const [users, setUsers] = useState([]);
@@ -143,41 +143,28 @@ const ManageUser = () => {
               <th style={{ padding: "10px" }}>Nombre</th>
               <th style={{ padding: "10px" }}>Correo</th>
               <th style={{ padding: "10px" }}>Rol</th>
+              <th style={{ padding: "10px" }}>Estado</th>
+              <th style={{ padding: "10px" }}>Creado</th>
+              <th style={{ padding: "10px" }}>Actualizado</th>
               <th style={{ padding: "10px", textAlign: "center" }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr
-                key={user.user_id}
-                style={{
-                  borderBottom: "1px solid #eee",
-                  transition: "background-color 0.3s ease",
-                }}
-              >
+              <tr key={user.user_id} style={{ borderBottom: "1px solid #eee" }}>
                 <td style={{ padding: "10px" }}>{user.username}</td>
                 <td style={{ padding: "10px" }}>{user.email || "N/A"}</td>
                 <td style={{ padding: "10px" }}>
-                  {editingUserId === user.user_id ? (
-                    <select
-                      value={newRole || user.roles[0]?.name}
-                      onChange={(e) => setNewRole(e.target.value)}
-                      style={{
-                        padding: "5px",
-                        borderRadius: "5px",
-                        border: "1px solid #ccc",
-                        outline: "none",
-                      }}
-                    >
-                      {user.roles.map((role) => (
-                        <option key={role.id} value={role.name}>
-                          {role.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    user.roles.map((role) => role.name).join(", ") || "Sin rol"
-                  )}
+                  {user.roles.map((role) => role.name).join(", ") || "Sin rol"}
+                </td>
+                <td style={{ padding: "10px" }}>
+                  {user.status || "Desconocido"}
+                </td>
+                <td style={{ padding: "10px" }}>
+                  {new Date(user.created_at).toLocaleDateString()}
+                </td>
+                <td style={{ padding: "10px" }}>
+                  {new Date(user.updated_at).toLocaleDateString()}
                 </td>
                 <td style={{ padding: "10px", textAlign: "center" }}>
                   {editingUserId === user.user_id ? (
@@ -209,6 +196,19 @@ const ManageUser = () => {
                       <FaEdit /> Editar
                     </button>
                   )}
+                  <button
+                    onClick={() => setEditingUserId(user.user_id)}
+                    style={{
+                      padding: "5px 10px",
+                      backgroundColor: "#e85948",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <MdDelete /> Eliminar
+                  </button>
                 </td>
               </tr>
             ))}

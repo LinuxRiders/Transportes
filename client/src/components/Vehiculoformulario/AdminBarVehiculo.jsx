@@ -33,6 +33,11 @@ const lista = [
         subtitle: "Registro de Vehículo",
         link: "registro",
       },
+      {
+        icon: <DirectionsCarIcon fontSize="small" />,
+        subtitle: "Registro de componentes",
+        link: "vehiculo",
+      },
     ],
   },
   {
@@ -41,15 +46,11 @@ const lista = [
     sub: [
       {
         icon: <HikingIcon fontSize="small" />,
-        subtitle: "Registro de Categorias ",
-        link: "categoria-y-ruta",
+        subtitle: "Registro de Rutas ",
+        link: "ruta",
       },
 
-      {
-        icon: <HikingIcon fontSize="small" />,
-        subtitle: " Registro de Lugar turistico",
-        link: "lugar-turistico",
-      },
+      ,
     ],
   },
   {

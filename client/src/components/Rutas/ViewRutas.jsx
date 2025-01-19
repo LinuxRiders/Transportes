@@ -12,67 +12,39 @@ import {
   Grid,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Map, Marker } from "pigeon-maps";
-// import api from "../../api/api";  // Descomenta y usa cuando conectes a la API
+import { Map, Marker, Overlay } from "pigeon-maps";
+import api from "../../api/api";
+// import api from "../../api/api";  // Uncomment when connected to your API
 
 const ViewRutas = ({ routeId }) => {
-  const [route, setRoute] = useState(null);
+  const [route, setRoute] = useState([]);
   const [lugares, setLugares] = useState([]);
   const [viajes, setViajes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedLugar, setSelectedLugar] = useState(null); // Estado para el lugar seleccionado
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Simulación de obtención de datos con ejemplo estático.
-        const routeData = {
-          nombre_ruta: "Ruta Valle sagrado - Pisac",
-          descripcion:
-            "Una ruta que recorre el hermoso Valle Sagrado de los Incas.",
-          duracion: "3 horas",
-          precio: "$50",
-        };
-        const lugaresData = [
-          {
-            id_lugares_turisticos: 1,
-            nombre: "Pisac",
-            descripcion: "Ruinas y mercado tradicional.",
-            ubicacion: "-13.4157,-71.8250",
-          },
-          {
-            id_lugares_turisticos: 2,
-            nombre: "Ollantaytambo",
-            descripcion: "Sitio arqueológico impresionante.",
-            ubicacion: "-13.2621,-72.2620",
-          },
-          {
-            id_lugares_turisticos: 3,
-            nombre: "Cusco",
-            descripcion: "Plaza de Armas Cusco",
-            ubicacion: "-13.516778518514615, -71.97865075860243",
-          },
-        ];
         const viajesData = [
           {
-            Id_viaje: 101,
+            id_viaje: 101,
             estado: "Programado",
             fecha_inicio: "2025-05-01T08:00:00",
             fecha_fin: "2025-05-01T11:00:00",
           },
           {
-            Id_viaje: 102,
+            id_viaje: 102,
             estado: "En Curso",
             fecha_inicio: "2025-05-02T09:00:00",
             fecha_fin: "2025-05-02T12:00:00",
           },
         ];
 
-        // Simula una demora en la carga
+        // Simulate API delay
         await new Promise((res) => setTimeout(res, 1000));
 
-        setRoute(routeData);
-        setLugares(lugaresData);
         setViajes(viajesData);
         setLoading(false);
       } catch (err) {
@@ -81,31 +53,60 @@ const ViewRutas = ({ routeId }) => {
         setLoading(false);
       }
     }
+
     fetchData();
   }, [routeId]);
+
+  useEffect(() => {
+    async function fetchRutas() {
+      try {
+        const response = await api.get("/rutas");
+        const { data } = response.data;
+        setRoute(data); // Actualiza el estado con el arreglo de rutas reales
+      } catch (error) {
+        console.error("Error al cargar rutas:", error);
+        // Opcional: establecer rutas simuladas en caso de error
+      }
+    }
+
+    fetchRutas();
+  }, []);
+  useEffect(() => {
+    async function fetchRutasLugares() {
+      try {
+        const response = await api.get("/lugares-turisticos");
+        const { data } = response.data;
+        setLugares(data); // Actualiza el estado con el arreglo de rutas reales
+      } catch (error) {
+        console.error("Error al cargar rutas:", error);
+        // Opcional: establecer rutas simuladas en caso de error
+      }
+    }
+
+    fetchRutasLugares();
+  }, []);
 
   if (loading) return <Typography>Cargando...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!route)
     return <Typography>No se encontraron datos para la ruta.</Typography>;
 
-  // Función para parsear coordenadas desde un string "lat,lng"
   const parseCoordinates = (ubicacion) => {
     if (!ubicacion) return null;
-    const parts = ubicacion.split(",");
-    const lat = parseFloat(parts[0]);
-    const lng = parseFloat(parts[1]);
+    const [lat, lng] = ubicacion.split(",").map(Number);
     return isNaN(lat) || isNaN(lng) ? null : [lat, lng];
   };
 
+  // Extraer coordenadas válidas de los lugares turísticos
+  const routeCoordinates = lugares
+    .map((lugar) => parseCoordinates(lugar.ubicacion))
+    .filter((coord) => coord !== null);
   // Calcular el centro del mapa basado en la primera ubicación válida
-  const firstCoord = lugares.find((l) =>
-    parseCoordinates(l.ubicacion)
-  )?.ubicacion;
-  const center = firstCoord ? parseCoordinates(firstCoord) : [0, 0];
-
+  const firstCoord = routeCoordinates[0];
+  const center = firstCoord || [0, 0];
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box sx={{ padding: 3, position: "relative" }}>
+      {/* Información general de la ruta */}
       <Typography variant="h4" gutterBottom>
         {route.nombre_ruta}
       </Typography>
@@ -116,22 +117,21 @@ const ViewRutas = ({ routeId }) => {
         <strong>Duración:</strong> {route.duracion}
       </Typography>
       <Typography variant="body2" gutterBottom>
-        <strong>Precio:</strong> {route.precio}
+        <strong>Precio:</strong> ${route.precio}
       </Typography>
 
       <Divider sx={{ my: 2 }} />
 
       <Grid container spacing={2}>
-        {/* Columna izquierda: Información y listas */}
-        <Grid item xs={12} md={6} sx={{ overflow: "hidden" }}>
+        {/* Información detallada */}
+        <Grid item xs={12} md={6}>
+          {/* Lugares turísticos */}
           <Accordion defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">
-                Lugares Turísticos en la Ruta
-              </Typography>
+              <Typography variant="h5">Lugares Turísticos</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              {lugares.length > 0 ? (
+              {lugares.length ? (
                 <List>
                   {lugares.map((lugar) => (
                     <ListItem key={lugar.id_lugares_turisticos}>
@@ -143,7 +143,7 @@ const ViewRutas = ({ routeId }) => {
                               {lugar.descripcion}
                             </Typography>
                             <Typography variant="caption">
-                              Ubicación: {lugar.ubicacion}
+                              Coordenadas: {lugar.ubicacion}
                             </Typography>
                           </>
                         }
@@ -159,29 +159,29 @@ const ViewRutas = ({ routeId }) => {
 
           <Divider sx={{ my: 2 }} />
 
+          {/* Viajes */}
           <Accordion defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">
-                Viajes Disponibles para esta Ruta
-              </Typography>
+              <Typography variant="h5">Viajes Disponibles</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              {viajes.length > 0 ? (
+              {viajes.length ? (
                 <List>
                   {viajes.map((viaje) => (
-                    <ListItem key={viaje.Id_viaje}>
+                    <ListItem key={viaje.id_viaje}>
                       <ListItemText
-                        primary={`Viaje ID: ${viaje.Id_viaje}`}
+                        primary={`ID: ${viaje.id_viaje}`}
                         secondary={
                           <>
                             <Typography variant="body2">
                               Estado: {viaje.estado}
                             </Typography>
                             <Typography variant="body2">
-                              Inicio: {viaje.fecha_inicio}
+                              Inicio:{" "}
+                              {new Date(viaje.fecha_inicio).toLocaleString()}
                             </Typography>
                             <Typography variant="body2">
-                              Fin: {viaje.fecha_fin}
+                              Fin: {new Date(viaje.fecha_fin).toLocaleString()}
                             </Typography>
                           </>
                         }
@@ -198,28 +198,73 @@ const ViewRutas = ({ routeId }) => {
           </Accordion>
         </Grid>
 
-        {/* Columna derecha: Mapa */}
+        {/* Mapa */}
         <Grid item xs={12} md={6}>
           <Typography variant="h5" gutterBottom>
             Mapa de Lugares Turísticos
           </Typography>
           <Box
             sx={{
-              width: "100%",
-              height: "100%",
-              mb: 2,
+              height: 500,
+              border: "2px solid black",
+              position: "relative",
             }}
           >
-            <Map center={center} zoom={13} width="650px" height="500px">
+            <Map center={center} zoom={13} width="100%" height="100%">
               {lugares.map((lugar) => {
                 const coords = parseCoordinates(lugar.ubicacion);
                 return (
                   coords && (
-                    <Marker key={lugar.id_lugares_turisticos} anchor={coords} />
+                    <Marker
+                      key={lugar.id_lugares_turisticos}
+                      anchor={coords}
+                      onClick={() => setSelectedLugar(lugar)} // Al hacer clic, guarda el lugar seleccionado
+                      onMouseEnter={() => setSelectedLugar(lugar)} // Opcional: mostrar info al pasar el mouse
+                      onMouseLeave={() => setSelectedLugar(null)} // Opcional: ocultar info al quitar el mouse
+                    />
                   )
                 );
               })}
+              {routeCoordinates.length > 1 && (
+                <Overlay>
+                  <svg width="100%" height="100%">
+                    <polyline
+                      points={routeCoordinates
+                        .map(([lat, lng]) => `${lng},${lat}`)
+                        .join(" ")} // Combina las coordenadas en un string compatible con SVG
+                      stroke="blue"
+                      fill="none"
+                      strokeWidth="3"
+                    />
+                  </svg>
+                </Overlay>
+              )}
             </Map>
+
+            {/* Panel de información superpuesto */}
+            {selectedLugar && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 10,
+                  left: 10,
+                  bgcolor: "white",
+                  border: "1px solid #ccc",
+                  borderRadius: 1,
+                  p: 2,
+                  boxShadow: 3,
+                  maxWidth: "90%",
+                }}
+              >
+                <Typography variant="h6">{selectedLugar.nombre}</Typography>
+                <Typography variant="body2">
+                  {selectedLugar.descripcion}
+                </Typography>
+                <Typography variant="caption">
+                  Coordenadas: {selectedLugar.ubicacion}
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Grid>
       </Grid>
