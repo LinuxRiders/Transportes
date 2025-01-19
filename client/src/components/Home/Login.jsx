@@ -25,12 +25,7 @@ const Login = () => {
   const [emaillogin, setEmail] = useState("");
   const [passwordlogin, setPasswordLogin] = useState("");
 
-  const [num_licencia_turismo, setLicenciaTurismo] = useState("");
-
-  const [tel_contacto, setTelContacto] = useState("");
-  const [foto_conductor, setFotoConductor] = useState("");
-
-  const { login } = useAuth();
+  const { login, getRols, user, isAuthenticated, logOut } = useAuth();
 
   const toggleMode = () => {
     setIsRegistering((prev) => !prev);
@@ -124,7 +119,7 @@ const Login = () => {
           apellido_paterno,
           apellido_materno,
           fecha_nacimiento,
-          celular: celular,
+          celular,
           direccion,
         },
       };

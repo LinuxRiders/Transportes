@@ -15,9 +15,6 @@ export const updateTipoVehiculoValidation = [
         .optional()
         .isString()
         .notEmpty(),
-    body('icono_vehiculo')
-        .optional()
-        .isString(),
     body('idcarroceria')
         .optional()
         .isInt({ min: 1 })

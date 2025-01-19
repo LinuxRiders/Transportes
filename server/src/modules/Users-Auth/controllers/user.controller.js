@@ -189,23 +189,54 @@ export const getCurrentUser = async (req, res, next) => {
   }
 };
 
-export const getAllUsersWhitRoles = async (req, res, next) => {
+export const getAllUsersData = async (req, res, next) => {
   try {
     const users = await User.getAll();
-    const usersWithRoles = await Promise.all(
+    const usersAllData = await Promise.all(
       users.map(async (user) => {
         const roles = await UserRole.getRolesByUser(user?.user_id);
-        return { ...user, roles }; // Aquí se debe usar 'user', no 'users'
+
+        // Obtener Persona si existe
+        const persona = await Persona.getByUser(user?.user_id);
+        // Eliminar campos no deseados de 'persona'
+        const {
+          user_id,
+          created_at,
+          created_by,
+          updated_at,
+          updated_by,
+          deleted_at,
+          ...perfil
+        } = persona || {};
+
+        // Obtener Datos adicionales según el tipo de usuario (Guía o Conductor)
+        const guia = await GuiaTuristico.findByUserId(user?.user_id);
+        const conductor = await Conductor.findByUserId(user?.user_id);
+
+        // Si existe 'guia', convertir idioma_materno en array
+        if (guia && guia.idioma_materno) {
+          guia.idioma_materno = JSON.parse(guia.idioma_materno); // Asumiendo que el campo está como JSON
+        }
+
+        return {
+          id: user.user_id,
+          username: user.username,
+          email: user.email,
+          roles,
+          ...(persona && { perfil }),
+          ...(guia && { guia }),
+          ...(conductor && { conductor })
+        };
       })
     );
 
     logger.info(
-      `UserController:getAllUsersWhitRoles Retrieved ${users.length} users`
+      `UserController:getAllUsersData Retrieved ${users.length} users`
     );
-    res.json({ data: usersWithRoles });
+    res.json({ data: usersAllData });
   } catch (error) {
     logger.error(
-      `UserController:getAllUsersWhitRoles Error: ${error.message}`,
+      `UserController:getAllUsersData Error: ${error.message}`,
       {
         stack: error.stack,
       }

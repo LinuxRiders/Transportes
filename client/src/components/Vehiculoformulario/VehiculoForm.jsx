@@ -35,7 +35,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { DataGrid } from "@mui/x-data-grid";
 import api from "../../api/api";
-const EditableList = ({
+const EditableListt = ({
   title,
   items,
   setItems,
@@ -200,7 +200,7 @@ const EditableList = ({
             {/* -------------------------------------------------------------------------------------------------------------------------------- */}
             <Box display="flex" flexDirection="column" gap={1} mt={2}>
               {fields.map((field) =>
-                field === "descripcion" || field === "icono_vehiculo" ? (
+                field === "descripcion" ? (
                   <ReactQuill
                     key={field}
                     value={newItem[field] || ""}
@@ -512,6 +512,7 @@ const VehiculoForm = () => {
     try {
       const response = await api.post("/transmisiones", fields);
       const { data } = response.data;
+      setTiposTransmision((prev) => [...prev, data]);
     } catch (error) {
       console.error("Error adding vehiculo:", error);
     }
@@ -559,7 +560,7 @@ const VehiculoForm = () => {
     >
       <Grid container spacing={2} sx={{ gap: 1 }} justifyContent="center">
         <Grid item xs={12} md={12}>
-          <EditableList
+          <EditableListt
             title="Marcas"
             items={marcas}
             setItems={setMarcas}
@@ -570,7 +571,7 @@ const VehiculoForm = () => {
           />
         </Grid>
         <Grid item xs={12} md={12}>
-          <EditableList
+          <EditableListt
             title="Tipos de Combustible"
             items={tiposCombustible}
             setItems={setTiposCombustible}
@@ -581,7 +582,7 @@ const VehiculoForm = () => {
           />
         </Grid>
         <Grid item xs={12} md={12}>
-          <EditableList
+          <EditableListt
             title="Tipos de Transmision"
             items={tiposTransmision}
             setItems={setTiposTransmision}
@@ -592,7 +593,7 @@ const VehiculoForm = () => {
           />
         </Grid>
         <Grid item xs={12} md={12}>
-          <EditableList
+          <EditableListt
             title="Tipos de Carrocería"
             items={tiposCarroseria}
             setItems={setTiposCarroseria}
@@ -623,7 +624,7 @@ const VehiculoForm = () => {
           />
         </Grid>
         <Grid item xs={12} md={12}>
-          <EditableList
+          <EditableListt
             title="Tipos de Vehículo"
             items={tiposVehiculo}
             setItems={setTiposVehiculo}

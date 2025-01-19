@@ -514,7 +514,7 @@ export const TipoVehiculo = {
     findById: async (id, connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                `SELECT idtipo_vehiculo, tipo_vehiculo, icono_vehiculo, idcarroceria
+                `SELECT idtipo_vehiculo, tipo_vehiculo, idcarroceria
            FROM tipo_vehiculo
            WHERE idtipo_vehiculo = ?
              AND deleted_at IS NULL`,
@@ -575,7 +575,7 @@ export const TipoVehiculo = {
     getAll: async (connection = pool) => {
         try {
             const [rows] = await connection.execute(
-                `SELECT idtipo_vehiculo, tipo_vehiculo, icono_vehiculo, idcarroceria
+                `SELECT idtipo_vehiculo, tipo_vehiculo, idcarroceria
            FROM tipo_vehiculo
            WHERE deleted_at IS NULL`
             );
