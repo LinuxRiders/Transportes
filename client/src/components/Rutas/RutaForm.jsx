@@ -23,6 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../../api/api";
 import CategoriasEditor from "./CategoriasEditor";
 import { DataGrid } from "@mui/x-data-grid";
+import Tablarutas from "./Tablarutas";
 
 function RutaForm() {
   // ------------------------------------------------
@@ -80,25 +81,17 @@ function RutaForm() {
       return null;
     }
   }
-  useEffect(() => {
-    async function getRutasBD() {
-      try {
-        const response = await api.get("/rutas");
-        const { data } = response.data;
-        setRutas(data);
-      } catch (error) {
-        console.error("Error al cargar rutas:", error);
-      }
-    }
-    getRutasBD();
 
+  useEffect(() => {
     async function getLugaTuristico() {
       try {
         const response = await api.get("/lugares-turisticos");
         const { data } = response.data;
         setLugaresTuristicos(data);
+        console.log("se consiguio r lugar");
       } catch (error) {
         console.error("Error al cargar lugares:", error);
+        console.log("no se puede optener rutass");
       }
     }
     getLugaTuristico();
@@ -526,19 +519,29 @@ function RutaForm() {
     { label: "Duración", name: "duracion", type: "number" },
     { label: "Precio", name: "precio", type: "number" },
   ];
-  const columns = [
-    { field: "id_rutas", headerName: "ID", width: 100 },
-    { field: "nombre_ruta", headerName: "Nombre", width: 200 },
-    { field: "descripcion", headerName: "Descripción", width: 400 },
-    { field: "duracion", headerName: "Duracion", width: 200 },
-    { field: "precio", headerName: "Precio", width: 200 },
-  ];
+
   // ------------------------------------------------
   // RENDER
   // ------------------------------------------------
   return (
-    <Box sx={{ width: "80%", margin: "0 auto", mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        width: "70%",
+        margin: "0 auto",
+        padding: "20px",
+        background: "white",
+        borderRadius: "10px",
+        overflow: "hidden",
+        boxShadow: "0 0 10px rgba(68, 41, 5, 0.2)",
+
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        justifyContent: "space-between",
+      }}
+    >
+      <Typography gutterBottom sx={{ fontSize: "30px", color: "#FF6F00" }}>
         Formulario de Ruta
       </Typography>
 
@@ -564,7 +567,7 @@ function RutaForm() {
           {/* CREAR RUTA */}
           <Button
             variant="contained"
-            color="primary"
+            sx={{ background: "#FF6F00" }}
             type="submit"
             disabled={!isRutaValid || isRutaLocked}
           >
@@ -576,6 +579,7 @@ function RutaForm() {
             variant="contained"
             onClick={handleOpenModalLugares}
             disabled={!currentRutaId}
+            sx={{ background: "#FF6F00" }}
           >
             Agregar Lugares
           </Button>
@@ -808,19 +812,7 @@ function RutaForm() {
           </Box>
         </DialogActions>
       </Dialog>
-      <Paper sx={{ height: 400, width: "100%", marginTop: "20px" }}>
-        <DataGrid
-          rows={rutas.map((cat) => ({
-            ...cat,
-            id: cat.id_rutas, // Aseguramos que cada fila tenga un `id` único
-          }))}
-          columns={columns}
-          getRowId={(row) => row.id} // Ahora `id` siempre estará presente
-          pageSizeOptions={[5, 10]}
-          checkboxSelection
-          sx={{ border: 0 }}
-        />
-      </Paper>
+      <Tablarutas></Tablarutas>
     </Box>
   );
 }

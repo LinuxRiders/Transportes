@@ -1,0 +1,78 @@
+/* Contenedor principal */
+.form-gestionar-colas-container {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  padding: 20px;
+  background-color: #fff; /* Fondo blanco */
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Título principal */
+h2 {
+  text-align: center;
+  color: #ff6100; /* Naranja */
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Selector de terminal */
+.terminal-select {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9; /* Fondo gris claro */
+  margin-bottom: 20px;
+}
+
+/* Tabla de colas */
+.colas-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.colas-table th,
+.colas-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+.colas-table th {
+  background-color: #565656; /* Gris oscuro */
+  color: #fff; /* Texto blanco */
+  font-weight: bold;
+}
+
+.colas-table td {
+  background-color: #ffffff; /* Fondo blanco */
+  color: #000; /* Texto negro */
+}
+
+/* Botón de remover */
+.remove-button {
+  background-color: #ff6100; /* Naranja */
+  color: #fff; /* Texto blanco */
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.remove-button:hover {
+  background-color: #e65a00; /* Naranja oscuro */
+}
+
+/* Mensaje de error */
+.error-message {
+  color: #f44336; /* Rojo */
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+}
