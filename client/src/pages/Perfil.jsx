@@ -1,19 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../api/api";
 
 const Perfil = () => {
-  // Definir estados para los datos del usuario
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
-  const [phone, setPhone] = useState("+1 234 567 890");
-  const [address, setAddress] = useState("1234 Main St, Springfield, USA");
-  const [profileImage, setProfileImage] = useState(
-    "https://static.vecteezy.com/system/resources/previews/007/319/933/non_2x/black-avatar-person-icons-user-profile-icon-vector.jpg"
-  );
-  const [birthDate, setBirthDate] = useState("01/01/1990");
-  const [memberSince, setMemberSince] = useState("15/05/2020");
-  const [lastActivity, setLastActivity] = useState("10/01/2025");
-  const [subscription, setSubscription] = useState("Premium");
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get("/users/me");
+        setUserData(response.data.data);
+      } catch (error) {
+        console.error("Error al obtener datos del usuario:", error);
+        setError("No se pudo cargar el perfil del usuario.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
+  };
+
+  if (loading) return <p>Cargando perfil...</p>;
+  if (error) return <p>{error}</p>;
+  if (!userData) return <p>No se encontró información del usuario.</p>;
+
+  // Destructuración con valores predeterminados
+  const {
+    perfil = {},
+    email,
+    username,
+    roles = [],
+    conductor = null,
+    guia = null,
+  } = userData;
 
   return (
     <div
@@ -24,21 +50,18 @@ const Perfil = () => {
         padding: "20px",
       }}
     >
-      {/* Encabezado */}
       <header
         style={{
           textAlign: "center",
           padding: "20px 0",
           marginBottom: "20px",
           backgroundColor: "white",
-          color: "#fff",
           borderRadius: "10px",
         }}
       >
         <h1 style={{ fontSize: "2rem", margin: 0 }}>Perfil de Usuario</h1>
       </header>
 
-      {/* Contenedor principal */}
       <div
         style={{
           display: "flex",
@@ -52,7 +75,6 @@ const Perfil = () => {
           overflow: "hidden",
         }}
       >
-        {/* Foto de perfil */}
         <div
           style={{
             width: "100%",
@@ -63,7 +85,10 @@ const Perfil = () => {
           }}
         >
           <img
-            src={profileImage}
+            src={
+              conductor?.foto_conductor ||
+              "https://static.vecteezy.com/system/resources/previews/007/319/933/non_2x/black-avatar-person-icons-user-profile-icon-vector.jpg"
+            }
             alt="Foto de perfil"
             style={{
               width: "150px",
@@ -75,23 +100,22 @@ const Perfil = () => {
           />
         </div>
 
-        {/* Información del usuario */}
         <div style={{ padding: "20px", textAlign: "center", width: "100%" }}>
           <h2 style={{ margin: "10px 0", fontSize: "1.8rem", color: "#333" }}>
-            {firstName} {lastName}
+            {perfil.nombre || "Nombre no disponible"}{" "}
+            {perfil.apellido_paterno || ""} {perfil.apellido_materno || ""}
           </h2>
           <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
             {email}
           </p>
           <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
-            {phone}
+            {perfil.celular || "Teléfono no disponible"}
           </p>
           <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
-            {address}
+            {perfil.direccion || "Dirección no disponible"}
           </p>
         </div>
 
-        {/* Opciones del perfil */}
         <div
           style={{
             display: "flex",
@@ -114,23 +138,77 @@ const Perfil = () => {
             }}
             onMouseOver={(e) => (e.target.style.backgroundColor = "#b25e0f")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#d37012")}
+            onClick={handleLogout}
           >
             Cerrar Sesión
           </button>
         </div>
 
-        {/* Sección de datos adicionales */}
         <div style={{ padding: "20px", textAlign: "left", width: "100%" }}>
           <h3 style={{ marginBottom: "10px", color: "#333" }}>
             Información Adicional
           </h3>
           <ul style={{ paddingLeft: "20px", color: "#666" }}>
-            <li>Fecha de nacimiento: {birthDate}</li>
-            <li>Miembro desde: {memberSince}</li>
-            <li>Última actividad: {lastActivity}</li>
-            <li>Suscripción: {subscription}</li>
+            <li>Usuario: {username}</li>
+            <li>Roles: {roles.length > 0 ? roles.join(", ") : "Sin roles"}</li>
+            <li>
+              Fecha de nacimiento:{" "}
+              {perfil.fecha_nacimiento?.split("T")[0] || "N/A"}
+            </li>
           </ul>
         </div>
+
+        {conductor && (
+          <div
+            style={{
+              padding: "20px",
+              textAlign: "left",
+              width: "100%",
+              backgroundColor: "#f9f9f9",
+              marginTop: "20px",
+              borderRadius: "10px",
+            }}
+          >
+            <h3 style={{ marginBottom: "10px", color: "#333" }}>
+              Información de Conductor
+            </h3>
+            <ul style={{ paddingLeft: "20px", color: "#666" }}>
+              <li>Celular de Contacto: {conductor.celular_contacto}</li>
+              <li>
+                Fecha de Registro:{" "}
+                {new Date(conductor.conductor_created_at).toLocaleDateString()}
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {guia && (
+          <div
+            style={{
+              padding: "20px",
+              textAlign: "left",
+              width: "100%",
+              backgroundColor: "#eaf7ff",
+              marginTop: "20px",
+              borderRadius: "10px",
+            }}
+          >
+            <h3 style={{ marginBottom: "10px", color: "#333" }}>
+              Información de Guía
+            </h3>
+            <ul style={{ paddingLeft: "20px", color: "#666" }}>
+              <li>
+                Número de Licencia de Turismo: {guia.numero_licencia_turismo}
+              </li>
+              <li>
+                Idiomas Hablados:{" "}
+                {guia.idioma_materno.length > 0
+                  ? guia.idioma_materno.join(", ")
+                  : "N/A"}
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

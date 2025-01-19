@@ -78,7 +78,7 @@ const VehicleCard = () => {
         const colas = response.data.data || [];
         return Promise.all(
           colas.map(async (cola) => {
-            const vehiculo = await fetchVehiculo(cola.idvehiculo);
+            const vehiculo = await fetchVehiculo(cola.id_vehiculo);
             return { ...cola, vehiculo };
           })
         );

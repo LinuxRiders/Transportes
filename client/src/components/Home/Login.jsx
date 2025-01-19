@@ -44,6 +44,21 @@ const Login = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [idioma, setIdioma] = useState(""); // Almacena el idioma ingresado en el input
+  const [idiomas, setIdiomas] = useState([]); // Array que contiene los idiomas seleccionados
+
+  const handleAddIdioma = () => {
+    if (idioma && !idiomas.includes(idioma)) {
+      // Verifica que el idioma no esté repetido
+      setIdiomas([...idiomas, idioma]); // Agrega el idioma al array
+      setIdioma(""); // Limpia el campo de entrada
+    }
+  };
+
+  const handleRemoveIdioma = (idiomaParaEliminar) => {
+    setIdiomas(idiomas.filter((idioma) => idioma !== idiomaParaEliminar)); // Elimina el idioma seleccionado
+  };
+
   async function handleSubmit() {
     try {
       const response = await api.post("/auth/login", {
@@ -51,8 +66,15 @@ const Login = () => {
         password: passwordlogin,
       });
 
+      console.log("Respuesta del login:", response.data); // Verifica que el API devuelve el token
       login(response.data);
-      setErrorMessage(""); // Limpiar cualquier error previo
+
+      console.log(
+        "accessToken después de login:",
+        localStorage.getItem("accessToken")
+      ); // Verifica si el token está guardado
+
+      setErrorMessage("");
       navigate("/perfil");
     } catch (error) {
       console.error("Error en inicio de sesión:", error);
@@ -97,7 +119,7 @@ const Login = () => {
           apellido_paterno,
           apellido_materno,
           fecha_nacimiento,
-          celular: celular, // Convertir "celular" a "phone" o viceversa
+          celular,
           direccion,
         },
       };
@@ -124,11 +146,36 @@ const Login = () => {
       // Enviar la solicitud al backend
       const response = await api.post("/users/full", requestBody);
 
+      const { data } = response.data;
+
+      const idUser = data?.user?.user_id;
+
+      if (userType === "Guía") {
+        const resGuia = await api.post(`/users/assignGuia/${idUser}`, {
+          numero_licencia_turismo: num_licencia_turismo,
+          idioma_materno: idiomas,
+        });
+        // Lógica adicional para "Guía" si es necesario
+        console.log(resGuia);
+      } else if (userType === "Conductor") {
+        const resConductor = await api.post(
+          `/users/assignConductor/${idUser}`,
+          {
+            foto_conductor: foto_conductor,
+            celular_contacto: tel_contacto,
+          }
+        );
+        // Lógica adicional para "Conductor" si es necesario
+        console.log(resConductor);
+      } else {
+        // Si no se selecciona ni "Guía" ni "Conductor"
+        console.log("Por favor, selecciona un tipo de usuario válido.");
+      }
       // Manejo exitoso
       console.log("Registro exitoso:", response.data);
       setErrorMessage("");
       alert("Registro exitoso. Ahora puedes iniciar sesión.");
-      setIsRegistering(false); // Cambiar a la vista de inicio de sesión
+      setIsRegistering(false);
     } catch (error) {
       // Manejar errores
       console.error("Error al registrar:", error);
@@ -140,132 +187,26 @@ const Login = () => {
 
   const renderAdditionalFields = () => {
     switch (userType) {
-      case "Cliente":
-        return (
-          <>
-            <input
-              type="text"
-              placeholder="Nombre de Usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="email"
-              placeholder="Correo Electrónico"
-              value={email}
-              onChange={(e) => setEmailR(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type={isPasswordVisible ? "text" : "password"}
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={inputStyle}
-            />
-            <div style={{ position: "relative", width: "80%" }}>
-              <input
-                type={isPasswordVisible ? "text" : "password"}
-                placeholder="Confirmar Contraseña"
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                style={inputStyle}
-              />
-              <span
-                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                style={{
-                  position: "absolute",
-                  top: "35%",
-                  right: "10px",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  fontSize: "1.5rem",
-                }}
-              >
-                {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Apellido Paterno"
-              value={apellido_paterno}
-              onChange={(e) => setApellidoPaterno(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Apellido Materno"
-              value={apellido_materno}
-              onChange={(e) => setApellidoMaterno(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="date"
-              placeholder="Fecha de Nacimiento"
-              value={fecha_nacimiento}
-              onChange={(e) => setFechaNacimiento(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Teléfono"
-              value={celular}
-              onChange={(e) => setCelular(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Dirección"
-              value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
-              style={inputStyle}
-            />
-          </>
-        );
-
       case "Conductor":
         return (
           <>
             <input
               type="text"
-              placeholder="Nombre completo"
-              style={inputStyle}
-            />
-            <input type="text" placeholder="Apellido(s)" style={inputStyle} />
-            <input
-              type="text"
               placeholder="Teléfono de contacto"
+              value={tel_contacto}
+              onChange={(e) => setTelContacto(e.target.value)}
               style={inputStyle}
             />
-            <input type="text" placeholder="Dirección" style={inputStyle} />
-            <input
-              type="text"
-              placeholder="Documento de identidad (DNI)"
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Número de licencia"
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Categoría de licencia"
-              style={inputStyle}
-            />
-            <input
-              type="date"
-              placeholder="Fecha de expiración de licencia"
-              style={inputStyle}
-            />
+            <label style={labelStyle}>
+              Link Fotografía (obligatoria):
+              <input
+                type="text"
+                placeholder="Link Foto"
+                value={foto_conductor}
+                onChange={(e) => setFotoConductor(e.target.value)}
+                style={inputStyle}
+              />
+            </label>
           </>
         );
       case "Guía":
@@ -273,32 +214,41 @@ const Login = () => {
           <>
             <input
               type="text"
-              placeholder="Nombre completo"
+              placeholder="N° Licencia de Turismo"
+              value={num_licencia_turismo}
+              onChange={(e) => setLicenciaTurismo(e.target.value)}
               style={inputStyle}
             />
-            <input type="text" placeholder="Apellido(s)" style={inputStyle} />
-            <input
-              type="email"
-              placeholder="Correo electrónico"
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Teléfono de contacto"
-              style={inputStyle}
-            />
-            <input type="text" placeholder="Dirección" style={inputStyle} />
-            <input
-              type="text"
-              placeholder="Documento de identidad (DNI)"
-              style={inputStyle}
-            />
-            <input type="text" placeholder="Idioma nativo" style={inputStyle} />
-            <input
-              type="text"
-              placeholder="Idiomas hablados (agregar más separados por comas)"
-              style={inputStyle}
-            />
+            <div>
+              <label htmlFor="idioma">Idioma: </label>
+              <input
+                type="text"
+                id="idioma"
+                value={idioma}
+                onChange={(e) => setIdioma(e.target.value)}
+                placeholder="Escribe un idioma"
+              />
+              <button type="button" onClick={handleAddIdioma}>
+                Agregar idioma
+              </button>
+            </div>
+
+            <div>
+              <h3>Idiomas seleccionados:</h3>
+              <ul>
+                {idiomas.map((idioma, index) => (
+                  <li key={index}>
+                    {idioma}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveIdioma(idioma)}
+                    >
+                      Eliminar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </>
         );
       default:
@@ -527,22 +477,96 @@ const Login = () => {
                 <option value="Conductor">Conductor</option>
                 <option value="Guía">Guía</option>
               </select>
+              <input
+                type="text"
+                placeholder="Nombre de Usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type="email"
+                placeholder="Correo Electrónico"
+                value={email}
+                onChange={(e) => setEmailR(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type={isPasswordVisible ? "text" : "password"}
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={inputStyle}
+              />
+              <div style={{ position: "relative", width: "80%" }}>
+                <input
+                  type={isPasswordVisible ? "text" : "password"}
+                  placeholder="Confirmar Contraseña"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  style={inputStyle}
+                />
+                <span
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                  style={{
+                    position: "absolute",
+                    top: "35%",
+                    right: "10px",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              <input
+                type="text"
+                placeholder="Nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type="text"
+                placeholder="Apellido Paterno"
+                value={apellido_paterno}
+                onChange={(e) => setApellidoPaterno(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type="text"
+                placeholder="Apellido Materno"
+                value={apellido_materno}
+                onChange={(e) => setApellidoMaterno(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type="date"
+                placeholder="Fecha de Nacimiento"
+                value={fecha_nacimiento}
+                onChange={(e) => setFechaNacimiento(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type="text"
+                placeholder="Teléfono"
+                value={celular}
+                onChange={(e) => setCelular(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                type="text"
+                placeholder="Dirección"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                style={inputStyle}
+              />
               {userType && renderAdditionalFields()}
               {userType && (
                 <>
                   {/**/}
-                  <label style={labelStyle}>
-                    Fotografía (obligatoria):
-                    <button style={fileButtonStyle}>
-                      <FaUpload style={{ marginRight: "8px" }} /> Subir
-                      Fotografía
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={fileInputStyle}
-                      />
-                    </button>
-                  </label>
+
                   {errorMessage && (
                     <div
                       style={{

@@ -48,7 +48,7 @@ const FormGestionarColas = () => {
       const colasData = response.data.data || [];
       const detailedColas = await Promise.all(
         colasData.map(async (cola) => {
-          const vehiculo = await fetchVehiculo(cola.idvehiculo);
+          const vehiculo = await fetchVehiculo(cola.id_vehiculo);
           return { ...cola, vehiculo };
         })
       );

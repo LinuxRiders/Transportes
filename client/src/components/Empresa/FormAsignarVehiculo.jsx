@@ -58,10 +58,11 @@ const FormAsignarVehiculo = () => {
       } else {
         await api.post("/colas-terminal", {
           id_terminal: Number(idTerminal),
-          idvehiculo: Number(idVehiculo),
-          hora_llegada: horaLlegada.replace("T", " ") + ":00", // Convierte el formato
-          estado: "en_cola", // Valor predeterminado
+          id_vehiculo: Number(idVehiculo), // CORRECTO
+          hora_llegada: horaLlegada.replace("T", " ") + ":00",
+          estado: "en_cola",
         });
+
         setSuccessMessage("Vehículo asignado exitosamente.");
       }
       resetForm();

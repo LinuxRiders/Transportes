@@ -32,7 +32,7 @@ const EditableList = ({
   fields,
   relatedData,
   onSubmit,
-
+  valor,
   onDelete,
   onEdit,
 }) => {
@@ -183,12 +183,15 @@ const EditableList = ({
                           <Typography
                             sx={{ color: "black", fontWeight: "bold" }}
                           >
-                            {item.label ||
-                              item.marca ||
-                              item.tipo_combustible ||
-                              item.tipo_vehiculo ||
-                              item.tipo_carroceria ||
-                              item.tipo_transmision}
+                            {fields
+                              .map((field) => item[field])
+                              .filter(
+                                (valor) =>
+                                  valor !== undefined &&
+                                  valor !== null &&
+                                  valor !== ""
+                              )
+                              .join(" | ") || "Sin información"}
                           </Typography>
                         </Box>
                       }
@@ -209,7 +212,7 @@ const EditableList = ({
             {/* -------------------------------------------------------------------------------------------------------------------------------- */}
             <Box display="flex" flexDirection="column" gap={1}>
               {fields.map((field) =>
-                field === "ruta_id" ? (
+                field === "ruta_asdsadsaid" ? (
                   <Box
                     key={field}
                     display="flex"
@@ -271,7 +274,8 @@ const EditableList = ({
                       Agregar {field}
                     </Button>
                   </Box>
-                ) : field === "categoria_id" ? (
+                ) : field === "id_categoria_lugares" ||
+                  field === "id_lugares_turisticos" ? (
                   <Select
                     key={field}
                     value={newItem[field] || ""}
@@ -287,16 +291,23 @@ const EditableList = ({
                     <MenuItem value="" disabled>
                       Seleccionar {field}
                     </MenuItem>
-                    {relatedData?.map((carroceria) => (
-                      <MenuItem
-                        key={carroceria.idcarroceria}
-                        value={carroceria.idcarroceria}
-                      >
-                        {carroceria.tipo_carroceria}
-                      </MenuItem>
-                    ))}
+                    {relatedData?.map((option) => {
+                      console.log(
+                        "Generando opción para",
+                        option[field],
+                        ":",
+                        "ssasdasdasd"
+                      );
+                      return (
+                        <MenuItem key={option[field]} value={option[field]}>
+                          {option[valor]}
+                        </MenuItem>
+                      );
+                    })}
                   </Select>
-                ) : field === "duracion" ? (
+                ) : field === "duracion" ||
+                  field === "orden_visita" ||
+                  field === "tiempo_estancia" ? (
                   <TextField
                     key={field}
                     label={field.charAt(0).toUpperCase() + field.slice(1)}
