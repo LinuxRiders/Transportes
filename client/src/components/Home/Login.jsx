@@ -51,8 +51,15 @@ const Login = () => {
         password: passwordlogin,
       });
 
+      console.log("Respuesta del login:", response.data); // Verifica que el API devuelve el token
       login(response.data);
-      setErrorMessage(""); // Limpiar cualquier error previo
+
+      console.log(
+        "accessToken después de login:",
+        localStorage.getItem("accessToken")
+      ); // Verifica si el token está guardado
+
+      setErrorMessage("");
       navigate("/perfil");
     } catch (error) {
       console.error("Error en inicio de sesión:", error);
@@ -97,7 +104,7 @@ const Login = () => {
           apellido_paterno,
           apellido_materno,
           fecha_nacimiento,
-          celular: celular, // Convertir "celular" a "phone" o viceversa
+          celular: celular,
           direccion,
         },
       };
@@ -128,7 +135,7 @@ const Login = () => {
       console.log("Registro exitoso:", response.data);
       setErrorMessage("");
       alert("Registro exitoso. Ahora puedes iniciar sesión.");
-      setIsRegistering(false); // Cambiar a la vista de inicio de sesión
+      setIsRegistering(false);
     } catch (error) {
       // Manejar errores
       console.error("Error al registrar:", error);

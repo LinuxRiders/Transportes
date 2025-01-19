@@ -1,19 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../api/api";
 
 const Perfil = () => {
-  // Definir estados para los datos del usuario
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
-  const [phone, setPhone] = useState("+1 234 567 890");
-  const [address, setAddress] = useState("1234 Main St, Springfield, USA");
-  const [profileImage, setProfileImage] = useState(
-    "https://static.vecteezy.com/system/resources/previews/007/319/933/non_2x/black-avatar-person-icons-user-profile-icon-vector.jpg"
-  );
-  const [birthDate, setBirthDate] = useState("01/01/1990");
-  const [memberSince, setMemberSince] = useState("15/05/2020");
-  const [lastActivity, setLastActivity] = useState("10/01/2025");
-  const [subscription, setSubscription] = useState("Premium");
+  const [userData, setUserData] = useState(() => {
+    // Intenta recuperar los datos desde localStorage al cargar
+    const storedData = localStorage.getItem("userData");
+    return storedData ? JSON.parse(storedData) : null;
+  });
+
+  const [loading, setLoading] = useState(!userData); // Si hay datos en localStorage, no carga
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get("/users/me");
+        setUserData(response.data.data);
+        localStorage.setItem("userData", JSON.stringify(response.data.data)); // Guardar en localStorage
+      } catch (error) {
+        console.error("Error al obtener datos del usuario:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Solo hace la petición si no hay datos almacenados
+    if (!userData) {
+      fetchUserData();
+    }
+  }, [userData]);
+
+  if (loading) {
+    return <p>Cargando perfil...</p>;
+  }
+
+  if (!userData) {
+    return <p>No se pudo cargar el perfil del usuario.</p>;
+  }
+
+  // Extraer datos del JSON
+  const { username, email, roles = [], perfil = {} } = userData;
 
   return (
     <div
@@ -24,7 +49,6 @@ const Perfil = () => {
         padding: "20px",
       }}
     >
-      {/* Encabezado */}
       <header
         style={{
           textAlign: "center",
@@ -38,7 +62,6 @@ const Perfil = () => {
         <h1 style={{ fontSize: "2rem", margin: 0 }}>Perfil de Usuario</h1>
       </header>
 
-      {/* Contenedor principal */}
       <div
         style={{
           display: "flex",
@@ -52,7 +75,6 @@ const Perfil = () => {
           overflow: "hidden",
         }}
       >
-        {/* Foto de perfil */}
         <div
           style={{
             width: "100%",
@@ -63,7 +85,7 @@ const Perfil = () => {
           }}
         >
           <img
-            src={profileImage}
+            src="https://static.vecteezy.com/system/resources/previews/007/319/933/non_2x/black-avatar-person-icons-user-profile-icon-vector.jpg"
             alt="Foto de perfil"
             style={{
               width: "150px",
@@ -75,23 +97,24 @@ const Perfil = () => {
           />
         </div>
 
-        {/* Información del usuario */}
         <div style={{ padding: "20px", textAlign: "center", width: "100%" }}>
           <h2 style={{ margin: "10px 0", fontSize: "1.8rem", color: "#333" }}>
-            {firstName} {lastName}
+            {perfil.nombre} {perfil.apellido_paterno} {perfil.apellido_materno}
           </h2>
           <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
-            {email}
+            Usuario: {username}
           </p>
           <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
-            {phone}
+            Email: {email}
           </p>
           <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
-            {address}
+            Celular: {perfil.celular || "No disponible"}
+          </p>
+          <p style={{ margin: "5px 0", fontSize: "1rem", color: "#666" }}>
+            Dirección: {perfil.direccion || "No disponible"}
           </p>
         </div>
 
-        {/* Opciones del perfil */}
         <div
           style={{
             display: "flex",
@@ -112,6 +135,10 @@ const Perfil = () => {
               cursor: "pointer",
               transition: "background-color 0.3s ease",
             }}
+            onClick={() => {
+              localStorage.removeItem("userData"); // Limpiar datos al cerrar sesión
+              window.location.href = "/login";
+            }}
             onMouseOver={(e) => (e.target.style.backgroundColor = "#b25e0f")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#d37012")}
           >
@@ -119,16 +146,13 @@ const Perfil = () => {
           </button>
         </div>
 
-        {/* Sección de datos adicionales */}
         <div style={{ padding: "20px", textAlign: "left", width: "100%" }}>
           <h3 style={{ marginBottom: "10px", color: "#333" }}>
             Información Adicional
           </h3>
           <ul style={{ paddingLeft: "20px", color: "#666" }}>
-            <li>Fecha de nacimiento: {birthDate}</li>
-            <li>Miembro desde: {memberSince}</li>
-            <li>Última actividad: {lastActivity}</li>
-            <li>Suscripción: {subscription}</li>
+            <li>Fecha de nacimiento: {perfil.fecha_nacimiento || "N/A"}</li>
+            <li>Roles: {roles.join(", ") || "Sin roles"}</li>
           </ul>
         </div>
       </div>
