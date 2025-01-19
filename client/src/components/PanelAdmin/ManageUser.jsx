@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
-import { FaEdit, FaSave, FaSignOutAlt, MdDelete } from "react-icons/fa";
+import { FaEdit, FaSave, FaSignOutAlt } from "react-icons/fa";
 
 const ManageUser = () => {
   const [users, setUsers] = useState([]);
@@ -207,7 +207,7 @@ const ManageUser = () => {
                       cursor: "pointer",
                     }}
                   >
-                    <MdDelete /> Eliminar
+                    <FaSave /> Eliminar
                   </button>
                 </td>
               </tr>
