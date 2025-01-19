@@ -1,0 +1,76 @@
+/* General styles for the sidebar */
+.sidebar-empresa {
+  width: 250px;
+  background-color: #565656; /* Gris oscuro */
+  color: #fff; /* Texto blanco */
+  padding: 20px;
+  border-right: 2px solid #000; /* Borde negro */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Title */
+.sidebar-title {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ff6100; /* Naranja */
+}
+
+/* Navigation styles */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff; /* Texto blanco */
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-link .icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Active link styling */
+.sidebar-link.active {
+  background: #ff6100; /* Fondo naranja */
+  color: #000; /* Texto negro */
+  font-weight: bold;
+}
+
+/* Hover effect */
+.sidebar-link:hover {
+  background: rgba(255, 97, 0, 0.8); /* Naranja semitransparente */
+  color: #000; /* Texto negro */
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .sidebar-empresa {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .sidebar-title {
+    font-size: 18px;
+  }
+
+  .sidebar-link {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+}

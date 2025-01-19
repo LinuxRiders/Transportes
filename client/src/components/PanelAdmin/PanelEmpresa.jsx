@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 import React, { useState } from "react";
-import AdminBarVehiculo from "./AdminBarVehiculo";
+import SidebarEmpresa from "../Empresa/SidebarEmpresa";
 
 const PanelEmpresa = () => {
   const [data, setData] = useState([]);
@@ -15,7 +15,7 @@ const PanelEmpresa = () => {
         background: "transparent",
       }}
     >
-      <AdminBarVehiculo />
+      <SidebarEmpresa />
       <Box
         component="main"
         sx={{
