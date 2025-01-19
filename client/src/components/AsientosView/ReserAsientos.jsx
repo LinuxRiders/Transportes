@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 
 const ReserAsientos = () => {
   // Define el ID del vehículo que deseas pasar
-  const selectedVehiculoId = "3"; // Aquí coloca el ID deseado (puede venir de contexto, estado, etc.)
+  const selectedVehiculoId = "1"; // Aquí coloca el ID deseado (puede venir de contexto, estado, etc.)
 
   return (
     <Box

@@ -223,23 +223,72 @@ const Matriz = ({ selectedVehiculoId }) => {
   // Para agrandar la matriz
   const containerWidth = (columnLabels.length + 2) * 60;
   const containerHeight = (maxRow + 2) * 60;
-
+  const Diseñocarro = () => {
+    return (
+      <>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "20%",
+            left: -7,
+            width: 5,
+            height: 40,
+            backgroundColor: "#888",
+            borderRadius: "5px",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: "20%",
+            right: -7,
+            width: 5,
+            height: 40,
+            backgroundColor: "#888",
+            borderRadius: "5px",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: "75%",
+            left: -7,
+            width: 5,
+            height: 40,
+            backgroundColor: "#888",
+            borderRadius: "5px",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: "75%",
+            right: -7,
+            width: 5,
+            height: 40,
+            backgroundColor: "#888",
+            borderRadius: "5px",
+          }}
+        />
+      </>
+    );
+  };
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", p: 2 }}>
       <Grid container spacing={2}>
         {/* Matriz */}
-        <Grid item xs={6}>
+        <Grid item xs={12}>
           <Paper
             sx={{
               mt: 2,
               p: 3,
-              backgroundColor: "transparent",
-              border: "1px solid #FF6F00",
-              borderRadius: 3,
+              backgroundColor: "transparent", // Fondo transparente
+              boxShadow: "none", // Asegura que no haya sombra
+              border: "none", // Quita cualquier borde
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              minHeight: 300,
+              minHeight: 300, // Solo aparece tu contenido
             }}
           >
             {asientos.length === 0 ? (
@@ -254,12 +303,12 @@ const Matriz = ({ selectedVehiculoId }) => {
                   position: "relative",
                   width: containerWidth,
                   height: containerHeight,
-                  borderRadius: "60px",
-                  border: "4px solid #9E9E9E",
-                  backgroundColor: "transparent",
-                  overflow: "hidden",
+                  backgroundColor: "white",
+                  borderRadius: "60px 60px 20px 20px", // Bordes para simular la forma
+                  border: "1.5px solid black",
                 }}
               >
+                <Diseñocarro />
                 {/* Cabecera de columnas */}
                 <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
                   <Box sx={{ width: 40, marginRight: 1 }} />
@@ -267,7 +316,7 @@ const Matriz = ({ selectedVehiculoId }) => {
                     <Typography
                       key={colLabel}
                       sx={{
-                        width: 50,
+                        width: 65,
                         textAlign: "center",
                         color: "#FF6F00",
                         fontWeight: "bold",
@@ -277,7 +326,6 @@ const Matriz = ({ selectedVehiculoId }) => {
                     </Typography>
                   ))}
                 </Box>
-
                 {/* Filas */}
                 {Array.from({ length: maxRow }, (_, rowIdx) => {
                   const rowNumber = rowIdx + 1;
